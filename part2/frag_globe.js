@@ -291,6 +291,7 @@
 
         gl.uniform3fv(u_CameraSpaceDirLightLocation, lightdir);
 
+
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, dayTex);
         gl.uniform1i(u_DayDiffuseLocation, 0);
@@ -309,6 +310,8 @@
         gl.activeTexture(gl.TEXTURE5);
         gl.bindTexture(gl.TEXTURE_2D, specTex);
         gl.uniform1i(u_EarthSpecLocation, 5);
+
+        gl.uniform1f(u_timeLocation, time);
 
         gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
 
