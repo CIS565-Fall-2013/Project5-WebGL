@@ -32,6 +32,10 @@
     var heightLocation = 1;
     var u_modelViewPerspectiveLocation;
 
+    // Initialize the u_timeLocation and time in float
+    var u_timeLocation;
+    var time = 0.0;
+
     (function initializeShader() {
         var program;
         var vs = getShaderSource(document.getElementById("vs"));
@@ -40,6 +44,9 @@
 		var program = createProgram(context, vs, fs, message);
 		context.bindAttribLocation(program, positionLocation, "position");
 		u_modelViewPerspectiveLocation = context.getUniformLocation(program,"u_modelViewPerspective");
+
+        // Query the location of u_time
+        u_timeLocation = context.getUniformLocation(program, "u_time");
 
         context.useProgram(program);
     })();
@@ -125,7 +132,7 @@
         uploadMesh(positions, heights, indices);
         numberOfIndices = indices.length;
     })();
-
+   
     (function animate(){
         ///////////////////////////////////////////////////////////////////////////
         // Update
@@ -137,6 +144,10 @@
         mat4.multiply(view, model, mv);
         var mvp = mat4.create();
         mat4.multiply(persp, mv, mvp);
+        
+        // Increase time in every animation step and set the uniform value
+        time += 0.01;
+        context.uniform1f(u_timeLocation, time);
 
         ///////////////////////////////////////////////////////////////////////////
         // Render
