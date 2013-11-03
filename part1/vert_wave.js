@@ -5,7 +5,8 @@
 
     var NUM_WIDTH_PTS = 32;
     var NUM_HEIGHT_PTS = 32;
-
+	var delta = 0.01;
+	var time = 0.0;
     var message = document.getElementById("message");
     var canvas = document.getElementById("canvas");
     var context = createWebGLContext(canvas, message);
@@ -31,6 +32,7 @@
     var positionLocation = 0;
     var heightLocation = 1;
     var u_modelViewPerspectiveLocation;
+	var u_timeLocation;
 
     (function initializeShader() {
         var program;
@@ -40,7 +42,7 @@
 		var program = createProgram(context, vs, fs, message);
 		context.bindAttribLocation(program, positionLocation, "position");
 		u_modelViewPerspectiveLocation = context.getUniformLocation(program,"u_modelViewPerspective");
-
+		u_timeLocation = context.getUniformLocation(program,"u_time");
         context.useProgram(program);
     })();
 
@@ -137,11 +139,12 @@
         mat4.multiply(view, model, mv);
         var mvp = mat4.create();
         mat4.multiply(persp, mv, mvp);
-
+		time = time + delta;
+		
         ///////////////////////////////////////////////////////////////////////////
         // Render
         context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
-
+		context.uniform1f(u_timeLocation, time);
         context.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp);
         context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
 
