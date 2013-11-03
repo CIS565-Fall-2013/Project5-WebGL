@@ -5,7 +5,7 @@
 
     var NUM_WIDTH_PTS = 32;
     var NUM_HEIGHT_PTS = 32;
-	var delta = 0.01;
+	var delta = 0.005;
 	var time = 0.0;
     var message = document.getElementById("message");
     var canvas = document.getElementById("canvas");
