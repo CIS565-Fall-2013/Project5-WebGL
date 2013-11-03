@@ -130,7 +130,7 @@
         	//color = mix(color, cloudColor,clamp(length(color),0.0,1.0));
         }
         
-        if(rimfactor>0.0)
+        if(rimfactor>0.0f)
         {
         	color+=(rimfactor/4.0, rimfactor/2.0, rimfactor/2.0, 1.0);
         }

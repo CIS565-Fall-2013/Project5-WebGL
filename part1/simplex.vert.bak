@@ -1,3 +1,8 @@
+uniform float u_time;
+
+float s_contrib = sin(position.x*2.0*3.14159 + u_time);
+float t_contrib = cos(position.y*2.0*3.14159 + u_time);
+float height = s_contrib*t_contrib;
 
 vec3 permute(vec3 x) {
   x = ((x*34.0)+1.0)*x;

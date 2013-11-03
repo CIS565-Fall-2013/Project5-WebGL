@@ -1,7 +1,7 @@
 <html>
 
 <head>
-<title>BASIC SIN WAVE</title>
+<title>MIXER SIN WAVE</title>
 <meta charset ="utf-8">
 <meta http-equiv="X-UA-Compatible" content="chrome=1">  <!-- Use Chrome Frame in IE --> 
 </head>
@@ -21,7 +21,7 @@
     void main(void)
     {
 		    float s_contrib = sin(position.x*2.0*3.14159 + u_time);
-			float t_contrib = cos(position.y*2.0*3.14159 + u_time);
+			float t_contrib = sin(position.y*2.0*3.14159 + u_time*0.5);
 			float height = s_contrib*t_contrib;
 			theheight=height;
 		gl_Position = u_modelViewPerspective * vec4(vec3(position, height), 1.0);

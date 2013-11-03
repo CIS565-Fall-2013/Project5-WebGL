@@ -133,7 +133,7 @@
     (function animate(){
         ///////////////////////////////////////////////////////////////////////////
         // Update
-				curtime+=0.01;
+				curtime+=0.05;
         var model = mat4.create();
         mat4.identity(model);
         mat4.translate(model, [-0.5, -0.5, 0.0]);
