@@ -85,7 +85,13 @@
     var transTex = gl.createTexture();
     var lightTex = gl.createTexture();
     var specTex  = gl.createTexture();
-
+	var skyboxFrontTex = gl.createTexture();
+	var skyboxBackTex  = gl.createTexture();
+	var skyboxLeftTex  = gl.createTexture();
+	var skyboxRightTex = gl.createTexture();
+	var skyboxUpTex    = gl.createTexture();
+	var skyboxDownTex  = gl.createTexture();
+	
     (function initTextures() {
         function initLoadedTexture(texture){
             gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -116,7 +122,13 @@
         initializeTexture(cloudTex, "earthcloud1024.png");
         initializeTexture(transTex, "earthtrans1024.png");
         initializeTexture(lightTex, "earthlight1024.png");
-         initializeTexture(specTex, "earthspec1024.png");
+        initializeTexture(specTex, "earthspec1024.png");
+		initializeTexture(skyboxFrontTex, "skybox_front");
+		initializeTexture(skyboxBackTex, "skybox_back");
+		initializeTexture(skyboxLeftTex, "skybox_left");
+		initializeTexture(skyboxRightTex, "skybox_right");
+		initializeTexture(skyboxUpTex, "skybox_up");
+		initializeTexture(skyboxDownTex, "skybox_down");
     })();
 
     var numberOfIndices;
@@ -253,8 +265,7 @@
     canvas.oncontextmenu = function(ev) {return false;};
     document.onmouseup = handleMouseUp;
     document.onmousemove = handleMouseMove;
-
-
+	
     (function animate(){
         ///////////////////////////////////////////////////////////////////////////
         // Update
@@ -278,8 +289,7 @@
         lightdir = vec3.createFrom(lightdest[0],lightdest[1],lightdest[2]);
         vec3.normalize(lightdir);
 
-
-
+		
         ///////////////////////////////////////////////////////////////////////////
         // Render
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -290,6 +300,7 @@
         gl.uniformMatrix4fv(u_InvTransLocation, false, invTrans);
 
         gl.uniform3fv(u_CameraSpaceDirLightLocation, lightdir);
+		gl.uniform1f(u_timeLocation, time);
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, dayTex);
