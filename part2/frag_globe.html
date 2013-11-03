@@ -71,6 +71,8 @@
 
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
 
+    float NIGHT_EPSILON = 0.001;
+
     void main(void)
     {
         // surface normal - normalized after rasterization
@@ -91,7 +93,12 @@
         //apply gamma correction to nighttime texture
         nightColor = pow(nightColor,vec3(gammaCorrect));
 
-        vec3 color = ((0.6 * diffuse) + (0.4 * specular)) * dayColor;
+        vec3 color;
+        if(diffuse < NIGHT_EPSILON){
+            color = nightColor;
+        } else { 
+            color = ((0.6 * diffuse) + (0.4 * specular)) * dayColor;
+        }
         gl_FragColor = vec4(color, 1.0);
     }
 
