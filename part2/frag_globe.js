@@ -86,6 +86,12 @@
     var transTex = gl.createTexture();
     var lightTex = gl.createTexture();
     var specTex  = gl.createTexture();
+	var skyboxFrontTex = gl.createTexture();
+	var skyboxBackTex  = gl.createTexture();
+	var skyboxRightTex = gl.createTexture();
+	var skyboxLeftTex  = gl.createTexture();
+	var skyboxUpTex    = gl.createTexture();
+	var skyboxDownTex  = gl.createTexture();
 
     function initLoadedTexture(texture){
         gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -286,6 +292,7 @@
         gl.activeTexture(gl.TEXTURE5);
         gl.bindTexture(gl.TEXTURE_2D, specTex);
         gl.uniform1i(u_EarthSpecLocation, 5);
+		gl.uniform1f(u_timeLocation, time);
         gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
 
         time += 0.001;
@@ -313,4 +320,10 @@
     initializeTexture(transTex, "earthtrans1024.png");
     initializeTexture(lightTex, "earthlight1024.png");
     initializeTexture(specTex, "earthspec1024.png");
+	initializeTexture(skyboxFrontTex, "skybox_front.png");
+	initializeTexture(skyboxBackTex, "skybox_back.png");
+	initializeTexture(skyboxRightTex, "skybox_right.png");
+	initializeTexture(skyboxLeftTex, "skybox_left.png");
+	initializeTexture(skyboxUpTex, "skybox_up.png");
+	initializeTexture(skyboxDownTex, "skybox_down.png");
 }());
