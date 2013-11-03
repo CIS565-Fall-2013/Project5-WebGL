@@ -40,9 +40,9 @@
     var view = mat4.create();
     mat4.lookAt(eye, center, up, view);
 
-    var positionLocation = 0;
-    var normalLocation = 1;
-    var texCoordLocation = 2;
+    var positionLocation;
+    var normalLocation;
+    var texCoordLocation;
     var u_InvTransLocation;
     var u_ModelLocation;
     var u_ViewLocation;
@@ -61,7 +61,9 @@
         var fs = getShaderSource(document.getElementById("fs"));
 
         var program = createProgram(gl, vs, fs, message);
-        gl.bindAttribLocation(program, positionLocation, "Position");
+        positionLocation = gl.getAttribLocation(program, "Position");
+        normalLocation = gl.getAttribLocation(program, "Normal");
+        texCoordLocation = gl.getAttribLocation(program, "Texcoord");
         u_ModelLocation = gl.getUniformLocation(program,"u_Model");
         u_ViewLocation = gl.getUniformLocation(program,"u_View");
         u_PerspLocation = gl.getUniformLocation(program,"u_Persp");
