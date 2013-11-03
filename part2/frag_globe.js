@@ -40,9 +40,9 @@
     var view = mat4.create();
     mat4.lookAt(eye, center, up, view);
 
-    var positionLocation = 0;
-    var normalLocation = 1;
-    var texCoordLocation = 2;
+    var positionLocation;
+    var normalLocation;
+    var texCoordLocation;
     var u_InvTransLocation;
     var u_ModelLocation;
     var u_ViewLocation;
@@ -57,13 +57,14 @@
     var u_timeLocation;
 
     (function initializeShader() {
-        var program;
         var vs = getShaderSource(document.getElementById("vs"));
         var fs = getShaderSource(document.getElementById("fs"));
 
-		var program = createProgram(gl, vs, fs, message);
-		gl.bindAttribLocation(program, positionLocation, "Position");
-		u_ModelLocation = gl.getUniformLocation(program,"u_Model");
+        var program = createProgram(gl, vs, fs, message);
+        positionLocation = gl.getAttribLocation(program, "Position");
+        normalLocation = gl.getAttribLocation(program, "Normal");
+        texCoordLocation = gl.getAttribLocation(program, "Texcoord");
+        u_ModelLocation = gl.getUniformLocation(program,"u_Model");
         u_ViewLocation = gl.getUniformLocation(program,"u_View");
         u_PerspLocation = gl.getUniformLocation(program,"u_Persp");
         u_InvTransLocation = gl.getUniformLocation(program,"u_InvTrans");
@@ -85,51 +86,17 @@
     var transTex = gl.createTexture();
     var lightTex = gl.createTexture();
     var specTex  = gl.createTexture();
-	var skyboxFrontTex = gl.createTexture();
-	var skyboxBackTex  = gl.createTexture();
-	var skyboxLeftTex  = gl.createTexture();
-	var skyboxRightTex = gl.createTexture();
-	var skyboxUpTex    = gl.createTexture();
-	var skyboxDownTex  = gl.createTexture();
-	
-    (function initTextures() {
-        function initLoadedTexture(texture){
-            gl.bindTexture(gl.TEXTURE_2D, texture);
-            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, 
-                               gl.UNSIGNED_BYTE, texture.image);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, 
-                                  gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, 
-                                  gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, 
-                                  gl.REPEAT);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, 
-                                  gl.REPEAT);
-            gl.bindTexture(gl.TEXTURE_2D, null);
-        }
-        
-        function initializeTexture(texture, src) {
-            texture.image = new Image();
-            texture.image.onload = function() {
-                initLoadedTexture(texture);
-            }
-             texture.image.src = src;
-        }
 
-        initializeTexture(dayTex, "earthmap1024.png");
-        initializeTexture(bumpTex, "earthbump1024.png");
-        initializeTexture(cloudTex, "earthcloud1024.png");
-        initializeTexture(transTex, "earthtrans1024.png");
-        initializeTexture(lightTex, "earthlight1024.png");
-        initializeTexture(specTex, "earthspec1024.png");
-		initializeTexture(skyboxFrontTex, "skybox_front");
-		initializeTexture(skyboxBackTex, "skybox_back");
-		initializeTexture(skyboxLeftTex, "skybox_left");
-		initializeTexture(skyboxRightTex, "skybox_right");
-		initializeTexture(skyboxUpTex, "skybox_up");
-		initializeTexture(skyboxDownTex, "skybox_down");
-    })();
+    function initLoadedTexture(texture){
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+    }
 
     var numberOfIndices;
 
@@ -265,8 +232,9 @@
     canvas.oncontextmenu = function(ev) {return false;};
     document.onmouseup = handleMouseUp;
     document.onmousemove = handleMouseMove;
-	
-    (function animate(){
+
+
+    function animate() {
         ///////////////////////////////////////////////////////////////////////////
         // Update
 
@@ -289,7 +257,6 @@
         lightdir = vec3.createFrom(lightdest[0],lightdest[1],lightdest[2]);
         vec3.normalize(lightdir);
 
-		
         ///////////////////////////////////////////////////////////////////////////
         // Render
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -300,7 +267,6 @@
         gl.uniformMatrix4fv(u_InvTransLocation, false, invTrans);
 
         gl.uniform3fv(u_CameraSpaceDirLightLocation, lightdir);
-		gl.uniform1f(u_timeLocation, time);
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, dayTex);
@@ -320,11 +286,31 @@
         gl.activeTexture(gl.TEXTURE5);
         gl.bindTexture(gl.TEXTURE_2D, specTex);
         gl.uniform1i(u_EarthSpecLocation, 5);
-
         gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
 
         time += 0.001;
-		window.requestAnimFrame(animate);
-    })();
+        window.requestAnimFrame(animate);
+    }
 
+    var textureCount = 0;
+        
+    function initializeTexture(texture, src) {
+        texture.image = new Image();
+        texture.image.onload = function() {
+            initLoadedTexture(texture);
+
+            // Animate once textures load.
+            if (++textureCount === 6) {
+                animate();
+            }
+        }
+        texture.image.src = src;
+    }
+
+    initializeTexture(dayTex, "earthmap1024.png");
+    initializeTexture(bumpTex, "earthbump1024.png");
+    initializeTexture(cloudTex, "earthcloud1024.png");
+    initializeTexture(transTex, "earthtrans1024.png");
+    initializeTexture(lightTex, "earthlight1024.png");
+    initializeTexture(specTex, "earthspec1024.png");
 }());
