@@ -289,6 +289,7 @@
         gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
 
         time += 0.001;
+		//console.log(time);
         window.requestAnimFrame(animate);
     }
 
@@ -309,7 +310,7 @@
 
     initializeTexture(dayTex, "earthmap1024.png");
     initializeTexture(bumpTex, "earthbump1024.png");
-    initializeTexture(cloudTex, "earthcloud1024.png");
+    initializeTexture(cloudTex, "earthcloud1024.png");f
     initializeTexture(transTex, "earthtrans1024.png");
     initializeTexture(lightTex, "earthlight1024.png");
     initializeTexture(specTex, "earthspec1024.png");
