@@ -90,6 +90,7 @@
         mat3 result = eastNorthUpToEyeCoordinates(v_positionMC, bumpNormal);
         bumpNormal = normalize(vec3(result[0][2], result[1][2], result[2][2]));
         
+        //diffuse lighting
         float diffuse = clamp(dot(u_CameraSpaceDirLight, normal), 0.0, 1.0);
         float bumpDiffuse = clamp(dot(u_CameraSpaceDirLight, bumpNormal), 0.0, 1.0);
 
@@ -115,8 +116,14 @@
 
         nightColor = mix(vec3(0.0,0.0,0.0), nightColor,cloudTransColor);
 
+        //rim lighting
+        float rimFactor = dot(v_Position, v_Normal) + 1.0;
+        vec4 rimColor = vec4(rimFactor/4.0, rimFactor/2.0, rimFactor/1.0, 1);
+
         vec3 color = mix(nightColor, ((0.6 * bumpDiffuse) + (0.4 * specular)) * (dayColor), diffuse) 
                     + dayCloudColor * diffuse * 0.6;
+        if(rimFactor > 0.0)
+            color += rimFactor * rimColor.rgb;
         gl_FragColor = vec4(color, 1.0);
     }
 
