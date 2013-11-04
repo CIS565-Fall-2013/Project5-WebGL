@@ -71,7 +71,7 @@
 
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
 
-    float NIGHT_EPSILON = 0.5;
+    float NIGHT_EPSILON = 0.1;
 
     void main(void)
     {
@@ -90,10 +90,11 @@
 
         vec3 dayColor = texture2D(u_DayDiffuse, v_Texcoord).rgb;
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
+        vec3 specCoeff = texture2D(u_EarthSpec, v_Texcoord).rgb;
         //apply gamma correction to nighttime texture
         nightColor = pow(nightColor,vec3(gammaCorrect));
-
-        vec3 color = ((0.6 * diffuse) + (0.4 * specular)) * dayColor;
+ 
+        vec3 color = ((0.6 * diffuse) + (0.4 * specCoeff * specular)) * dayColor;
         vec3 blended_color = mix(nightColor, color, (1.0/NIGHT_EPSILON)*diffuse);
         vec3 final_color;
         if(diffuse < NIGHT_EPSILON){
