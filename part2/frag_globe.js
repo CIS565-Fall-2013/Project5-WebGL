@@ -310,7 +310,7 @@
 
     initializeTexture(dayTex, "earthmap1024.png");
     initializeTexture(bumpTex, "earthbump1024.png");
-    initializeTexture(cloudTex, "earthcloud1024.png");f
+    initializeTexture(cloudTex, "earthcloud1024.png");
     initializeTexture(transTex, "earthtrans1024.png");
     initializeTexture(lightTex, "earthlight1024.png");
     initializeTexture(specTex, "earthspec1024.png");
