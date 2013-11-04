@@ -82,16 +82,25 @@
 
         vec3 toReflectedLight = reflect(-u_CameraSpaceDirLight, normal);
         float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
-        specular = pow(specular, 20.0);
+        specular = pow(specular, 30.0);
 
         float gammaCorrect = 1.0/1.2; //gamma correct by 1/1.2
 
         vec3 dayColor = texture2D(u_DayDiffuse, v_Texcoord).rgb;
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
+        vec3 specularMap = texture2D (u_EarthSpec, v_Texcoord).rgb;
+        vec3 bumpMap = texture2D (u_Bump, v_Texcoord).rgb;
+        vec3 cloudMap = texture2D (u_CloudTrans, v_Texcoord).rgb;
+        vec3 cloudColourMap = texture2D (u_Cloud, v_Texcoord).rgb;
+        	 
         //apply gamma correction to nighttime texture
         nightColor = pow(nightColor,vec3(gammaCorrect));
 
-        vec3 color = ((0.6 * diffuse) + (0.4 * specular)) * dayColor;
+        vec3 color;
+        if (diffuse <= 0.0)
+        	color = ((0.6 * (1.0-diffuse)) + (0.4 * specular)) * nightColor;
+		else
+			color = 0.6 * diffuse * dayColor + 0.4 * specular * specularMap * dayColor;
         gl_FragColor = vec4(color, 1.0);
     }
 
