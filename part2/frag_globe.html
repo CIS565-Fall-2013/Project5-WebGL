@@ -89,12 +89,17 @@
         float gammaCorrect = 1.0/1.2; //gamma correct by 1/1.2
 
         vec3 dayColor = texture2D(u_DayDiffuse, v_Texcoord).rgb;
+        vec3 cloudColor = texture2D(u_Cloud, v_Texcoord).rgb; 
+        vec3 cloudOpacity = texture2D(u_CloudTrans, v_Texcoord).rgb; 
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
         vec3 specCoeff = texture2D(u_EarthSpec, v_Texcoord).rgb;
         //apply gamma correction to nighttime texture
         nightColor = pow(nightColor,vec3(gammaCorrect));
  
-        vec3 color = ((0.6 * diffuse) + (0.4 * specCoeff * specular)) * dayColor;
+        //surface color under clouds
+        vec3 surfColor = ((0.6 * diffuse) + (0.4 * specCoeff * specular)) * dayColor;
+        vec3 color = mix(cloudColor, surfColor, cloudOpacity.r); //assuming cloud transparency is black/white
+
         vec3 blended_color = mix(nightColor, color, (1.0/NIGHT_EPSILON)*diffuse);
         vec3 final_color;
         if(diffuse < NIGHT_EPSILON){
