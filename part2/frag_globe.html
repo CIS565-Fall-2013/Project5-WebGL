@@ -72,13 +72,29 @@
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
 
     float NIGHT_EPSILON = 0.1;
+    float bumpMapWidth = 1024.0;
+    float bumpMapHeight = 512.0;
 
     void main(void)
     {
         // surface normal - normalized after rasterization
-        vec3 normal = normalize(v_Normal);
+        //vec3 normal = normalize(v_Normal);
         // normalized eye-to-position vector in camera coordinates
         vec3 eyeToPosition = normalize(v_Position);
+
+        //compute normal from bump map
+        float texelWidth = 1.0/bumpMapWidth;
+        float texelHeight = 1.0/bumpMapHeight;
+        float centerTexel = texture2D(u_Bump, v_Texcoord).r;
+        float rightTexel = texture2D(u_Bump, vec2(v_Texcoord.x + texelWidth, v_Texcoord.y)).r;
+        float topTexel = texture2D(u_Bump, vec2(v_Texcoord.x, v_Texcoord.y + texelHeight)).r;
+        vec3 tgtSpaceNormal = normalize(vec3(centerTexel - rightTexel, centerTexel - topTexel, 0.2));
+
+        //this matrix brings us from tangent space to eye space
+        mat3 tgtToEye = eastNorthUpToEyeCoordinates(v_positionMC, normalize(v_Normal));
+
+        //normal in eye/camera coordinates
+        vec3 normal = normalize(tgtToEye * tgtSpaceNormal);
         
         float diffuse = clamp(dot(u_CameraSpaceDirLight, normal), 0.0, 1.0);
 
@@ -89,7 +105,7 @@
         float gammaCorrect = 1.0/1.2; //gamma correct by 1/1.2
 
         vec2 offsetTexcoord = v_Texcoord;
-        offsetTexcoord.s += 0.1*u_time;
+        offsetTexcoord.s += 0.1*u_time; 
 
         vec3 dayColor = texture2D(u_DayDiffuse, v_Texcoord).rgb;
         vec3 cloudColor = texture2D(u_Cloud, offsetTexcoord).rgb; 
