@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------------
-CIS565 Project 4: WebGL Globe Rendering
+Project 5: WebGL
 ====================================================================================
 Ricky Arietta Fall 2013
 -------------------------------------------------------------------------------
@@ -9,6 +9,19 @@ Ricky Arietta Fall 2013
 ------------------------------------------------------------------------------------
 INTRODUCTION:
 ====================================================================================
+
+This project explores GLSL and WebGL in two parts:
+
+The first part of this project implements a series of GLSL vertex shaders as 
+part of a WebGL demo. I have created three dynamic wave animation using code 
+that runs entirely on the GPU. They use a variety of noise functions to 
+simulate waves on a grid of vertices.
+
+In the second part of this project, I have implemented a GLSL fragment shader
+to render an interactive globe in WebGL. This include texture blending, bump 
+mapping, specular masking, adding an animated cloud layer, and ocean waves and
+currents generated via noise functions that are dependent on the land mass
+geometry.
 
 ------------------------------------------------------------------------------------
 PART 1: Title
