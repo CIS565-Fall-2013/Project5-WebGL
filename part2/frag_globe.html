@@ -132,6 +132,11 @@
         else{
             final_color = color;
         }
+        
+        float rim_factor = dot(v_Normal, v_Position) + 1.0;
+        if( rim_factor > 0.0 ){
+            final_color = final_color + vec3(rim_factor/4.0, rim_factor/2.0, rim_factor/2.0);
+        }
         gl_FragColor = vec4(final_color, 1.0);
     }
 
