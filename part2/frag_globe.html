@@ -73,8 +73,18 @@
 
     void main(void)
     {
-        // surface normal - normalized after rasterization
-        vec3 normal = normalize(v_Normal);
+        float center = texture2D(u_Bump, v_Texcoord).r;
+        vec2 rightTexcoord = v_Texcoord + vec2(1.0/1024.0, 0.0);
+        float right = texture2D(u_Bump, rightTexcoord).r;
+        vec2 topTexcoord = v_Texcoord + vec2(0.0, 1.0/512.0);
+        float top = texture2D(u_Bump, topTexcoord).r;
+        vec3 normal = normalize(vec3(center - right, center - top, 0.2));
+        
+        vec3 normalEC = normalize(v_Normal);
+        mat3 transform = eastNorthUpToEyeCoordinates(v_positionMC, normalEC);
+
+        normal = normalize(transform * normal);
+
         // normalized eye-to-position vector in camera coordinates
         vec3 eyeToPosition = normalize(v_Position);
         
@@ -84,14 +94,32 @@
         float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
         specular = pow(specular, 20.0);
 
-        float gammaCorrect = 1.0/1.2; //gamma correct by 1/1.2
+        float gammaCorrect = 0.9; //gamma correct by 1/1.2
 
         vec3 dayColor = texture2D(u_DayDiffuse, v_Texcoord).rgb;
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
+        float isOcean = texture2D(u_EarthSpec, v_Texcoord).r;
         //apply gamma correction to nighttime texture
         nightColor = pow(nightColor,vec3(gammaCorrect));
 
-        vec3 color = ((0.6 * diffuse) + (0.4 * specular)) * dayColor;
+        float kd = isOcean == 1.0 ? 0.6 : 1.0;
+        float ks = 1.0 - kd;
+        dayColor = ((kd * diffuse) + (ks * specular)) * dayColor;
+
+        vec2 cloudTexcoord = v_Texcoord + vec2(u_time, 0.0);
+        float cloudTrans = texture2D(u_CloudTrans, cloudTexcoord).r;
+        vec3 cloudColor = texture2D(u_Cloud, cloudTexcoord).rgb;
+        dayColor = mix(cloudColor, dayColor, cloudTrans);
+        nightColor = mix(vec3(0.0), nightColor, cloudTrans);
+
+        vec3 color = mix(nightColor, dayColor, diffuse);
+
+        //rim
+        float rim = dot(v_Normal, v_Position) + 1.0;
+        if (rim > 0.0) {
+            color += vec3(rim/4.0, rim/2.0, rim/2.0);
+        }
+
         gl_FragColor = vec4(color, 1.0);
     }
 
