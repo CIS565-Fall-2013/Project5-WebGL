@@ -91,12 +91,14 @@
         vec3 tgtSpaceNormal = normalize(vec3(centerTexel - rightTexel, centerTexel - topTexel, 0.2));
 
         //this matrix brings us from tangent space to eye space
-        mat3 tgtToEye = eastNorthUpToEyeCoordinates(v_positionMC, normalize(v_Normal));
+        vec3 origNormal = normalize(v_Normal); //cloud normal
+        mat3 tgtToEye = eastNorthUpToEyeCoordinates(v_positionMC, origNormal);
 
         //normal in eye/camera coordinates
         vec3 normal = normalize(tgtToEye * tgtSpaceNormal);
         
         float diffuse = clamp(dot(u_CameraSpaceDirLight, normal), 0.0, 1.0);
+        float cloudDiffuse = clamp(dot(u_CameraSpaceDirLight, origNormal), 0.0, 1.0);
 
         vec3 toReflectedLight = reflect(-u_CameraSpaceDirLight, normal);
         float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
@@ -117,7 +119,7 @@
  
         //surface color under clouds
         vec3 surfColor = ((0.6 * diffuse) + (0.4 * specCoeff * specular)) * dayColor;
-        vec3 color = mix( diffuse * cloudColor, surfColor, cloudOpacity.r); //assuming cloud transparency is black/white
+        vec3 color = mix( cloudDiffuse * cloudColor, surfColor, cloudOpacity.r); //assuming cloud transparency is black/white
         vec3 black = vec3(0.0, 0.0, 0.0);
         vec3 nightColor = mix(black, surfNightColor, cloudOpacity.r);
 
