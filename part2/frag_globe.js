@@ -25,7 +25,9 @@
 
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.enable(gl.DEPTH_TEST);
+    gl.enable (gl.DEPTH_TEST);
+    gl.enable (gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 
     var persp = mat4.create();
     mat4.perspective(45.0, canvas.width/canvas.height, 0.1, 100.0, persp);

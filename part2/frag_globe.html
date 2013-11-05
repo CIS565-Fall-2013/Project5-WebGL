@@ -90,18 +90,26 @@
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
         vec3 specularMap = texture2D (u_EarthSpec, v_Texcoord).rgb;
         vec3 bumpMap = texture2D (u_Bump, v_Texcoord).rgb;
-        vec3 cloudMap = texture2D (u_CloudTrans, v_Texcoord).rgb;
+        vec3 cloudMap = vec3 (1.0, 1.0, 1.0) - texture2D (u_CloudTrans, v_Texcoord).rgb;
         vec3 cloudColourMap = texture2D (u_Cloud, v_Texcoord).rgb;
         	 
         //apply gamma correction to nighttime texture
         nightColor = pow(nightColor,vec3(gammaCorrect));
 
         vec3 color1, color2;
-//        if (diffuse <= 0.0)
-        	color2 = ((0.6 * (1.0-diffuse)) + (0.4 * specular)) * nightColor;
-//		else
+        vec4 finalColour;
+        	color2 = (1.0-diffuse) * nightColor;
+        	color2 = mix (color2, vec3 (0.0, 0.0, 0.0), cloudMap);
+			
 			color1 = 0.6 * diffuse * dayColor + 0.4 * specular * specularMap * dayColor;
-        gl_FragColor = vec4(mix (color2, color1, diffuse), 1.0);
+			color1 = mix (color1, cloudColourMap, cloudMap);
+		
+		float rimCoeff = dot (normal, -eyeToPosition);
+		if (rimCoeff < 0.18)
+			finalColour = vec4 (0.5273, 0.8046, 0.9765, max (rimCoeff/0.25, 0.0));
+		else
+			finalColour = vec4 (mix (color2, color1, diffuse), 1.0);
+        gl_FragColor = finalColour;
     }
 
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC)
