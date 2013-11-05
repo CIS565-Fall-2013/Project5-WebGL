@@ -60,6 +60,8 @@
     uniform sampler2D u_EarthSpec;
     //Bump map
     uniform sampler2D u_Bump;
+	//Wave Intensity
+	uniform sampler2D u_Wave;
 
     uniform float u_time;
     uniform mat4 u_InvTrans;
@@ -73,26 +75,69 @@
 
     void main(void)
     {
+		// what is water and what is land?
+		float earthSpecMask = texture2D(u_EarthSpec, v_Texcoord).r;
+		float waveIntensity = texture2D(u_Wave, v_Texcoord).r;
+		
+		//read 3 texels from bump map for land, noise for water
+		float bumpCenter, bumpRight, bumpTop;
+		if (earthSpecMask == 0.00) {
+			bumpCenter = texture2D(u_Bump, vec2(v_Texcoord.s, v_Texcoord.t)).r;
+			bumpRight = texture2D(u_Bump, vec2(v_Texcoord.s + (1.0/1024.0), v_Texcoord.t)).r;
+			bumpTop = texture2D(u_Bump, vec2(v_Texcoord.s, v_Texcoord.t + (1.0/512.0))).r;
+		} else {
+			bumpCenter = ((1.2 - waveIntensity) * sin(33.0 * v_Texcoord.s*v_positionMC.y + 53.0 * (1.2 - waveIntensity) * (abs(fract(u_time) - 0.5) + 0.2))) 
+					   * ((1.2 - waveIntensity) * cos(50.0 * v_Texcoord.t*v_positionMC.y + 35.0 * (1.2 - waveIntensity) * (abs(fract(u_time) - 0.5) + 0.2)));
+			bumpRight =  ((1.2 - waveIntensity) * sin(33.0 *(v_Texcoord.s+(1.0/1024.0))  + 53.0 * (1.2 - waveIntensity) * (abs(fract(u_time) - 0.5) + 0.2))) 
+					   * ((1.2 - waveIntensity) * cos(50.0 * v_Texcoord.t			   	 + 35.0 * (1.2 - waveIntensity) * (abs(fract(u_time) - 0.5) + 0.2)));
+			bumpTop = 	 ((1.2 - waveIntensity) * sin(33.0 * v_Texcoord.s 			     + 53.0 * (1.2 - waveIntensity) * (abs(fract(u_time) - 0.5) + 0.2))) 
+					   * ((1.2 - waveIntensity) * cos(50.0 *(v_Texcoord.t+(1.0/512.0))   + 35.0 * (1.2 - waveIntensity) * (abs(fract(u_time) - 0.5) + 0.2)));
+		}
+		vec3 tangentSpaceBumpNormal = normalize(vec3(bumpCenter-bumpRight, bumpCenter-bumpTop, 0.2));
+		
+		
         // surface normal - normalized after rasterization
-        vec3 normal = normalize(v_Normal);
+        vec3 v_normalEC = normalize(v_Normal);
         // normalized eye-to-position vector in camera coordinates
         vec3 eyeToPosition = normalize(v_Position);
         
+		mat3 tangentToEyeSpace = eastNorthUpToEyeCoordinates(v_positionMC, v_normalEC);
+		vec3 normal = normalize(tangentToEyeSpace*tangentSpaceBumpNormal);
+		
         float diffuse = clamp(dot(u_CameraSpaceDirLight, normal), 0.0, 1.0);
 
         vec3 toReflectedLight = reflect(-u_CameraSpaceDirLight, normal);
         float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
         specular = pow(specular, 20.0);
 
-        float gammaCorrect = 1.0/1.2; //gamma correct by 1/1.2
+        float gammaCorrect = 1.0/1.1; //gamma correct by 1/1.2
 
         vec3 dayColor = texture2D(u_DayDiffuse, v_Texcoord).rgb;
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
+		
         //apply gamma correction to nighttime texture
         nightColor = pow(nightColor,vec3(gammaCorrect));
+		
+		//apply specular mask to daytime texture
+		dayColor = ((0.6 * diffuse) + (0.4 * earthSpecMask * specular)) * dayColor;
+		
+		//apply clouds
+		vec2 cloudTexCoord = vec2(v_Texcoord.s - u_time/5.0, v_Texcoord.t);
+		vec3 cloudColor = texture2D(u_Cloud, cloudTexCoord).rgb;
+		float cloudTrans = texture2D(u_CloudTrans, cloudTexCoord).r;
+		dayColor = mix(cloudColor, dayColor, cloudTrans);
+		nightColor = mix(vec3(0.0), nightColor, cloudTrans);
 
-        vec3 color = ((0.6 * diffuse) + (0.4 * specular)) * dayColor;
+		float reDiffuse = clamp(diffuse*2.5, 0.0, 1.0);
+        vec3 color = mix(nightColor, dayColor, reDiffuse);
         gl_FragColor = vec4(color, 1.0);
+		
+		//rim lighting
+		float rimFactor = dot(v_Normal, v_Position) + 1.0;
+		if (rimFactor > 0.0) {
+			vec4 rimColor = vec4(rimFactor/4.0, rimFactor/2.0, rimFactor/2.0, 1.0);
+			gl_FragColor += rimColor;
+		}
     }
 
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC)

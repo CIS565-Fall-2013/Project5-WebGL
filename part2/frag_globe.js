@@ -54,7 +54,10 @@
     var u_CloudTransLocation;
     var u_EarthSpecLocation;
     var u_BumpLocation;
+	var u_WaveLocation;
     var u_timeLocation;
+	
+	var u_time;
 
     (function initializeShader() {
         var vs = getShaderSource(document.getElementById("vs"));
@@ -74,6 +77,7 @@
         u_CloudTransLocation = gl.getUniformLocation(program,"u_CloudTrans");
         u_EarthSpecLocation = gl.getUniformLocation(program,"u_EarthSpec");
         u_BumpLocation = gl.getUniformLocation(program,"u_Bump");
+		u_WaveLocation = gl.getUniformLocation(program, "u_Wave");
         u_timeLocation = gl.getUniformLocation(program,"u_time");
         u_CameraSpaceDirLightLocation = gl.getUniformLocation(program,"u_CameraSpaceDirLight");
 
@@ -86,6 +90,7 @@
     var transTex = gl.createTexture();
     var lightTex = gl.createTexture();
     var specTex  = gl.createTexture();
+	var waveTex  = gl.createTexture();
 
     function initLoadedTexture(texture){
         gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -286,9 +291,13 @@
         gl.activeTexture(gl.TEXTURE5);
         gl.bindTexture(gl.TEXTURE_2D, specTex);
         gl.uniform1i(u_EarthSpecLocation, 5);
+        gl.activeTexture(gl.TEXTURE6);
+        gl.bindTexture(gl.TEXTURE_2D, waveTex);
+        gl.uniform1i(u_WaveLocation, 6);
         gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
 
         time += 0.001;
+		gl.uniform1f(u_timeLocation, time);
         window.requestAnimFrame(animate);
     }
 
@@ -313,4 +322,5 @@
     initializeTexture(transTex, "earthtrans1024.png");
     initializeTexture(lightTex, "earthlight1024.png");
     initializeTexture(specTex, "earthspec1024.png");
+    initializeTexture(waveTex, "waveintensity.png");
 }());
