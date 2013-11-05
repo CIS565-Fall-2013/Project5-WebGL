@@ -79,16 +79,16 @@
         vec3 eyeToPosition = normalize(v_Position);
 
         // bump mapping
-        vec3 bumpTextureCenter = texture2D(u_Bump, v_Texcoord).rgb;
-        vec3 bumpTextureRight = texture2D(u_Bump, vec2(v_Texcoord.x + 1.0/1024.0, v_Texcoord.y)).rgb;
-        vec3 bumpTextureTop = texture2D(u_Bump, vec2(v_Texcoord.x, v_Texcoord.y - 1.0/512.0)).rgb;
+        vec3 bumpTextureCenter = (texture2D(u_Bump, v_Texcoord).rgb);
+        vec3 bumpTextureRight = (texture2D(u_Bump, vec2(v_Texcoord.s + 1.0/1024.0, v_Texcoord.t)).rgb);
+        vec3 bumpTextureTop = (texture2D(u_Bump, vec2(v_Texcoord.s, v_Texcoord.t + 1.0/512.0)).rgb);
         float center = length(bumpTextureCenter);
         float right = length(bumpTextureRight);
         float top = length(bumpTextureTop);
-        vec3 bumpNormal = normalize(vec3(center - right, center - top, 0.08)).xyz;
-        //change bump normal to eye coordinate
-        mat3 result = eastNorthUpToEyeCoordinates(v_positionMC, bumpNormal);
-        bumpNormal = normalize(vec3(result[0][2], result[1][2], result[2][2]));
+
+        vec3 bumpNormal = normalize(vec3(center - right, center - top, 0.2)).xyz;
+        //change bump normal to eye coordinate       
+        bumpNormal = normalize(eastNorthUpToEyeCoordinates(v_positionMC, normal) * bumpNormal);
         
         //diffuse lighting
         float diffuse = clamp(dot(u_CameraSpaceDirLight, normal), 0.0, 1.0);
@@ -98,15 +98,29 @@
         float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
         specular = pow(specular, 20.0);
 
-        float gammaCorrect = 1.0/1.1; //gamma correct by 1/1.2
+        float gammaCorrect = 1.0/1.2; //gamma correct by 1/1.2
 
-        vec3 earthColor = texture2D(u_EarthSpec, v_Texcoord).rgb;
-        if(earthColor.rgb == vec3(0.0,0.0,0.0))
-            specular = 0.0;
+        
         vec3 dayColor = texture2D(u_DayDiffuse, v_Texcoord).rgb;
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
         //apply gamma correction to nighttime texture
         nightColor = pow(nightColor,vec3(gammaCorrect));
+
+        vec3 earthColor = texture2D(u_EarthSpec, v_Texcoord).rgb;
+        specular *= length(earthColor);
+        // if(length(earthColor) == 0.0)
+        //     specular = 0.0;
+        // else{
+        //     float s_contrib = sin(v_positionMC.x*2.0*3.14159 + u_time*10.0);
+        //     float t_contrib = cos(v_positionMC.y*2.0*3.14159 + u_time*10.0);
+        //     float height = s_contrib*t_contrib;
+        //     //v_positionMC.y = height;
+        //     //eastNorthUpToEyeCoordinates(v_positionMC,);
+        //     vec3 highColor = vec3(0.0, 0.2, 0.7);
+        //     vec3 lowColor = vec3(0.0, 0.8, 1.0);
+        //     //bumpDiffuse = diffuse;
+        //    // dayColor = mix(lowColor, highColor, height);
+        // }
 
         //offset value
         float s = (2.0 * u_time * 20.0)/1024.0;
@@ -118,12 +132,13 @@
 
         //rim lighting
         float rimFactor = dot(v_Position, v_Normal) + 1.0;
-        vec4 rimColor = vec4(rimFactor/4.0, rimFactor/2.0, rimFactor/1.0, 1);
+        vec4 rimColor = vec4(rimFactor/4.0, rimFactor/2.0, rimFactor/2.0, 1);
 
         vec3 color = mix(nightColor, ((0.6 * bumpDiffuse) + (0.4 * specular)) * (dayColor), diffuse) 
-                    + dayCloudColor * diffuse * 0.6;
+                    + mix(vec3(0.0), dayCloudColor * diffuse * 0.6, diffuse);
         if(rimFactor > 0.0)
-            color += rimFactor * rimColor.rgb;
+            color += rimColor.rgb;
+
         gl_FragColor = vec4(color, 1.0);
     }
 
@@ -135,6 +150,8 @@
         vec3 tangentEC = normalize(mat3(u_InvTrans) * tangentMC);
         // normalized surface bitangent in eye coordinates
         vec3 bitangentEC = normalize(cross(normalEC, tangentEC));
+
+        //normalEC = normalize(cross(tangentEC, bitangentEC));
 
         return mat3(
             tangentEC.x,   tangentEC.y,   tangentEC.z,
