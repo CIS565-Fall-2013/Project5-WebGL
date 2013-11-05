@@ -6,6 +6,8 @@ Fall 2013
 
 ![Water Wave](/resources/water.gif "Water")
 
+<iframe src="http://cboots.github.io/WebGL-Waves-and-Globe/waves/vert_wave.html" width="200" height="200"></iframe> 
+
 
 -------------------------------------------------------------------------------
 NOTE:
