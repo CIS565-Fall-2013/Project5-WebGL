@@ -83,15 +83,15 @@
 		float bumpCenter, bumpRight, bumpTop;
 		if (earthSpecMask == 0.00) {
 			bumpCenter = texture2D(u_Bump, vec2(v_Texcoord.s, v_Texcoord.t)).r;
-			bumpRight = texture2D(u_Bump, vec2(v_Texcoord.s + (1.0/1024.0), v_Texcoord.t)).r;
-			bumpTop = texture2D(u_Bump, vec2(v_Texcoord.s, v_Texcoord.t + (1.0/512.0))).r;
+			bumpRight  = texture2D(u_Bump, vec2(v_Texcoord.s + (1.0/512.0), v_Texcoord.t)).r;
+			bumpTop    = texture2D(u_Bump, vec2(v_Texcoord.s, v_Texcoord.t + (1.0/1024.0))).r;
 		} else {
-			bumpCenter = ((1.2 - waveIntensity) * sin(33.0 * v_Texcoord.s*v_positionMC.y + 53.0 * (1.2 - waveIntensity) * (abs(fract(u_time) - 0.5) + 0.2))) 
-					   * ((1.2 - waveIntensity) * cos(50.0 * v_Texcoord.t*v_positionMC.y + 35.0 * (1.2 - waveIntensity) * (abs(fract(u_time) - 0.5) + 0.2)));
-			bumpRight =  ((1.2 - waveIntensity) * sin(33.0 *(v_Texcoord.s+(1.0/1024.0))  + 53.0 * (1.2 - waveIntensity) * (abs(fract(u_time) - 0.5) + 0.2))) 
-					   * ((1.2 - waveIntensity) * cos(50.0 * v_Texcoord.t			   	 + 35.0 * (1.2 - waveIntensity) * (abs(fract(u_time) - 0.5) + 0.2)));
-			bumpTop = 	 ((1.2 - waveIntensity) * sin(33.0 * v_Texcoord.s 			     + 53.0 * (1.2 - waveIntensity) * (abs(fract(u_time) - 0.5) + 0.2))) 
-					   * ((1.2 - waveIntensity) * cos(50.0 *(v_Texcoord.t+(1.0/512.0))   + 35.0 * (1.2 - waveIntensity) * (abs(fract(u_time) - 0.5) + 0.2)));
+			bumpCenter = ((1.2 - waveIntensity) * sin(33.0 * v_Texcoord.s*v_positionMC.y + 53.0 * (1.2 - waveIntensity) * (abs(fract(0.75*u_time) - 0.5) + 0.2))) 
+					   * ((1.2 - waveIntensity) * cos(50.0 * v_Texcoord.t*v_positionMC.y + 35.0 * (1.2 - waveIntensity) * (abs(fract(0.75*u_time) - 0.5) + 0.2)));
+			bumpRight =  ((1.2 - waveIntensity) * sin(33.0 *(v_Texcoord.s+(1.0/1024.0))  + 53.0 * (1.2 - waveIntensity) * (abs(fract(0.75*u_time) - 0.5) + 0.2))) 
+					   * ((1.2 - waveIntensity) * cos(50.0 * v_Texcoord.t			   	 + 35.0 * (1.2 - waveIntensity) * (abs(fract(0.75*u_time) - 0.5) + 0.2)));
+			bumpTop = 	 ((1.2 - waveIntensity) * sin(33.0 * v_Texcoord.s 			     + 53.0 * (1.2 - waveIntensity) * (abs(fract(0.75*u_time) - 0.5) + 0.2))) 
+					   * ((1.2 - waveIntensity) * cos(50.0 *(v_Texcoord.t+(1.0/512.0))   + 35.0 * (1.2 - waveIntensity) * (abs(fract(0.75*u_time) - 0.5) + 0.2)));
 		}
 		vec3 tangentSpaceBumpNormal = normalize(vec3(bumpCenter-bumpRight, bumpCenter-bumpTop, 0.2));
 		
@@ -110,7 +110,7 @@
         float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
         specular = pow(specular, 20.0);
 
-        float gammaCorrect = 1.0/1.1; //gamma correct by 1/1.2
+        float gammaCorrect = 1.0/1.1; //gamma correct by 1/1.1
 
         vec3 dayColor = texture2D(u_DayDiffuse, v_Texcoord).rgb;
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
