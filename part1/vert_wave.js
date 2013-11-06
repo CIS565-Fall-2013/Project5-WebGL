@@ -33,8 +33,8 @@
     var u_modelViewPerspectiveLocation;
 
     //time
-    var u_time;
-    var time = 0.05;
+    var u_timeLocation;
+    var u_time = 0.05;
 
     (function initializeShader() {
         var program;
@@ -44,7 +44,7 @@
 		var program = createProgram(context, vs, fs, message);
 		context.bindAttribLocation(program, positionLocation, "position");
 		u_modelViewPerspectiveLocation = context.getUniformLocation(program,"u_modelViewPerspective");
-		u_time = context.getUniformLocation(program, "u_time");
+		u_timeLocation = context.getUniformLocation(program, "u_time");
 
         context.useProgram(program);
     })();
@@ -149,13 +149,13 @@
 
         //pass in uniforms
         context.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp);
-        context.uniform1f(u_time, time);
+        context.uniform1f(u_timeLocation, u_time);
 
         context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
 
         window.requestAnimFrame(animate);
 
-        time += 0.02;
+        u_time += 0.02;
 
     })();
 
