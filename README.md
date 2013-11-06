@@ -167,7 +167,7 @@ effect.
 Animated Cloud Cover
 -------------------------------------------------------------------------------
 
-![Screenshot] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/globe/screenshot_008.png)
+![Screenshot] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/globe/screenshot_008.png) 
 
 Cloud cover was calculated using two more texture maps, one for the cloud
 color and one for the cloud layer transparency at each fragment. This
