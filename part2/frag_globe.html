@@ -91,7 +91,17 @@
         //apply gamma correction to nighttime texture
         nightColor = pow(nightColor,vec3(gammaCorrect));
 
-        vec3 color = ((0.6 * diffuse) + (0.4 * specular)) * dayColor;
+
+        vec3 color = vec3(0,0,0);
+        float dayColorCoeff = ((0.6 * diffuse) + (0.4 * specular));
+
+        if (diffuse == 0.0)
+            color = nightColor;
+        else if (diffuse > 0.0 && diffuse < 0.1)
+            color = mix(nightColor, dayColorCoeff*dayColor, diffuse / 0.1);
+        else 
+            color = dayColorCoeff * dayColor;
+
         gl_FragColor = vec4(color, 1.0);
     }
 

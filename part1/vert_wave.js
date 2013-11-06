@@ -22,7 +22,6 @@
 
     var persp = mat4.create();
     mat4.perspective(45.0, 0.5, 0.1, 100.0, persp);
-
     var eye = [2.0, 1.0, 3.0];
     var center = [0.0, 0.0, 0.0];
     var up = [0.0, 0.0, 1.0];
@@ -138,6 +137,7 @@
         var mv = mat4.create();
         mat4.multiply(view, model, mv);
         var mvp = mat4.create();
+        
         mat4.multiply(persp, mv, mvp);
 		time = time + delta;
 		
