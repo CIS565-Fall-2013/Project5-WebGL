@@ -56,6 +56,8 @@
     var u_BumpLocation;
     var u_timeLocation;
 
+    var u_time = 0;
+
     (function initializeShader() {
         var vs = getShaderSource(document.getElementById("vs"));
         var fs = getShaderSource(document.getElementById("fs"));
@@ -265,8 +267,8 @@
         gl.uniformMatrix4fv(u_ViewLocation, false, view);
         gl.uniformMatrix4fv(u_PerspLocation, false, persp);
         gl.uniformMatrix4fv(u_InvTransLocation, false, invTrans);
-
         gl.uniform3fv(u_CameraSpaceDirLightLocation, lightdir);
+        gl.uniform1f(u_timeLocation, .07 * time);
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, dayTex);
