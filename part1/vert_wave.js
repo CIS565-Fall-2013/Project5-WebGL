@@ -141,7 +141,7 @@
         var mvp = mat4.create();
         mat4.multiply(persp, mv, mvp);
         
-        time = time+0.01;
+        time = time+0.001;
         ///////////////////////////////////////////////////////////////////////////
         // Render
         context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
