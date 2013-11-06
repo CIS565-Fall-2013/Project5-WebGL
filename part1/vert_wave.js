@@ -32,6 +32,10 @@
     var heightLocation = 1;
     var u_modelViewPerspectiveLocation;
 
+    //time
+    var u_time;
+    var time = 0.05;
+
     (function initializeShader() {
         var program;
         var vs = getShaderSource(document.getElementById("vs"));
@@ -40,6 +44,7 @@
 		var program = createProgram(context, vs, fs, message);
 		context.bindAttribLocation(program, positionLocation, "position");
 		u_modelViewPerspectiveLocation = context.getUniformLocation(program,"u_modelViewPerspective");
+		u_time = context.getUniformLocation(program, "u_time");
 
         context.useProgram(program);
     })();
@@ -142,10 +147,16 @@
         // Render
         context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
 
+        //pass in uniforms
         context.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp);
+        context.uniform1f(u_time, time);
+
         context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
 
-		window.requestAnimFrame(animate);
+        window.requestAnimFrame(animate);
+
+        time += 0.02;
+
     })();
 
 }());
