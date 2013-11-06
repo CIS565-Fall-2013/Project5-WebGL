@@ -131,16 +131,10 @@ Global Rim Lighting
 ![Screenshot] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/globe/screenshot_007.png)
 
 -------------------------------------------------------------------------------
-Noise-Generated Ocean Waves & Currents (Additional Feature)
--------------------------------------------------------------------------------
-
-![Screenshot] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/globe/screenshot_008.png)
-
--------------------------------------------------------------------------------
 Animated Cloud Cover
 -------------------------------------------------------------------------------
 
-![Screenshot] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/globe/screenshot_009.png)
+![Screenshot] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/globe/screenshot_008.png)
 
 -------------------------------------------------------------------------------
 Final WebGL Render Video
