@@ -27,10 +27,7 @@ geometry.
 NOTES:
 ====================================================================================
 
-Please note that while this writeup contains multiple screenshots and videos
-of the project, the screen capture quality and framerate and both greatly
-depreciated from the actual running program. To view the actual renders live,
-please follow the appropriate links below:
+To access any of the live demos at any time, please follow these links:
 
 *Live Globe Render: http://rarietta.github.io/Project5-WebGL/part2/frag_globe.html  
 *Live Wave Shader 1: http://rarietta.github.io/Project5-WebGL/part1/vert_wave.html  
@@ -40,9 +37,6 @@ please follow the appropriate links below:
 ------------------------------------------------------------------------------------
 PART 1: GLSL Vertex Shader Waves
 ====================================================================================
-
-As noted above, please follow the links to view the live shaders in action. The
-quality of the following screen capture videos is not as good as the real thing.
 
 -------------------------------------------------------------------------------
 Sine-Based Wave
@@ -62,7 +56,7 @@ Simplex Noise Wave
 Instead of a sin-based noise function, this vertex shader implements a
 simplex noise function.
 
-[![Video](https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/preview_002.png)] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/video_002.avi)
+[![Video](https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/preview_002.png)] (http://rarietta.github.io/Project5-WebGL/part1/vert_simplex.html)
 
 -------------------------------------------------------------------------------
 Custom Wave
@@ -74,7 +68,7 @@ shader was a crucial stepping stone in the development of the noise-based
 wave generation in the WebGL globe fragment shader below, and for that
 reason I have chosen to include it as my third vertex noise shader.
 
-[![Video](https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/preview_003.png)] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/video_003.avi)
+[![Video](https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/preview_003.png)]  (http://rarietta.github.io/Project5-WebGL/part1/vert_custom.html)
 
 ------------------------------------------------------------------------------------
 PART 2: WebGL Interactive Globe Rendering with GLSL Fragment Shaders
@@ -183,14 +177,10 @@ was mixed with the underlying surface luminance values.
 Final WebGL Render Video
 -------------------------------------------------------------------------------
 
-Here is a screen capture video of the final rendered globe running in the
-browser. As noted above, this video is useful for demonstration but greatly
-lacks in quality and framerate. To view the live demonstration of the globe,
-please follow this link: 
+Here is a live version of the final rendered globe running in the
+browser.
 
-http://rarietta.github.io/Project5-WebGL/part2/frag_globe.html
-
-[![Video](https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/globe/preview_001.png)] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/globe/video_001.avi)
+[![Video](https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/globe/preview_001.png)]  (http://rarietta.github.io/Project5-WebGL/part2/frag_globe.html)
 
 ------------------------------------------------------------------------------------
 ACKNOWLEDGMENTS:
