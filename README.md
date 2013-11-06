@@ -180,13 +180,9 @@ Figure 2. Completed globe renderer, night side.
 PART 2 WALKTHROUGH:
 -------------------------------------------------------------------------------
 
-In part 1, we render a globe with night lights on the unlit side; a specular 
-map so specular highlights only occur in the ocean; animated clouds; and bump 
-mapping, which perturbs the surface normal to give the appears of mountains.
-
-Open Globe\Globe\Globe.sln in Visual Studio and run it. You’ll see a globe 
+Open part2/frag_globe.html in Firefox to run it. You’ll see a globe 
 with Phong lighting like the one in Figure 3. All changes you need to make 
-will be in the fragment shader, fs.glsl.
+will be in the fragment shader portion of this file.
 
 ![Initial globe](resources/globe_initial.png)
 
