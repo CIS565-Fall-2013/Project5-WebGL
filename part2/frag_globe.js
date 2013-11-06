@@ -13,7 +13,7 @@
 
     var NUM_WIDTH_PTS = 64;
     var NUM_HEIGHT_PTS = 64;
-
+    
     var message = document.getElementById("message");
     var canvas = document.getElementById("canvas");
     var gl = createWebGLContext(canvas, message);
@@ -258,7 +258,7 @@
         mat4.multiplyVec4(view, [lightdir[0], lightdir[1], lightdir[2], 0.0], lightdest);
         lightdir = vec3.createFrom(lightdest[0],lightdest[1],lightdest[2]);
         vec3.normalize(lightdir);
-
+        
         ///////////////////////////////////////////////////////////////////////////
         // Render
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -288,6 +288,7 @@
         gl.activeTexture(gl.TEXTURE5);
         gl.bindTexture(gl.TEXTURE_2D, specTex);
         gl.uniform1i(u_EarthSpecLocation, 5);
+        gl.uniform1f (u_timeLocation, time);
         gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
 
         time += 0.001;
