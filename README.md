@@ -53,7 +53,7 @@ time. As is the case with all subsequent vertex shaders in this readme, the
 grid has been colored with a gradient value from red (minimum value) to 
 blue (maximum value).
  
-[![Video](https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/preview_001.png)] (rarietta.github.io/Project5-WebGL/part1/vert_wave.html)
+[![Video](https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/preview_001.png)] (http://rarietta.github.io/Project5-WebGL/part1/vert_wave.html)
 
 -------------------------------------------------------------------------------
 Simplex Noise Wave
