@@ -71,6 +71,47 @@
 
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
 
+    vec3 permute(vec3 x) {
+      x = ((x*34.0)+1.0)*x;
+      return x - floor(x * (1.0 / 289.0)) * 289.0;
+    }
+
+    float simplexNoise(vec2 v)
+    {
+      const vec4 C = vec4(0.211324865405187, 0.366025403784439,  -0.577350269189626, 0.024390243902439); 
+
+      vec2 i  = floor(v + dot(v, C.yy) );
+      vec2 x0 = v -   i + dot(i, C.xx);
+
+      vec2 i1;
+      i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+
+      vec4 x12 = x0.xyxy + C.xxzz;
+      x12.xy -= i1;
+
+      i = i - floor(i * (1.0 / 289.0)) * 289.0;
+
+      vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
+            + i.x + vec3(0.0, i1.x, 1.0 ));
+
+      vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+      m = m*m ;
+      m = m*m ;
+
+      vec3 x = 2.0 * fract(p * C.www) - 1.0;
+      vec3 h = abs(x) - 0.5;
+      vec3 ox = floor(x + 0.5);
+      vec3 a0 = x - ox;
+
+      m *= inversesqrt( a0*a0 + h*h );
+
+      vec3 g;
+      g.x  = a0.x  * x0.x  + h.x  * x0.y;
+      g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+      return 130.0 * dot(m, g);
+    }
+
+
     void main(void)
     {
         // surface normal - normalized after rasterization
@@ -98,44 +139,93 @@
         float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
         specular = pow(specular, 20.0);
 
-        float gammaCorrect = 1.0/1.2; //gamma correct by 1/1.2
-
+        float gammaCorrect = 1.0/1.3; //gamma correct by 1/1.2
         
         vec3 dayColor = texture2D(u_DayDiffuse, v_Texcoord).rgb;
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
         //apply gamma correction to nighttime texture
         nightColor = pow(nightColor,vec3(gammaCorrect));
+        //dayColor = pow(dayColor, vec3(gammaCorrect));
 
         vec3 earthColor = texture2D(u_EarthSpec, v_Texcoord).rgb;
         specular *= length(earthColor);
-        // if(length(earthColor) == 0.0)
-        //     specular = 0.0;
-        // else{
-        //     float s_contrib = sin(v_positionMC.x*2.0*3.14159 + u_time*10.0);
-        //     float t_contrib = cos(v_positionMC.y*2.0*3.14159 + u_time*10.0);
-        //     float height = s_contrib*t_contrib;
-        //     //v_positionMC.y = height;
-        //     //eastNorthUpToEyeCoordinates(v_positionMC,);
-        //     vec3 highColor = vec3(0.0, 0.2, 0.7);
-        //     vec3 lowColor = vec3(0.0, 0.8, 1.0);
-        //     //bumpDiffuse = diffuse;
-        //    // dayColor = mix(lowColor, highColor, height);
-        // }
+    
+        if(length(earthColor) >= 0.1)
+        {
+            //float dis = distance(v_Texcoord, vec2(0.5,0.5))*10.0;
+            // float timeScale = 2.0;
+            // float scaler = 0.9;
+            // vec2 simplexVec = vec2(u_time*timeScale, v_Texcoord.s);
+            // float ran = simplexNoise(simplexVec);
+            // float s_contrib = sin(v_Texcoord.x*2.0*3.14159*ran + u_time*timeScale);
+            // float t_contrib = cos(v_Texcoord.y*2.0*3.14159*ran + u_time*timeScale);
+            // //float len = length(vec2(s_contrib, t_contrib));
+            // float heightCenter = s_contrib*t_contrib*scaler;
+            // //float heightCenter = sin(len)/len;
+
+            // simplexVec = vec2(u_time*timeScale, (v_Texcoord.s + 1.0/1024.0));
+            // ran = simplexNoise(simplexVec);
+            // s_contrib = sin((v_Texcoord.s + 1.0/1024.0)*2.0*3.14159*ran + u_time*timeScale);
+            // t_contrib = cos(v_Texcoord.t*2.0*3.14159*ran + u_time*timeScale);
+            // //len = length(vec2(s_contrib, t_contrib));
+            // float heightRight = s_contrib*t_contrib*scaler;
+            // //float heightRight = sin(len)/len;
+
+            // simplexVec = vec2(u_time*timeScale, (v_Texcoord.t + 1.0/512.0));
+            // ran = simplexNoise(simplexVec);
+            // s_contrib = sin(v_Texcoord.s*2.0*3.14159*ran + u_time*timeScale);
+            // t_contrib = cos((v_Texcoord.t + 1.0/512.0)*2.0*3.14159*ran + u_time*timeScale);
+            // //len = length(vec2(s_contrib, t_contrib));
+            // float heightTop = s_contrib*t_contrib*scaler;
+            // //float heightTop = sin(len)/len;
+
+            float timeScale = 7.0;
+            float scaler = 180.0;
+            vec2 simplexVec = vec2(v_Texcoord.s * scaler, v_Texcoord.t * scaler);
+            float s_contrib = simplexNoise(simplexVec);
+            float t_contrib = simplexNoise(vec2(s_contrib,u_time*timeScale));
+            float heightCenter = s_contrib*t_contrib;
+
+            simplexVec = vec2((v_Texcoord.s + 1.0/1024.0)*scaler, v_Texcoord.t * scaler);
+            s_contrib = simplexNoise(simplexVec);
+            t_contrib = simplexNoise(vec2(s_contrib,u_time*timeScale));
+            float heightRight = s_contrib*t_contrib;
+
+            simplexVec = vec2(v_Texcoord.s * scaler, (v_Texcoord.t + 1.0/768.0)*scaler);
+            s_contrib = simplexNoise(simplexVec);
+            t_contrib = simplexNoise(vec2(s_contrib,u_time*timeScale));
+            float heightTop = s_contrib*t_contrib;
+
+            vec3 seasNormal = normalize(vec3(heightCenter - heightRight, heightCenter - heightTop, 0.2));
+            seasNormal = normalize(eastNorthUpToEyeCoordinates(v_positionMC, normal) * seasNormal);
+
+            // toReflectedLight = reflect(-u_CameraSpaceDirLight, seasNormal);
+            // specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
+            // specular = pow(specular, 20.0);
+
+            bumpDiffuse = clamp(dot(u_CameraSpaceDirLight, seasNormal), 0.0, 1.0);
+
+            vec3 highColor = vec3(0.0, 0.2, 0.7);
+            vec3 lowColor = vec3(0.7, 0.8, 1.0);
+        }
 
         //offset value
-        float s = (2.0 * u_time * 20.0)/1024.0;
+        float s = (5.0 * u_time * 20.0)/1024.0;
         vec3 cloudColor = texture2D(u_Cloud, vec2(v_Texcoord.x + s, v_Texcoord.y)).rgb;
         vec3 cloudTransColor = texture2D(u_CloudTrans, vec2(v_Texcoord.x + s, v_Texcoord.y)).rgb;
         vec3 dayCloudColor = mix(cloudColor, vec3(0.0,0.0,0.0), cloudTransColor);
 
-        nightColor = mix(vec3(0.0,0.0,0.0), nightColor,cloudTransColor);
+        //for test puprose
+        //dayCloudColor = vec3(0.0);
+
+        nightColor = mix(vec3(0.0,0.0,0.0), nightColor, cloudTransColor);
 
         //rim lighting
         float rimFactor = dot(v_Position, v_Normal) + 1.0;
         vec4 rimColor = vec4(rimFactor/4.0, rimFactor/2.0, rimFactor/2.0, 1);
 
         vec3 color = mix(nightColor, ((0.6 * bumpDiffuse) + (0.4 * specular)) * (dayColor), diffuse) 
-                    + mix(vec3(0.0), dayCloudColor * diffuse * 0.6, diffuse);
+                    + dayCloudColor * diffuse * 0.6;
         if(rimFactor > 0.0)
             color += rimColor.rgb;
 
