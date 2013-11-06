@@ -55,6 +55,8 @@
     var u_EarthSpecLocation;
     var u_BumpLocation;
     var u_timeLocation;
+    var u_resInverseLocation;
+
 
     (function initializeShader() {
         var vs = getShaderSource(document.getElementById("vs"));
@@ -76,7 +78,8 @@
         u_BumpLocation = gl.getUniformLocation(program,"u_Bump");
         u_timeLocation = gl.getUniformLocation(program,"u_time");
         u_CameraSpaceDirLightLocation = gl.getUniformLocation(program,"u_CameraSpaceDirLight");
-
+        u_resInverseLocation = gl.getUniformLocation(program,"u_resInverse");
+            
         gl.useProgram(program);
     })();
 
@@ -256,6 +259,7 @@
         mat4.multiplyVec4(view, [lightdir[0], lightdir[1], lightdir[2], 0.0], lightdest);
         lightdir = vec3.createFrom(lightdest[0],lightdest[1],lightdest[2]);
         vec3.normalize(lightdir);
+        var resInverse = vec2.create([1.0/1024.0,1.0/512.0]);
 
         ///////////////////////////////////////////////////////////////////////////
         // Render
@@ -265,8 +269,10 @@
         gl.uniformMatrix4fv(u_ViewLocation, false, view);
         gl.uniformMatrix4fv(u_PerspLocation, false, persp);
         gl.uniformMatrix4fv(u_InvTransLocation, false, invTrans);
-
+        
         gl.uniform3fv(u_CameraSpaceDirLightLocation, lightdir);
+        gl.uniform1f(u_timeLocation,time);
+        gl.uniform2fv(u_resInverseLocation,resInverse);
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, dayTex);
