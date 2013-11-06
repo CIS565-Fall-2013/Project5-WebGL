@@ -53,7 +53,7 @@ time. As is the case with all subsequent vertex shaders in this readme, the
 grid has been colored with a gradient value from red (minimum value) to 
 blue (maximum value).
  
-[![Video](https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/preview_001.png)] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/video_001.png)
+[![Video](https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/preview_001.png)] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/video_001.avi)
 
 -------------------------------------------------------------------------------
 Subtitle2
@@ -62,7 +62,7 @@ Subtitle2
 Instead of a sin-based noise function, this vertex shader implements a
 simplex noise function.
 
-[![Video](https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/preview_002.png)] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/video_002.png)
+[![Video](https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/preview_002.png)] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/video_002.avi)
 
 -------------------------------------------------------------------------------
 Subtitle3
@@ -74,7 +74,7 @@ shader was a crucial stepping stone in the development of the noise-based
 wave generation in the WebGL globe fragment shader below, and for that
 reason I have chosen to include it as my third vertex noise shader.
 
-[![Video](https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/preview_003.png)] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/video_003.png)
+[![Video](https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/preview_003.png)] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/video_003.avi)
 
 -------------------------------------------------------------------------------
 Subtitle4
@@ -145,7 +145,7 @@ browser. As noted above, this video is useful for demonstration but greatly
 lacks in quality and framerate. To view the live demonstration of the globe,
 please follow this link: 
 
-[![Video](https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/globe/preview_001.png)] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/globe/video_001.png)
+[![Video](https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/globe/preview_001.png)] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/globe/video_001.avi)
 
 ------------------------------------------------------------------------------------
 ACKNOWLEDGMENTS:
