@@ -45,7 +45,7 @@ As noted above, please follow the links to view the live shaders in action. The
 quality of the following screen capture videos is not as good as the real thing.
 
 -------------------------------------------------------------------------------
-Subtitle1
+Sine-Based Wave
 -------------------------------------------------------------------------------
 
 This first vertex shader implements a sin-based noise funtion varying over
@@ -56,7 +56,7 @@ blue (maximum value).
 [![Video](https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/preview_001.png)] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/video_001.avi)
 
 -------------------------------------------------------------------------------
-Subtitle2
+Simplex Noise Wave
 -------------------------------------------------------------------------------
 
 Instead of a sin-based noise function, this vertex shader implements a
@@ -65,7 +65,7 @@ simplex noise function.
 [![Video](https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/preview_002.png)] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/video_002.avi)
 
 -------------------------------------------------------------------------------
-Subtitle3
+Custom Wave
 -------------------------------------------------------------------------------
 
 This third vertex shader is also a sin-based shader. Although it is similar
@@ -75,10 +75,6 @@ wave generation in the WebGL globe fragment shader below, and for that
 reason I have chosen to include it as my third vertex noise shader.
 
 [![Video](https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/preview_003.png)] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/waves/video_003.avi)
-
--------------------------------------------------------------------------------
-Subtitle4
--------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------------
 PART 2: WebGL Interactive Globe Rendering with GLSL Fragment Shaders
