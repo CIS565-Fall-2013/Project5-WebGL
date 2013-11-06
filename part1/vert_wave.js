@@ -26,11 +26,14 @@
     var center = [0.0, 0.0, 0.0];
     var up = [0.0, 0.0, 1.0];
     var view = mat4.create();
+    var eclipseTime = 0;;
+
     mat4.lookAt(eye, center, up, view);
 
     var positionLocation = 0;
     var heightLocation = 1;
     var u_modelViewPerspectiveLocation;
+    var u_timeLocation;
 
     (function initializeShader() {
         var program;
@@ -40,7 +43,8 @@
 		var program = createProgram(context, vs, fs, message);
 		context.bindAttribLocation(program, positionLocation, "position");
 		u_modelViewPerspectiveLocation = context.getUniformLocation(program,"u_modelViewPerspective");
-
+        
+        u_timeLocation = context.getUniformLocation( program, "u_time" );
         context.useProgram(program);
     })();
 
@@ -141,10 +145,13 @@
         ///////////////////////////////////////////////////////////////////////////
         // Render
         context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
-
+        
+        //increae delta Time
+        context.uniform1f( u_timeLocation, eclipseTime );
+        eclipseTime += 0.01;
         context.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp);
         context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
-
+         
 		window.requestAnimFrame(animate);
     })();
 

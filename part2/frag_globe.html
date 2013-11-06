@@ -40,6 +40,7 @@
 </script>
 
 <script id="fs" type="x-shader/x-fragment">
+    #extension GL_OES_standard_derivatives:enable
     precision highp float;
 
     //View-Space directional light
@@ -77,8 +78,23 @@
         vec3 normal = normalize(v_Normal);
         // normalized eye-to-position vector in camera coordinates
         vec3 eyeToPosition = normalize(v_Position);
+
+        //retrieve bump map value and approximate the normal
+        float height = texture2D( u_Bump, v_Texcoord ).r;
+        float heightRight = texture2D( u_Bump, vec2( v_Texcoord.x + 0.0009765625, v_Texcoord.y ) ).r; 
+        float heightUp = texture2D( u_Bump, vec2( v_Texcoord.x, v_Texcoord.y + 0.001953125 ) ).r;
+
+        //Rim factor 
+        float rim_factor = dot( normal, eyeToPosition ) + 1.0;
         
-        float diffuse = clamp(dot(u_CameraSpaceDirLight, normal), 0.0, 1.0);
+        //calcuate normal of land 
+        vec3 landNormal = normalize( vec3( height - heightRight, height - heightUp, 0.2 ) );
+        mat3 matr = eastNorthUpToEyeCoordinates( v_positionMC, normal );
+        landNormal = normalize( matr*landNormal );
+        
+        float diffuse = clamp(dot(u_CameraSpaceDirLight, normal ), 0.0, 1.0);
+        float landDiffuse = clamp(dot(u_CameraSpaceDirLight, landNormal ), 0.0, 1.0);
+        float nightDiffuse= -clamp(dot(u_CameraSpaceDirLight, normal)*5.0, -1.0, 0.0 );
 
         vec3 toReflectedLight = reflect(-u_CameraSpaceDirLight, normal);
         float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
@@ -86,13 +102,25 @@
 
         float gammaCorrect = 1.0/1.2; //gamma correct by 1/1.2
 
+
         vec3 dayColor = texture2D(u_DayDiffuse, v_Texcoord).rgb;
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
+        
+        vec3 specularMask = texture2D( u_EarthSpec, v_Texcoord ).rgb;
+        vec3 cloudColor =  texture2D( u_Cloud, vec2( v_Texcoord.x+u_time, v_Texcoord.y) ).rgb;
+        float cloudTrans = texture2D( u_CloudTrans, vec2( v_Texcoord.x+u_time, v_Texcoord.y) ).r;
+
         //apply gamma correction to nighttime texture
         nightColor = pow(nightColor,vec3(gammaCorrect));
+        
+        vec3 color = ((0.6 * landDiffuse) + (0.4 * specular * specularMask )) * dayColor;
+        color = mix( cloudColor*diffuse, color, cloudTrans );
 
-        vec3 color = ((0.6 * diffuse) + (0.4 * specular)) * dayColor;
-        gl_FragColor = vec4(color, 1.0);
+        color += 2.0 * mix( vec3(0,0,0), mix( vec3(0,0,0), nightColor,cloudTrans), nightDiffuse );
+        
+        
+        vec4 rimColor = vec4( rim_factor/4.0, rim_factor/2.0, rim_factor/2.0 ,1.0) * smoothstep( 0.7,  1.0, rim_factor );
+        gl_FragColor = vec4(color, 1.0) + rimColor;
     }
 
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC)
@@ -109,6 +137,14 @@
             bitangentEC.x, bitangentEC.y, bitangentEC.z,
             normalEC.x,    normalEC.y,    normalEC.z);
     }
+
+    // mat3 eyeToTangentSpace( vec2 texcoord, vec3 posEC )
+    // {
+    //     vec2 st0 = dFdx( texcoord );
+    //     vec2 st1 = dFdy( texcoord);
+
+
+    // }
 </script>
 
 <script src ="gl-matrix.js" type ="text/javascript"></script>
