@@ -92,15 +92,36 @@
         nightColor = pow(nightColor,vec3(gammaCorrect));
 
 
+        // retrieving cloud colors
+        vec3 cloudColor = texture2D(u_Cloud, v_Texcoord).rgb;
+        vec3 cloudTrans = texture2D(u_CloudTrans, v_Texcoord).rgb;
+
         vec3 color = vec3(0,0,0);
         float dayColorCoeff = ((0.6 * diffuse) + (0.4 * specular));
 
-        if (diffuse == 0.0)
+        color = mix(nightColor, dayColorCoeff*dayColor, diffuse*2.0);
+        vec3 dayTimeCloud =  mix(cloudColor, color, cloudTrans);
+        vec3 nightTimeCloud = mix(vec3(0,0,0), color, cloudTrans);
+        vec3 mixedCloud = mix(nightTimeCloud, dayTimeCloud , diffuse*2.0);
+        color = mix(mixedCloud, color, cloudTrans);
+        
+
+        /*if (diffuse == 0.0) 
+        {
             color = nightColor;
+            color = mix(vec3(0,0,0), color, cloudTrans);
+        }
         else if (diffuse > 0.0 && diffuse < 0.1)
+        {
             color = mix(nightColor, dayColorCoeff*dayColor, diffuse / 0.1);
+            vec3 intermCloudColor = mix(vec3(0,0,0), cloudColor, cloudTrans);
+            color = mix(intermCloudColor, color, cloudTrans);
+        }
         else 
+        {
             color = dayColorCoeff * dayColor;
+            color = mix(cloudColor, color, cloudTrans);
+        }*/
 
         gl_FragColor = vec4(color, 1.0);
     }
