@@ -124,6 +124,10 @@
         else    
            color = dayColor; 
            //((0.6 * diffuse) + (0.4 * specular)) * dayColor;
+
+        float rimFactor = dot(v_Normal,v_Position)+1.0;   
+        if(rimFactor>0.0)
+            color+= vec3(rimFactor/4.0,rimFactor/2.0,rimFactor/2.0);
         gl_FragColor = vec4(color, 1.0);
     }
 
