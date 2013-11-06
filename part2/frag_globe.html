@@ -42,9 +42,15 @@
 <script id="fs" type="x-shader/x-fragment">
     precision highp float;
 
+	float PI = 3.14159265358979323846264;
+	
     //View-Space directional light
     //A unit vector
     uniform vec3 u_CameraSpaceDirLight;
+	
+	uniform vec3 u_eyeMC;
+	
+	uniform vec3 u_DirLightMC;
 
     //Diffuse texture map for the day
     uniform sampler2D u_DayDiffuse;
@@ -70,15 +76,92 @@
     varying vec3 v_positionMC;          // position in model coordinates
 
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
-
+	vec2 angleToTexCoord(vec2 thetaPhi);
+	vec2 texCoordToAngle(vec2 st);
+	vec3 cartesianToSpherical(vec3 xyz, vec3 center);
+	vec3 sphericalToCartesian(vec3 radThetaPhi);
+	float simplexNoise(vec2 v);
+	
+	float surface3 ( vec3 coord );
+	
+	
+	vec3 permute(vec3 x) {
+	  x = ((x*34.0)+1.0)*x;
+	  return x - floor(x * (1.0 / 289.0)) * 289.0;
+	}
+	
+	vec2 texel = vec2(1.0/1024.0, 1.0/512.0);
+	
+	float parallaxHeight = 0.1;
+	
+	float intersectHeightMap()
+	{
+		return -1.0;
+	}
+	
+	float intersectSphere(vec3 pos, vec3 dir, vec3 center, float radius)
+	{
+		// Assumption: direction is normalized
+		float b = dot(dir, pos-center);
+		float d = b*b - (dot(pos-center,pos-center) - radius*radius);
+		if( d < 0.0) return -1.0;
+		float sqr = sqrt(d);
+		float t1 = -b + sqr;
+		float t2 = -b - sqr;
+		
+		if(t1 < 0.0 && t2 < 0.0)
+			return -1.0;
+		else if( t1 > 0.0 && t2 > 0.0)
+			return min(t1,t2);
+		else 
+			return max(t1,t2);
+	}
+	
+	vec2 parallaxOcclusionMap()
+	{
+		vec3 parallaxVector = normalize(v_positionMC - u_eyeMC);
+		return vec2(0.0,0.0);
+	}
+	
+	float cloudNoiseCalc(vec2 textureCoord)
+	{
+		/*
+		// Use different noise!
+		float simplex_a = simplexNoise(texCoordToAngle(textureCoord)*10.0);
+		float simplex_b = simplexNoise(vec2(simplex_a, 0.1* u_time)) - 0.5;
+		float simplex_c = simplexNoise(vec2(simplex_b, 0.1* u_time)) - 0.5;
+		float u = clamp(simplex_b,0.0,1.0);
+		float v = clamp(simplex_c,0.0,1.0);
+		
+		float cloudNoise = texture2D(u_CloudTrans,vec2(u,v)).r; //clamp(simplex_b,0.0,1.0);	
+		*/
+		
+		float cloudNoise = surface3(vec3(texCoordToAngle(textureCoord)*1.25, u_time * 0.25)) - 0.75;
+		
+		cloudNoise = clamp(2.0* cloudNoise,0.0,0.80);	
+		
+		return cloudNoise;
+	}
+	
     void main(void)
-    {
+    {	
         // surface normal - normalized after rasterization
         vec3 normal = normalize(v_Normal);
         // normalized eye-to-position vector in camera coordinates
         vec3 eyeToPosition = normalize(v_Position);
         
-        float diffuse = clamp(dot(u_CameraSpaceDirLight, normal), 0.0, 1.0);
+		float center = texture2D(u_Bump,v_Texcoord).r;
+		float right = texture2D(u_Bump, v_Texcoord + vec2(texel.s,0.0)).r;
+		float top = texture2D(u_Bump, v_Texcoord + vec2(0.0,texel.t)).r;
+		
+		float bumpDepth = 0.4;
+		vec3 bumpNormal = normalize(vec3(center - right, center - top, bumpDepth));
+		bumpNormal = normalize(eastNorthUpToEyeCoordinates(v_positionMC, v_Normal) * bumpNormal);	
+		
+        float diffuse = dot(u_CameraSpaceDirLight, normal);
+		float diffuseClamp = clamp(diffuse,0.0,1.0);
+		float diffuseBump = dot(u_CameraSpaceDirLight, bumpNormal);
+		float diffuseBumpClamp = clamp(diffuseBump,0.0,1.0);
 
         vec3 toReflectedLight = reflect(-u_CameraSpaceDirLight, normal);
         float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
@@ -86,14 +169,149 @@
 
         float gammaCorrect = 1.0/1.2; //gamma correct by 1/1.2
 
+		//vec2 offsetTexcoord = vec2(0.0);
+		vec2 offsetTexcoord = vec2(0.025*u_time,0.0);
+		
+		float rim = dot(v_Normal, v_Position) + 1.2;
+		vec4 rimColor = clamp(vec4(rim/4.0, rim/2.0, rim/2.0,1.0),0.0,1.0);
+		
+		
         vec3 dayColor = texture2D(u_DayDiffuse, v_Texcoord).rgb;
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
+		vec3 cloudColor = texture2D(u_Cloud, v_Texcoord + offsetTexcoord).rgb;
+		float cloudTrans = texture2D(u_CloudTrans, v_Texcoord + offsetTexcoord).r;
         //apply gamma correction to nighttime texture
         nightColor = pow(nightColor,vec3(gammaCorrect));
 
-        vec3 color = ((0.6 * diffuse) + (0.4 * specular)) * dayColor;
-        gl_FragColor = vec4(color, 1.0);
+		vec3 color;
+		
+		float kspec = 0.4 * texture2D(u_EarthSpec,v_Texcoord).r;
+        vec3 baseColor = ((0.6 * diffuseBumpClamp) + (kspec * specular)) * dayColor;
+		
+		
+		/********* Cloud Dynamic ***********/
+		/* Use simplex noise to blend in   */
+		/* and out some of the clouds.     */
+		/* take into account in cloud      */
+		/* shadow code as well.            */
+		/***********************************/
+				
+		float cloudNoise = cloudNoiseCalc(v_Texcoord + offsetTexcoord);
+		cloudColor += vec3(cloudNoise);
+		cloudTrans *= 1.0 - cloudNoise;
+		
+		//gl_FragColor = vec4(vec3(cloudColor),1.0);
+		//return; 
+		
+		/********* End Morph Cloud *********/
+		
+		cloudColor *= diffuseClamp;		
+		
+		/********* Cloud Shadow ***********/
+		// light ray direction: u_CameraSpaceDirLight
+		// method:
+		//   - find position at "height" lower than surface of sphere
+		//   - shoot ray towards light (lightDir)
+		//   - intersect with regular geometry
+		//   - find texture coordinates from model coordinates (via theta, phi)
+		//   - look up textures for cloud transparency and cloud cover to calculate shadows
+		/**********************************/
+			
+		// sphere center in model coordinates is always 0-0-0
+		vec3 sphereCenter = vec3(0.0,0.0,0.0);		
+		float radius = length(v_positionMC-sphereCenter);
+		vec3 groundPosition = v_positionMC - parallaxHeight * (v_positionMC-sphereCenter) / radius;
+		float intersectionDepth = intersectSphere(groundPosition, normalize(u_DirLightMC), sphereCenter, radius);
+		
+		vec3 outerSpherePos = groundPosition + intersectionDepth * normalize(u_DirLightMC);
+		vec2 intersectTexCoords = angleToTexCoord(cartesianToSpherical(outerSpherePos,sphereCenter).yz);
+		intersectTexCoords += offsetTexcoord;
+		float cloudTransTexLookup = texture2D(u_CloudTrans, intersectTexCoords).r;
+
+		// look up cloud noise
+		float cloudNoiseShadow = cloudNoiseCalc(intersectTexCoords);
+		
+		float cloudShadowMix = (cloudTransTexLookup) * (1.0 - cloudNoiseShadow);
+		
+		//baseColor = vec3(0.0,0.0,0.0);
+		baseColor *= cloudShadowMix;
+		
+		/************ End Shadows *********/
+		
+		//color = baseColor;
+		color = mix(cloudColor,baseColor,cloudTrans);
+		
+		float dayNightBlend = 0.2;
+		if(diffuse < dayNightBlend)
+		{
+			float alpha = clamp((diffuse - -dayNightBlend)/(2.0 * dayNightBlend),0.0,1.0 ) ;
+						
+			vec3 nightFinal = nightColor;
+			nightFinal = mix(vec3(0.0,0.0,0.0),nightFinal,cloudTrans);
+			
+			color = mix(nightFinal,color,alpha);
+		}
+		
+		/*
+		
+		// Confirming thetaphi to xy works
+		// gl_FragColor =  vec4(v_Texcoord,0.0,1.0);
+		// gl_FragColor = vec4 ( angleToTexCoord(texCoordToAngle(v_Texcoord)),0.0,1.0);
+	
+		vec2 thetaPhi = texCoordToAngle(v_Texcoord);
+		vec3 radThetaPhi = cartesianToSpherical(v_positionMC,vec3(0.0,0.0,0.0));
+		
+		vec3 reCalcPos = sphericalToCartesian(vec3(1.0,thetaPhi));
+
+		vec3 recalcPosThetaPhi = sphericalToCartesian(radThetaPhi);
+
+		gl_FragColor = vec4(normalize(v_positionMC - u_eyeMC),1.0);
+		*/
+		
+		gl_FragColor = vec4(color, 1.0) + rimColor;
+		
     }
+	
+	vec3 cartesianToSpherical(vec3 xyz, vec3 center)
+	{
+		vec3 pos = xyz - center;
+		vec3 radThetaPhi;
+		
+		radThetaPhi.x = length(pos);
+		radThetaPhi.z = acos(pos.y/radThetaPhi.x);
+		radThetaPhi.y = atan(pos.z, pos.x) ; 
+		
+		return radThetaPhi;
+	}
+	
+	vec3 sphericalToCartesian(vec3 radThetaPhi)
+	{
+		float radius = radThetaPhi.x;
+		float theta  = radThetaPhi.y;
+		float phi 	 = radThetaPhi.z;
+	
+		float x = radius * sin(phi) * cos(theta);
+		float y = radius * cos(phi);
+		float z = radius * sin(phi) * sin(theta);
+		
+		return vec3(x,y,z);
+	}
+	
+	// s varies from 0-1, around the sphere
+	// t varies from 0-1, from BOTTOM TO TOP
+
+	// theta should vary from 0-2*pi around the sphere
+	// phi should vary from 0 - pi from top to bottom	
+	
+	vec2 angleToTexCoord(vec2 thetaPhi)
+	{
+		return vec2 ( 1.0 - thetaPhi.s / (2.0*PI), /*1.0 - */thetaPhi.t/PI );
+	}
+	
+	vec2 texCoordToAngle(vec2 st)
+	{		
+		return vec2 ( 2.0 * PI * (1.0 - st.s), PI * (/*1.0 - */st.t));
+	}
 
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC)
     {
@@ -109,6 +327,129 @@
             bitangentEC.x, bitangentEC.y, bitangentEC.z,
             normalEC.x,    normalEC.y,    normalEC.z);
     }
+	
+
+	// Noice reference: http://glsl.heroku.com/e#1413.0
+	//
+	// GLSL textureless classic 3D noise "cnoise",
+	// with an RSL-style periodic variant "pnoise".
+	// Author:  Stefan Gustavson (stefan.gustavson@liu.se)
+	// Version: 2011-10-11
+	//
+	// Many thanks to Ian McEwan of Ashima Arts for the
+	// ideas for permutation and gradient selection.
+	//
+	// Copyright (c) 2011 Stefan Gustavson. All rights reserved.
+	// Distributed under the MIT license. See LICENSE file.
+	// https://github.com/ashima/webgl-noise
+	//
+
+	vec3 mod289(vec3 x)
+	{
+	  return x - floor(x * (1.0 / 289.0)) * 289.0;
+	}
+
+	vec4 mod289(vec4 x)
+	{
+	  return x - floor(x * (1.0 / 289.0)) * 289.0;
+	}
+
+	vec4 permute(vec4 x)
+	{
+	  return mod289(((x*34.0)+1.0)*x);
+	}
+
+	vec4 taylorInvSqrt(vec4 r)
+	{
+	  return 1.79284291400159 - 0.85373472095314 * r;
+	}
+
+	vec3 fade(vec3 t) {
+	  return t*t*t*(t*(t*6.0-15.0)+10.0);
+	}
+
+	// Classic Perlin noise
+	float cnoise(vec3 P)
+	{
+	  vec3 Pi0 = floor(P); // Integer part for indexing
+	  vec3 Pi1 = Pi0 + vec3(1.0); // Integer part + 1
+	  Pi0 = mod289(Pi0);
+	  Pi1 = mod289(Pi1);
+	  vec3 Pf0 = fract(P); // Fractional part for interpolation
+	  vec3 Pf1 = Pf0 - vec3(1.0); // Fractional part - 1.0
+	  vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);
+	  vec4 iy = vec4(Pi0.yy, Pi1.yy);
+	  vec4 iz0 = Pi0.zzzz;
+	  vec4 iz1 = Pi1.zzzz;
+
+	  vec4 ixy = permute(permute(ix) + iy);
+	  vec4 ixy0 = permute(ixy + iz0);
+	  vec4 ixy1 = permute(ixy + iz1);
+
+	  vec4 gx0 = ixy0 * (1.0 / 7.0);
+	  vec4 gy0 = fract(floor(gx0) * (1.0 / 7.0)) - 0.5;
+	  gx0 = fract(gx0);
+	  vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);
+	  vec4 sz0 = step(gz0, vec4(0.0));
+	  gx0 -= sz0 * (step(0.0, gx0) - 0.5);
+	  gy0 -= sz0 * (step(0.0, gy0) - 0.5);
+
+	  vec4 gx1 = ixy1 * (1.0 / 7.0);
+	  vec4 gy1 = fract(floor(gx1) * (1.0 / 7.0)) - 0.5;
+	  gx1 = fract(gx1);
+	  vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);
+	  vec4 sz1 = step(gz1, vec4(0.0));
+	  gx1 -= sz1 * (step(0.0, gx1) - 0.5);
+	  gy1 -= sz1 * (step(0.0, gy1) - 0.5);
+
+	  vec3 g000 = vec3(gx0.x,gy0.x,gz0.x);
+	  vec3 g100 = vec3(gx0.y,gy0.y,gz0.y);
+	  vec3 g010 = vec3(gx0.z,gy0.z,gz0.z);
+	  vec3 g110 = vec3(gx0.w,gy0.w,gz0.w);
+	  vec3 g001 = vec3(gx1.x,gy1.x,gz1.x);
+	  vec3 g101 = vec3(gx1.y,gy1.y,gz1.y);
+	  vec3 g011 = vec3(gx1.z,gy1.z,gz1.z);
+	  vec3 g111 = vec3(gx1.w,gy1.w,gz1.w);
+
+	  vec4 norm0 = taylorInvSqrt(vec4(dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)));
+	  g000 *= norm0.x;
+	  g010 *= norm0.y;
+	  g100 *= norm0.z;
+	  g110 *= norm0.w;
+	  vec4 norm1 = taylorInvSqrt(vec4(dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)));
+	  g001 *= norm1.x;
+	  g011 *= norm1.y;
+	  g101 *= norm1.z;
+	  g111 *= norm1.w;
+
+	  float n000 = dot(g000, Pf0);
+	  float n100 = dot(g100, vec3(Pf1.x, Pf0.yz));
+	  float n010 = dot(g010, vec3(Pf0.x, Pf1.y, Pf0.z));
+	  float n110 = dot(g110, vec3(Pf1.xy, Pf0.z));
+	  float n001 = dot(g001, vec3(Pf0.xy, Pf1.z));
+	  float n101 = dot(g101, vec3(Pf1.x, Pf0.y, Pf1.z));
+	  float n011 = dot(g011, vec3(Pf0.x, Pf1.yz));
+	  float n111 = dot(g111, Pf1);
+
+	  vec3 fade_xyz = fade(Pf0);
+	  vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);
+	  vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
+	  float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x); 
+	  return 2.2 * n_xyz;
+	}
+
+	float surface3 ( vec3 coord ) {
+		
+		float frequency = 4.0;
+		float n = 0.0;	
+			
+		n += 1.0	* abs( cnoise( coord * frequency ) );
+		n += 0.5	* abs( cnoise( coord * frequency * 2.0 ) );
+		n += 0.25	* abs( cnoise( coord * frequency * 4.0 ) );
+		
+		return n;
+	}
+	
 </script>
 
 <script src ="gl-matrix.js" type ="text/javascript"></script>

@@ -56,6 +56,9 @@
     var u_BumpLocation;
     var u_timeLocation;
 
+	var u_lightdirMCLocation;
+	var u_eyeMCLocation;
+	
     (function initializeShader() {
         var vs = getShaderSource(document.getElementById("vs"));
         var fs = getShaderSource(document.getElementById("fs"));
@@ -77,6 +80,9 @@
         u_timeLocation = gl.getUniformLocation(program,"u_time");
         u_CameraSpaceDirLightLocation = gl.getUniformLocation(program,"u_CameraSpaceDirLight");
 
+		u_lightdirMCLocation = gl.getUniformLocation(program,"u_DirLightMC");
+		u_eyeMCLocation = gl.getUniformLocation(program,"u_eyeMC");
+		
         gl.useProgram(program);
     })();
 
@@ -89,7 +95,7 @@
 
     function initLoadedTexture(texture){
         gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -152,7 +158,7 @@
                 positions[positionsIndex++] = Math.sin(inclination)*Math.cos(azimuth);
                 positions[positionsIndex++] = Math.cos(inclination);
                 positions[positionsIndex++] = Math.sin(inclination)*Math.sin(azimuth);
-                texCoords[texCoordsIndex++] = i / WIDTH_DIVISIONS;
+                texCoords[texCoordsIndex++] = 1.0  - i / WIDTH_DIVISIONS;
                 texCoords[texCoordsIndex++] = j / HEIGHT_DIVISIONS;
             } 
         }
@@ -241,22 +247,35 @@
         var model = mat4.create();
         mat4.identity(model);
         mat4.rotate(model, 23.4/180*Math.PI, [0.0, 0.0, 1.0]);
-        mat4.rotate(model, Math.PI, [1.0, 0.0, 0.0]);
-        mat4.rotate(model, -time, [0.0, 1.0, 0.0]);
+        //mat4.rotate(model, Math.PI, [1.0, 0.0, 0.0]);
+        mat4.rotate(model, time, [0.0, 1.0, 0.0]);
         var mv = mat4.create();
         mat4.multiply(view, model, mv);
 
+		var modelInv = mat4.create();
+		mat4.inverse(model,modelInv);
+		
         var invTrans = mat4.create();
         mat4.inverse(mv, invTrans);
         mat4.transpose(invTrans);
 
         var lightdir = vec3.create([1.0, 0.0, 1.0]);
         var lightdest = vec4.create();
+		var lightdirMC = vec3.create();
         vec3.normalize(lightdir);
+		
+		mat4.multiplyVec4(modelInv, [lightdir[0], lightdir[1], lightdir[2], 0.0], lightdest);
+		lightdirMC = vec3.createFrom(lightdest[0],lightdest[1],lightdest[2]);
+		vec3.normalize(lightdirMC);
+		
         mat4.multiplyVec4(view, [lightdir[0], lightdir[1], lightdir[2], 0.0], lightdest);
         lightdir = vec3.createFrom(lightdest[0],lightdest[1],lightdest[2]);
         vec3.normalize(lightdir);
 
+		var eyeModelSpace = vec4.create();
+		mat4.multiplyVec4(modelInv, [eye[0], eye[1], eye[2], 1.0], eyeModelSpace);
+		var eyeMC = vec3.create([eyeModelSpace[0],eyeModelSpace[1],eyeModelSpace[2]]);
+		
         ///////////////////////////////////////////////////////////////////////////
         // Render
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -266,8 +285,12 @@
         gl.uniformMatrix4fv(u_PerspLocation, false, persp);
         gl.uniformMatrix4fv(u_InvTransLocation, false, invTrans);
 
+		gl.uniform1f(u_timeLocation, time);
+		
         gl.uniform3fv(u_CameraSpaceDirLightLocation, lightdir);
-
+        gl.uniform3fv(u_lightdirMCLocation, lightdirMC);
+		gl.uniform3fv(u_eyeMCLocation, eyeMC);
+		
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, dayTex);
         gl.uniform1i(u_DayDiffuseLocation, 0);
