@@ -94,11 +94,18 @@ Texture Mapped Sphere
 
 ![Screenshot] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/globe/screenshot_001.png)
 
+This project began in the bare-bones state seen above, with a simple sphere
+surface texture mapped with the globe.
+ 
 -------------------------------------------------------------------------------
 Diffuse & Specular Lighting
 -------------------------------------------------------------------------------
 
 ![Screenshot] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/globe/screenshot_002.png)
+
+From the texture mapping above, along with the normal and position data at
+each fragment, diffuse and specular lighting calculations were simply
+performed for each fragment.
 
 -------------------------------------------------------------------------------
 Specular Mask for Land Masses
@@ -106,11 +113,25 @@ Specular Mask for Land Masses
 
 ![Screenshot] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/globe/screenshot_003.png)
 
+Using a second texture map of the globe as a mask, in which land mass points
+were colored black and water surface points were colored white, I was able to
+restrict the specular highlights to only the ocean surfaces. Whenever the 
+luminance of a texel on the mask was under a very low threshold, the
+specular component of the lighting calculation was ignored, thus leading
+to flat shading on solid land masses.
+ 
 -------------------------------------------------------------------------------
 Night-Time Lighting
 -------------------------------------------------------------------------------
 
 ![Screenshot] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/globe/screenshot_004.png)
+
+The next step involved mapping a nightime globe texture to any point where
+the diffuse lighting calculation was zero. I scaled the diffuse calculations
+appropriately to achieve a gradient across the light boundary, and gamma
+multiplied the nighttime texture to bring out the luminance. The values
+across the boundary were linearly interpolated between the night and day
+globe textures.
 
 -------------------------------------------------------------------------------
 Bump Mapping
@@ -118,11 +139,29 @@ Bump Mapping
 
 ![Screenshot] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/globe/screenshot_005.png)
 
+To achieve bump mapping in my fragment shader, I used yet another globe
+texture map. The luminance at each texel corresponded to the elevation of
+the fragment. By calculating the difference between any one texel and its
+neighbors in the right and up s-t-coordinate grid directions, I calculated
+the gradients in the "east" and "north" model directions. These could
+then be converted to eye space and used to perturb the fragment normal
+for diffuse lighting calculations.
+
 -------------------------------------------------------------------------------
 Noise-Generated Ocean Waves & Currents (Additional Feature)
 -------------------------------------------------------------------------------
 
 ![Screenshot] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/globe/screenshot_006.png)
+
+Using a variation of the third sine-based wave shader above, converted to
+use texture coordinates. Furthermore, I created a new texture map to
+reflect the ocean elevation and currents, seen below this description.
+Using these luminance values as another coefficient in the wave calculations,
+I was able to make the strongest and most frequent waves occur in parallel
+and close to the shore lines and along current paths, while the more gradual
+and less frequent waves occurred out at sea.
+
+![Screenshot] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/globe/waveintensity.png) 
 
 -------------------------------------------------------------------------------
 Global Rim Lighting
@@ -130,11 +169,19 @@ Global Rim Lighting
 
 ![Screenshot] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/globe/screenshot_007.png)
 
+Rim lighting was calculated at each fragment using the dot product of the
+fragment normal and model space position to replicate an atmospheric lighting
+effect.
+
 -------------------------------------------------------------------------------
 Animated Cloud Cover
 -------------------------------------------------------------------------------
 
 ![Screenshot] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/globe/screenshot_008.png)
+
+Cloud cover was calculated using two more texture maps, one for the cloud
+color and one for the cloud layer transparency at each fragment. This
+was mixed with the underlying surface luminance values.
 
 -------------------------------------------------------------------------------
 Final WebGL Render Video
@@ -150,3 +197,5 @@ please follow this link:
 ------------------------------------------------------------------------------------
 ACKNOWLEDGMENTS:
 ====================================================================================
+This project was built on a basic framework provided by Patrick Cozzi and Liam
+Boone for CIS 565 at The University of Pennsylvania, Fall 2013.
