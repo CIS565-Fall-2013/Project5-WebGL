@@ -55,12 +55,27 @@
     var u_EarthSpecLocation;
     var u_BumpLocation;
     var u_timeLocation;
+   
+    var u_MoonLocation;
+    var positionMoonLocation;
+    var normalMoonLocation;
+    var texCoordMoonLocation;
+    var u_ModelMoonLocation;
+    var u_InvTransMoonLocation;
+    var u_ModelMoonLocation;
+    var u_ViewMoonLocation;
+    var u_PerspMoonLocation;
+    var u_CameraSpaceDirLightMoonLocation;    
+    var u_BumpMoonLocation;
+
+    var program;
+    var program_moon;
 
     (function initializeShader() {
         var vs = getShaderSource(document.getElementById("vs"));
         var fs = getShaderSource(document.getElementById("fs"));
 
-        var program = createProgram(gl, vs, fs, message);
+        program = createProgram(gl, vs, fs, message);
         positionLocation = gl.getAttribLocation(program, "Position");
         normalLocation = gl.getAttribLocation(program, "Normal");
         texCoordLocation = gl.getAttribLocation(program, "Texcoord");
@@ -77,15 +92,30 @@
         u_timeLocation = gl.getUniformLocation(program,"u_time");
         u_CameraSpaceDirLightLocation = gl.getUniformLocation(program,"u_CameraSpaceDirLight");
 
-        gl.useProgram(program);
-    })();
+        var moon_vs = getShaderSource(document.getElementById("moon_vs")); 
+        var moon_fs = getShaderSource(document.getElementById("moon_fs")); 
 
-    var dayTex   = gl.createTexture();
-    var bumpTex  = gl.createTexture();
-    var cloudTex = gl.createTexture();
-    var transTex = gl.createTexture();
-    var lightTex = gl.createTexture();
-    var specTex  = gl.createTexture();
+        program_moon = createProgram(gl, moon_vs, moon_fs, message);
+        positionMoonLocation = gl.getAttribLocation(program_moon, "PositionMoon");
+        normalMoonLocation = gl.getAttribLocation(program_moon, "NormalMoon");
+        texCoordMoonLocation = gl.getAttribLocation(program_moon, "TexcoordMoon");
+        u_ModelMoonLocation = gl.getUniformLocation(program_moon,"u_ModelMoon");
+        u_ViewMoonLocation = gl.getUniformLocation(program_moon,"u_View");
+        u_PerspMoonLocation = gl.getUniformLocation(program_moon,"u_Persp");
+        u_InvTransMoonLocation = gl.getUniformLocation(program_moon,"u_InvTrans");
+        u_CameraSpaceDirLightMoonLocation = gl.getUniformLocation(program_moon,"u_CameraSpaceDirLight");
+        u_MoonLocation = gl.getUniformLocation(program_moon, "u_Moon");
+        u_BumpMoonLocation = gl.getUniformLocation(program_moon, "u_BumpMoon");
+   })();
+   
+    var dayTex      = gl.createTexture();
+    var bumpTex     = gl.createTexture();
+    var cloudTex    = gl.createTexture();
+    var transTex    = gl.createTexture();
+    var lightTex    = gl.createTexture();
+    var specTex     = gl.createTexture();
+    var moonTex     = gl.createTexture();
+    var moonBumpTex = gl.createTexture();
 
     function initLoadedTexture(texture){
         gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -237,12 +267,12 @@
     function animate() {
         ///////////////////////////////////////////////////////////////////////////
         // Update
-
         var model = mat4.create();
         mat4.identity(model);
         mat4.rotate(model, 23.4/180*Math.PI, [0.0, 0.0, 1.0]);
         mat4.rotate(model, Math.PI, [1.0, 0.0, 0.0]);
         mat4.rotate(model, -time, [0.0, 1.0, 0.0]);
+
         var mv = mat4.create();
         mat4.multiply(view, model, mv);
 
@@ -250,7 +280,7 @@
         mat4.inverse(mv, invTrans);
         mat4.transpose(invTrans);
 
-        var lightdir = vec3.create([1.0, 0.0, 1.0]);
+        var lightdir = vec3.create([0.0, 0.0, 1.0]);
         var lightdest = vec4.create();
         vec3.normalize(lightdir);
         mat4.multiplyVec4(view, [lightdir[0], lightdir[1], lightdir[2], 0.0], lightdest);
@@ -259,7 +289,11 @@
 
         ///////////////////////////////////////////////////////////////////////////
         // Render
+        gl.useProgram(program);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        time += 0.001;
+        gl.uniform1f(u_timeLocation, time);
 
         gl.uniformMatrix4fv(u_ModelLocation, false, model);
         gl.uniformMatrix4fv(u_ViewLocation, false, view);
@@ -287,7 +321,41 @@
         gl.uniform1i(u_EarthSpecLocation, 5);
         gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
 
-        time += 0.001;
+        // Start moon program
+        gl.useProgram(program_moon);
+        
+        // Moon transformation 
+        var model_moon = mat4.create();
+        mat4.identity(model_moon);
+        mat4.rotate(model_moon, 23.4/180*Math.PI, [0.0, 0.0, 1.0]);
+        mat4.rotate(model_moon, Math.PI, [1.0, 0.0, 0.0]);
+        mat4.rotate(model_moon, -2.3 * time, [0.0, 1.0, 0.0]);
+        mat4.translate(model_moon, [-2.0, 0.0, 0.0]);
+        mat4.scale(model_moon, [0.2, 0.2, 0.2]);
+        mat4.rotate(model_moon,-0.01 * time, [0.0, 1.0, 0.0]);
+
+        var mv_moon = mat4.create();
+        mat4.multiply(view, model_moon, mv_moon);
+
+        var invTrans_moon = mat4.create();
+        mat4.inverse(mv_moon, invTrans_moon);
+        mat4.transpose(invTrans_moon);
+
+        gl.uniformMatrix4fv(u_ModelMoonLocation, false, model_moon);
+        gl.uniformMatrix4fv(u_ViewMoonLocation, false, view);
+        gl.uniformMatrix4fv(u_PerspMoonLocation, false, persp);
+        gl.uniformMatrix4fv(u_InvTransMoonLocation, false, invTrans_moon);
+        gl.uniform3fv(u_CameraSpaceDirLightMoonLocation, lightdir);
+
+        // Moon texture activation and draw
+        gl.activeTexture(gl.TEXTURE6);
+        gl.bindTexture(gl.TEXTURE_2D, moonTex);
+        gl.uniform1i(u_MoonLocation, 6);
+        gl.activeTexture(gl.TEXTURE7);
+        gl.bindTexture(gl.TEXTURE_2D, moonBumpTex);
+        gl.uniform1i(u_BumpMoonLocation, 7);
+        gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
+
         window.requestAnimFrame(animate);
     }
 
@@ -299,7 +367,7 @@
             initLoadedTexture(texture);
 
             // Animate once textures load.
-            if (++textureCount === 6) {
+            if (++textureCount === 8) {
                 animate();
             }
         }
@@ -312,4 +380,6 @@
     initializeTexture(transTex, "earthtrans1024.png");
     initializeTexture(lightTex, "earthlight1024.png");
     initializeTexture(specTex, "earthspec1024.png");
+    initializeTexture(moonTex, "moon1024.jpg");
+    initializeTexture(moonBumpTex, "moonBump1024.jpg");
 }());
