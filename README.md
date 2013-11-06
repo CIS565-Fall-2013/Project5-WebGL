@@ -32,10 +32,10 @@ of the project, the screen capture quality and framerate and both greatly
 depreciated from the actual running program. To view the actual renders live,
 please follow the appropriate links below:
 
-*Live Globe Render:
-*Live Wave Shader 1:
-*Live Wave Shader 2:
-*Live Wave Shader 3:
+*Live Globe Render: http://rarietta.github.io/Project5-WebGL/part2/frag_globe.html
+*Live Wave Shader 1: http://rarietta.github.io/Project5-WebGL/part1/vert_wave.html
+*Live Wave Shader 2: http://rarietta.github.io/Project5-WebGL/part1/vert_simplex.html
+*Live Wave Shader 3: http://rarietta.github.io/Project5-WebGL/part1/vert_custom.html
  
 ------------------------------------------------------------------------------------
 PART 1: GLSL Vertex Shader Waves
@@ -187,6 +187,8 @@ Here is a screen capture video of the final rendered globe running in the
 browser. As noted above, this video is useful for demonstration but greatly
 lacks in quality and framerate. To view the live demonstration of the globe,
 please follow this link: 
+
+http://rarietta.github.io/Project5-WebGL/part2/frag_globe.html
 
 [![Video](https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/globe/preview_001.png)] (https://raw.github.com/rarietta/Project5-WebGL/master/readme_imgs/globe/video_001.avi)
 
