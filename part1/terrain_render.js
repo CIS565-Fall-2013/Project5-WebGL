@@ -44,7 +44,8 @@
         cubeImage.onload = function() { handleTextureLoaded(cubeImage, cubeTexture); };
         //cubeImage.src = "picogen_heightmap.png";
         //cubeImage.src = "mt_fuji_area.png";
-        cubeImage.src = "RAINIER_cropped.png";
+        //cubeImage.src = "RAINIER_cropped.png";
+        cubeImage.src = "FUJI_cropped.png";
     }
 
     function handleTextureLoaded(image, texture) {

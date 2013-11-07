@@ -28,7 +28,7 @@
         float height = texture2D(u_Height, texCoord).r; 
         //float height = s_contrib * t_contrib;
         //float height = 0.0;
-		gl_Position = u_modelViewPerspective * vec4(vec3(position, height), 1.0);
+		gl_Position = u_modelViewPerspective * vec4(vec3(position, 0.5*height), 1.0);
         curr_color = mix(low_color, high_color, height);
         //curr_color = texture2D(u_Height, texCoord).rgb; 
         //curr_color = vec3(position.x, 0, position.y);
