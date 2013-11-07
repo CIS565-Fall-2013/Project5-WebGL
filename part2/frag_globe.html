@@ -78,10 +78,13 @@
         // normalized eye-to-position vector in camera coordinates
         vec3 eyeToPosition = normalize(v_Position);
         
+		// Rim color to create a atmospheric effect
 		float rim = dot(v_Position,v_Normal) + 1.0 ;
 		vec4 rimColor = vec4(0.0,0.0,0.0,0.0);
 		if (rim > 0.0)
 			rimColor = vec4(rim/4.0, rim/2.0, rim/2.0, 0.0);
+			
+		// The color of texture for bump mapping
 		vec3 center = texture2D(u_Bump, vec2(v_Texcoord.x,v_Texcoord.y)).rgb ;
 		vec3 right  = texture2D(u_Bump, vec2(v_Texcoord.x + 1.0/1024.0,v_Texcoord.y)).rgb;
 		vec3 top    = texture2D(u_Bump, vec2(v_Texcoord.x ,v_Texcoord.y + 1.0/512.0)).rgb;
