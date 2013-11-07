@@ -19,6 +19,8 @@
     context.clearColor(1.0, 1.0, 1.0, 1.0);
     context.enable(context.DEPTH_TEST);
 
+    var time = 0.0;
+
     var persp = mat4.create();
     mat4.perspective(45.0, 0.5, 0.1, 100.0, persp);
 
@@ -31,6 +33,7 @@
     var positionLocation = 0;
     var heightLocation = 1;
     var u_modelViewPerspectiveLocation;
+    var u_time;
 
     (function initializeShader() {
         var program;
@@ -40,6 +43,7 @@
 		var program = createProgram(context, vs, fs, message);
 		context.bindAttribLocation(program, positionLocation, "position");
 		u_modelViewPerspectiveLocation = context.getUniformLocation(program,"u_modelViewPerspective");
+        u_time = context.getUniformLocation(program,"u_time");
 
         context.useProgram(program);
     })();
@@ -138,10 +142,13 @@
         var mvp = mat4.create();
         mat4.multiply(persp, mv, mvp);
 
+        time += 0.01;
+
         ///////////////////////////////////////////////////////////////////////////
         // Render
         context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
 
+        context.uniform1f(u_time, time);
         context.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp);
         context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
 

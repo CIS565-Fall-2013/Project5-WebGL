@@ -77,21 +77,44 @@
         vec3 normal = normalize(v_Normal);
         // normalized eye-to-position vector in camera coordinates
         vec3 eyeToPosition = normalize(v_Position);
+
+        float center = texture2D(u_Bump, v_Texcoord).r;
+        float top = texture2D(u_Bump, v_Texcoord+vec2(0.0,1.0/512.0)).r;
+        float right = texture2D(u_Bump, v_Texcoord+vec2(1.0/1024.0,0.0)).r;
+        vec3 normalBump = normalize(vec3(center - right, center - top, 0.2));
+        vec3 normalBumpEye = eastNorthUpToEyeCoordinates(v_positionMC, normal) * normalBump;
         
-        float diffuse = clamp(dot(u_CameraSpaceDirLight, normal), 0.0, 1.0);
+        float diffuse = clamp(dot(u_CameraSpaceDirLight, normalBumpEye), 0.0, 1.0);
 
         vec3 toReflectedLight = reflect(-u_CameraSpaceDirLight, normal);
         float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
         specular = pow(specular, 20.0);
+        specular *= texture2D(u_EarthSpec, v_Texcoord).r;
 
         float gammaCorrect = 1.0/1.2; //gamma correct by 1/1.2
 
         vec3 dayColor = texture2D(u_DayDiffuse, v_Texcoord).rgb;
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
+        vec3 cloudColor = texture2D(u_Cloud, v_Texcoord-vec2(u_time*0.05,0.0)).rgb;
+        float cloudAlpha = texture2D(u_CloudTrans, v_Texcoord-vec2(u_time*0.05,0.0)).r;
+
+        //vec3 cloudColor = texture2D(u_Cloud, v_Texcoord).rgb;
+        //float cloudAlpha = texture2D(u_CloudTrans, v_Texcoord).r;
+        
         //apply gamma correction to nighttime texture
         nightColor = pow(nightColor,vec3(gammaCorrect));
 
-        vec3 color = ((0.6 * diffuse) + (0.4 * specular)) * dayColor;
+        nightColor = mix( vec3(.2,.2,.3), nightColor, cloudAlpha);
+        dayColor = mix(cloudColor, dayColor, cloudAlpha);
+
+        vec3 color = mix(nightColor, ((0.6 * diffuse) + (0.4 * specular)) * dayColor, (diffuse+1.0)/2.0);
+
+        float rim = dot(v_Normal, v_Position)+1.0;
+
+        if (rim > 0.0){
+            color += vec3(rim/4.0, rim/2.0, rim/2.0);
+        }
+
         gl_FragColor = vec4(color, 1.0);
     }
 
