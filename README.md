@@ -16,9 +16,9 @@ click the image to open a demo
 
 [![screen](images/simplex_2d.png)](http://ishaan13.github.io/Project5-WebGL/part1/vert_wave_simplex.html)
 
-[![screen](height_1.PNG)](http://ishaan13.github.io/Project5-WebGL/part1/vert_wave_height.html)
+[![screen](images/height_1.PNG)](http://ishaan13.github.io/Project5-WebGL/part1/vert_wave_height.html)
 
-[![screen](height_2.PNG)](http://ishaan13.github.io/Project5-WebGL/part1/vert_wave_height.html)
+[![screen](images/height_2.PNG)](http://ishaan13.github.io/Project5-WebGL/part1/vert_wave_height.html)
 
 
 Details:
