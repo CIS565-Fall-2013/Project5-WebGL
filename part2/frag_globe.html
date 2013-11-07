@@ -94,11 +94,6 @@
 	
 	float parallaxHeight = 0.1;
 	
-	float intersectHeightMap()
-	{
-		return -1.0;
-	}
-	
 	float intersectSphere(vec3 pos, vec3 dir, vec3 center, float radius)
 	{
 		// Assumption: direction is normalized
@@ -117,12 +112,70 @@
 			return max(t1,t2);
 	}
 	
-	vec2 parallaxOcclusionMap()
+	/******* Ray Marching a height field ******/
+	/* Steps to do
+	 *    - while marching
+	 *    - if current location is now inside the mesh
+	 *    - we march backwards with a lower delta
+	 *    - when we're happy with our precision this is the intersected location
+	 *    - we return ray march depth
+	 */
+	 /*****************************************/
+
+	 /*
+	float marchDelta = min(texel.s,texel.t);
+	
+	float rayMarch(vec3 pos, vec3 dir, vec3 center, float radius)
 	{
-		vec3 parallaxVector = normalize(v_positionMC - u_eyeMC);
-		return vec2(0.0,0.0);
+		// Assume we're outside at this stage
+		bool inside = false;
+		vec3 marchPositionMC = pos;
+		
+		float step = 1.0;
+		float distFromCenter = length(marchPositionMC - center);
+		
+		// final position is along the ray, either on the smaller sphere or the larger sphere
+		float finalPosition = intersectSphere(pos + dir * 0.0001,dir,center,radius);
+		
+		while(distFromCenter < radius || step < 1.1)
+		{
+			marchPositionMC = pos + (step * marchDelta) * dir;
+			
+			vec3 spherical = cartesianToSpherical(marchPositionMC, center);		
+			distFromCenter = spherical.x;
+			vec2 bumpTexCoord = angleToTexCoord(spherical.yz);
+			float heightAboveGround = distFromCenter - (radius - parallaxHeight);
+			float heightLookUp = parallaxHeight * texture2D(u_Bump,bumpTexCoord).r;
+			if(heightLookUp > heightAboveGround)
+			{
+				// Step backwards with smaller delta and find more accurate step
+				
+				// fake stepping back
+				step = step - 0.5;
+				
+				inside = true;
+				break;
+			}
+			step += 1.0;
+			
+		}
+		
+		if(inside = false)
+			return -1.0;
+		else
+			return (step*marchDelta);
 	}
 	
+	vec2 parallaxOcclusionMap()
+	{
+		vec3 parallaxVec = normalize(v_positionMC - u_eyeMC);
+		vec3 parallaxPos = v_positionMC;
+		
+		float depth = rayMarch(parallaxVec,parallaxPos,vec3(0.0,0.0,0.0),length(v_positionMC));
+		
+		return vec2(0.0,0.0);
+	}
+	*/
 	float cloudNoiseCalc(vec2 textureCoord)
 	{
 		/*
@@ -154,8 +207,7 @@
 		float right = texture2D(u_Bump, v_Texcoord + vec2(texel.s,0.0)).r;
 		float top = texture2D(u_Bump, v_Texcoord + vec2(0.0,texel.t)).r;
 		
-		float bumpDepth = 0.4;
-		vec3 bumpNormal = normalize(vec3(center - right, center - top, bumpDepth));
+		vec3 bumpNormal = normalize(vec3(center - right, center - top, parallaxHeight));
 		bumpNormal = normalize(eastNorthUpToEyeCoordinates(v_positionMC, v_Normal) * bumpNormal);	
 		
         float diffuse = dot(u_CameraSpaceDirLight, normal);
