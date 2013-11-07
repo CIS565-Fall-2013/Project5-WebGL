@@ -52,10 +52,10 @@ Required Features:
 Performance Evaluation
 ---
 Measuring performance for shaders is a really difficult thing to do, especially in webGL, so the closest I could get was average FPS.
-Vertex Shader Sine Wave: ~33fps
-Vertex Shader Simplex Wave: ~28fps
-Vertex Shader Infinitely Tiled Pseudo Random Terain: ~48fps
-Globe Shader : 61fps
+* Vertex Shader Sine Wave: ~33fps
+* Vertex Shader Simplex Wave: ~28fps
+* Vertex Shader Infinitely Tiled Pseudo Random Terain: ~48fps
+* Globe Shader : 61fps
 
 The globe takes a long time to load since the fragment shader is quite long with its noise function.
 None the less, the execution time is much more for the vertex shader programs since they are bound by the number of vertices (512x512) and have complex sin-cos functions involved.
