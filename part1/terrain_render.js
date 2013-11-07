@@ -1,3 +1,5 @@
+var rotateDir = 1.0;
+
 (function() {
     "use strict";
     /*global window,document,Float32Array,Uint16Array,mat4,vec3,snoise*/
@@ -36,6 +38,7 @@
 
     var cubeTexture;
     var cubeImage;
+
 
     //from https://developer.mozilla.org/en-US/docs/Web/WebGL/Using_textures_in_WebGL
     function initTextures() {
@@ -161,7 +164,7 @@
     (function animate(){
         ///////////////////////////////////////////////////////////////////////////
         // Update
-        angle = angle + 0.01;
+        angle = angle + rotateDir*0.01;
 
         var model = mat4.create();
         mat4.identity(model);
