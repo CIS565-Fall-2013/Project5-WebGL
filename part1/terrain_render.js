@@ -1,4 +1,4 @@
-var blendDir = 1.0;
+var blendDir = -1.0;
 
 (function() {
     "use strict";
@@ -18,7 +18,7 @@ var blendDir = 1.0;
     ///////////////////////////////////////////////////////////////////////////
 
     context.viewport(0, 0, canvas.width, canvas.height);
-    context.clearColor(1.0, 1.0, 1.0, 1.0);
+    context.clearColor(0.0, 0.0, 0.0, 1.0);
     context.enable(context.DEPTH_TEST);
 
     var persp = mat4.create();
