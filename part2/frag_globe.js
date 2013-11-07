@@ -54,7 +54,8 @@
     var u_CloudTransLocation;
     var u_EarthSpecLocation;
     var u_BumpLocation;
-    var u_timeLocation;
+    var u_TimeLocation;
+    var u_RenderModeLocation;
 
     (function initializeShader() {
         var vs = getShaderSource(document.getElementById("vs"));
@@ -74,8 +75,9 @@
         u_CloudTransLocation = gl.getUniformLocation(program,"u_CloudTrans");
         u_EarthSpecLocation = gl.getUniformLocation(program,"u_EarthSpec");
         u_BumpLocation = gl.getUniformLocation(program,"u_Bump");
-        u_timeLocation = gl.getUniformLocation(program,"u_time");
-        u_CameraSpaceDirLightLocation = gl.getUniformLocation(program,"u_CameraSpaceDirLight");
+        u_TimeLocation = gl.getUniformLocation(program,"u_time");
+        u_CameraSpaceDirLightLocation = gl.getUniformLocation(program, "u_CameraSpaceDirLight");
+        u_RenderModeLocation = gl.getUniformLocation(program, "u_RenderMode");
 
         gl.useProgram(program);
     })();
@@ -176,6 +178,8 @@
     })();
 
     var time = 0;
+    var renderMode = 1;     //default tutorial mode
+
     var mouseLeftDown = false;
     var mouseRightDown = false;
     var lastMouseX = null;
@@ -228,11 +232,16 @@
         lastMouseY = newY;
     }
 
+    function handleKeyPress(event) {
+        renderMode = event.keyCode;
+    }
+
     canvas.onmousedown = handleMouseDown;
     canvas.oncontextmenu = function(ev) {return false;};
     document.onmouseup = handleMouseUp;
     document.onmousemove = handleMouseMove;
 
+    document.onkeydown = handleKeyPress;
 
     function animate() {
         ///////////////////////////////////////////////////////////////////////////
@@ -269,7 +278,10 @@
         gl.uniform3fv(u_CameraSpaceDirLightLocation, lightdir);
         
         //pass in time
-        gl.uniform1f(u_timeLocation, time);
+        gl.uniform1f(u_TimeLocation, time);
+
+        //pass in key presses
+        gl.uniform1i(u_RenderModeLocation, renderMode);
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, dayTex);
