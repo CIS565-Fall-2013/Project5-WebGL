@@ -26,7 +26,9 @@
         float t_contrib = cos(position.y*2.0*3.14159 + u_time);
         float s_contrib = sin(position.x*2.0*3.14159 + u_time);
         vec2 texCoord = vec2(position.x, position.y);
-        float height = texture2D(u_Height, texCoord).r; 
+        float height1 = texture2D(u_Height, texCoord).r; 
+        float height2 = texture2D(u_Height2, texCoord).r; 
+        float height = mix(height1, height2, 0.5); 
 		gl_Position = u_modelViewPerspective * vec4(vec3(position, 0.5*height), 1.0);
         curr_color = mix(low_color, high_color, height);
     }
