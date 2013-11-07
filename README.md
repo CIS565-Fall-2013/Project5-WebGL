@@ -10,7 +10,7 @@ Part 1: Vertex Shader Shenanigans
 
 Some screenshots to begin!
 
-click the image to open a demo
+Click the image to open a demo
 
 [![screen](images/wave.png)](http://ishaan13.github.io/Project5-WebGL/part1/vert_wave.html)
 
@@ -32,7 +32,7 @@ For the pseudo-random infinitely tiled terrain generation, I used a combination 
 Part 2: Globe Rendering
 ---
 
-Click to load demo
+Click the image to open a demo
 
 [![screen](images/explain.png)](http://ishaan13.github.io/Project5-WebGL/part2/frag_globe.html)
 
@@ -47,3 +47,16 @@ Required Features:
 * Cloud Textures
 * Cloud Transparencies
 * Bump Mapping
+
+---
+Performance Evaluation
+---
+Measuring performance for shaders is a really difficult thing to do, especially in webGL, so the closest I could get was average FPS.
+Vertex Shader Sine Wave: ~33fps
+Vertex Shader Simplex Wave: ~28fps
+Vertex Shader Infinitely Tiled Pseudo Random Terain: ~48fps
+Globe Shader : 61fps
+
+The globe takes a long time to load since the fragment shader is quite long with its noise function.
+None the less, the execution time is much more for the vertex shader programs since they are bound by the number of vertices (512x512) and have complex sin-cos functions involved.
+But the shader should have fast hardware sin-cos. So I'm not entirely sure why it's so much faster for the globe when I'm doing some quite complex things.
