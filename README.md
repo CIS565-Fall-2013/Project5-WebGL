@@ -14,9 +14,9 @@ Some screenshots to begin!
 
 ![screen](images/simplex_2d.png)
 
-![screen](height_1.PNG)
+![screen](images/height_1.PNG)
 
-![screen](height_2.PNG)
+![screen](images/height_2.PNG)
 
 
 Details:
