@@ -71,7 +71,7 @@
     varying vec3 v_positionMC;          // position in model coordinates
 
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
-
+    mat3 eyeToTangentSpace( vec3 posEC, vec3 normal );
     void main(void)
     {
         // surface normal - normalized after rasterization
@@ -105,15 +105,27 @@
 
         vec3 dayColor = texture2D(u_DayDiffuse, v_Texcoord).rgb;
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
-        
+        vec2 cloudTexcoord = vec2( v_Texcoord.x+u_time, v_Texcoord.y );
+
         vec3 specularMask = texture2D( u_EarthSpec, v_Texcoord ).rgb;
-        vec3 cloudColor =  texture2D( u_Cloud, vec2( v_Texcoord.x+u_time, v_Texcoord.y) ).rgb;
-        float cloudTrans = texture2D( u_CloudTrans, vec2( v_Texcoord.x+u_time, v_Texcoord.y) ).r;
+        vec3 cloudColor =  texture2D( u_Cloud, cloudTexcoord ).rgb;
+        float cloudTrans = texture2D( u_CloudTrans, cloudTexcoord ).r;
 
         //apply gamma correction to nighttime texture
         nightColor = pow(nightColor,vec3(gammaCorrect));
         
         vec3 color = ((0.6 * landDiffuse) + (0.4 * specular * specularMask )) * dayColor;
+        
+        //mat3 eyeToTangent = eyeToTangentSpace( v_Position, normal );
+        mat3 eyeToTangent = eastNorthUpToEyeCoordinates( v_positionMC, normal );
+        
+        vec3 light = normalize( (eyeToTangent * u_CameraSpaceDirLight));
+        
+        vec2 texcoord2 = cloudTexcoord + 0.04 * light.xy;
+        float cloudshadow = texture2D( u_CloudTrans, texcoord2 ).r;
+
+        color *= cloudshadow;
+
         color = mix( cloudColor*diffuse, color, cloudTrans );
 
         color += 2.0 * mix( vec3(0,0,0), mix( vec3(0,0,0), nightColor,cloudTrans), nightDiffuse );
@@ -121,6 +133,8 @@
         
         vec4 rimColor = vec4( rim_factor/4.0, rim_factor/2.0, rim_factor/2.0 ,1.0) * smoothstep( 0.7,  1.0, rim_factor );
         gl_FragColor = vec4(color, 1.0) + rimColor;
+
+    
     }
 
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC)
@@ -138,12 +152,17 @@
             normalEC.x,    normalEC.y,    normalEC.z);
     }
 
-    // mat3 eyeToTangentSpace( vec2 texcoord, vec3 posEC )
+    //This function returns a matrix transforming vectors from eye space to tangent space
+    // mat3 eyeToTangentSpace( vec3 posEC, vec3 normal )
     // {
-    //     vec2 st0 = dFdx( texcoord );
-    //     vec2 st1 = dFdy( texcoord);
 
-
+    //     vec3 T = dFdx( posEC );
+    //     vec3 B = dFdy( posEC );
+       
+    //     T = normalize( T );
+    //     B = normalize( B );
+  
+    //     return mat3(  T, B, normal  );
     // }
 </script>
 
