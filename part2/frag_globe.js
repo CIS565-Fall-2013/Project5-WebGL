@@ -14,6 +14,16 @@
     var NUM_WIDTH_PTS = 64;
     var NUM_HEIGHT_PTS = 64;
 
+    var stats = new Stats();
+    var stats_ms = new Stats();
+    stats_ms.setMode(1);
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.top = '10px';
+    document.body.appendChild( stats.domElement );
+    stats_ms.domElement.style.position = 'absolute';
+    stats_ms.domElement.style.top = '60px';
+    document.body.appendChild( stats_ms.domElement );
+
     var message = document.getElementById("message");
     var canvas = document.getElementById("canvas");
     var gl = createWebGLContext(canvas, message);
@@ -292,6 +302,8 @@
 
         time += 0.001;
         window.requestAnimFrame(animate);
+        stats.update();
+        stats_ms.update();
     }
 
     var textureCount = 0;
