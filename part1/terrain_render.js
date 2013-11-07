@@ -42,7 +42,8 @@
         cubeTexture = context.createTexture();
         cubeImage = new Image();
         cubeImage.onload = function() { handleTextureLoaded(cubeImage, cubeTexture); };
-        cubeImage.src = "picogen_heightmap.png";
+        //cubeImage.src = "picogen_heightmap.png";
+        cubeImage.src = "mt_fuji_area.png";
     }
 
     function handleTextureLoaded(image, texture) {
