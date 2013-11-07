@@ -32,6 +32,7 @@
     var heightLocation = 1;
     var u_modelViewPerspectiveLocation;
     var u_timeLocation;
+    //var u_color = vec3(0.0, 0.0, 0.0);
     var u_time = 0.0;
 
     (function initializeShader() {
@@ -43,6 +44,7 @@
 		context.bindAttribLocation(program, positionLocation, "position");
 		u_modelViewPerspectiveLocation = context.getUniformLocation(program,"u_modelViewPerspective");
                 u_timeLocation = context.getUniformLocation(program, "u_time");
+                //u_color = context.getUniformLocation(program, "u_color");
 
         context.useProgram(program);
     })();
