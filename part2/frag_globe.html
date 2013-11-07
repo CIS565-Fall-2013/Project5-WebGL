@@ -10,6 +10,7 @@
 <div id="message" style="position:absolute;top:100px"></div> <!-- Pixel offset to avoid FPS counter -->
 <canvas id="canvas" style="border: none;" width="1024" height="768" tabindex="1"></canvas>
 
+
 <script id="vs" type="x-shader/x-vertex">
     precision highp float;
 
@@ -160,6 +161,49 @@
             bitangentEC.x, bitangentEC.y, bitangentEC.z,
             normalEC.x,    normalEC.y,    normalEC.z);
     }
+</script>
+
+<script id="skyvs" type="x-shader/x-vertex">
+	 precision highp float;
+	uniform mat4 u_Model;
+    uniform mat4 u_View;
+    uniform mat4 u_Persp;
+	
+	attribute vec3 Position;
+	attribute vec2 Texcoord;
+	
+	varying vec2 v_Texcoord;
+	varying vec3 v_Position;
+	varying vec3 v_positionMC;
+	void main(void)
+	{
+		v_Texcoord = Texcoord;
+        vec4 world = u_Model * vec4(Position, 1.0);
+        vec4 camera = u_View * world;
+        v_Position = camera.xyz;
+        v_positionMC = Position;
+        gl_Position = u_Persp * camera;
+	}
+</script>
+
+<script id="skyfs" type ="x-shader/x-fragment">	
+ precision highp float;
+    uniform sampler2D u_Front;
+    uniform sampler2D u_Back;
+	uniform sampler2D u_Left;
+	uniform sampler2D u_Right;
+	uniform sampler2D u_Bottom;
+	uniform sampler2D u_Top;
+	
+	varying vec2 v_Texcoord;
+	varying vec3 v_Position;
+	varying vec3 v_positionMC;
+	
+	void main(void)
+	{
+		vec3 color = texture2D(u_Front,v_Texcoord).rgb;
+		gl_FragColor = vec4(color,1.0);
+	}
 </script>
 
 <script src ="gl-matrix.js" type ="text/javascript"></script>

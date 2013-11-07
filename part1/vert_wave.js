@@ -31,8 +31,7 @@
     var positionLocation = 0;
     var heightLocation = 1;
     var u_modelViewPerspectiveLocation;
-	var u_time;
-	var time = 0;
+	
 	
     (function initializeShader() {
         var program;
@@ -129,7 +128,10 @@
         uploadMesh(positions, heights, indices);
         numberOfIndices = indices.length;
     })();
-
+	
+	var u_time;
+	var time = 0;
+	var decrease = false;
     (function animate(){
         ///////////////////////////////////////////////////////////////////////////
         // Update
@@ -141,8 +143,9 @@
         mat4.multiply(view, model, mv);
         var mvp = mat4.create();
         mat4.multiply(persp, mv, mvp);
-				
-		time += 0.01
+		
+		time += 0.001;
+		
 		
 		
         ///////////////////////////////////////////////////////////////////////////
@@ -156,5 +159,15 @@
 		
 		window.requestAnimFrame(animate);
     })();
-
+	
+	var lastMouseX = null;
+	var lastMouseY = null;
+	
+	(function handleMouseMove(event){
+		var newX = event.clientX;
+        var newY = event.clientY;
+	})();
+	
+	
+	
 }());
