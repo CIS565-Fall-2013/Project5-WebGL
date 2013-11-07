@@ -32,6 +32,7 @@
     var heightLocation = 1;
     var u_modelViewPerspectiveLocation;
     var u_timeLocation;
+    var u_heightLocation;
 
     (function initializeShader() {
         var program;
@@ -41,6 +42,7 @@
 		var program = createProgram(context, vs, fs, message);
 		context.bindAttribLocation(program, positionLocation, "position");
 		u_modelViewPerspectiveLocation = context.getUniformLocation(program,"u_modelViewPerspective");
+        u_heightLocation = context.getUniformLocation(program, "u_Height");
 		u_timeLocation = context.getUniformLocation(program,"u_time");
 
         context.useProgram(program);
@@ -169,6 +171,8 @@
 		window.requestAnimFrame(animate);
     })();
 
+    var textureCount = 0;
+
     function initializeTexture(texture, src) {
         texture.image = new Image();
         texture.image.onload = function() {
@@ -182,6 +186,6 @@
         texture.image.src = src;
     }
 
-    initializeTexture(heightTex, "picogen_heightmap.png");
+    initializeTexture(heightTex, "picogen_heightmapp.png");
 
 }());
