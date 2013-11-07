@@ -35,20 +35,24 @@ var rotateDir = 1.0;
     var u_modelViewPerspectiveLocation;
     var u_timeLocation;
     var u_heightLocation;
+    var u_heightLocation2;
 
-    var cubeTexture;
-    var cubeImage;
-
+    var terrainTex1;
+    var terrainIm1;
+    var terrainTex2;
+    var terrainIm2;
 
     //from https://developer.mozilla.org/en-US/docs/Web/WebGL/Using_textures_in_WebGL
     function initTextures() {
-        cubeTexture = context.createTexture();
-        cubeImage = new Image();
-        cubeImage.onload = function() { handleTextureLoaded(cubeImage, cubeTexture); };
-        //cubeImage.src = "picogen_heightmap.png";
-        //cubeImage.src = "mt_fuji_area.png";
-        //cubeImage.src = "RAINIER_cropped.png";
-        cubeImage.src = "FUJI_cropped.png";
+        terrainTex1 = context.createTexture();
+        terrainIm1 = new Image();
+        terrainIm1.onload = function() { handleTextureLoaded(terrainIm1, terrainTex1); };
+        terrainIm1.src = "FUJI_cropped.png";
+
+        terrainTex2 = context.createTexture();
+        terrainIm2 = new Image();
+        terrainIm2.onload = function() { handleTextureLoaded(terrainIm2, terrainTex2); };
+        terrainIm2.src = "RAINIER_cropped.png";
     }
 
     function handleTextureLoaded(image, texture) {
@@ -70,6 +74,7 @@ var rotateDir = 1.0;
 		context.bindAttribLocation(program, positionLocation, "position");
 		u_modelViewPerspectiveLocation = context.getUniformLocation(program,"u_modelViewPerspective");
         u_heightLocation = context.getUniformLocation(program, "u_Height");
+        u_heightLocation2 = context.getUniformLocation(program, "u_Height2");
 		u_timeLocation = context.getUniformLocation(program,"u_time");
 
         context.useProgram(program);
@@ -183,8 +188,12 @@ var rotateDir = 1.0;
         context.uniform1f(u_timeLocation, time);
 
         context.activeTexture(context.TEXTURE0);
-        context.bindTexture(context.TEXTURE_2D, cubeTexture);
+        context.bindTexture(context.TEXTURE_2D, terrainTex1);
         context.uniform1i(u_heightLocation, 0); 
+
+        context.activeTexture(context.TEXTURE1);
+        context.bindTexture(context.TEXTURE_2D, terrainTex2);
+        context.uniform1i(u_heightLocation2, 1); 
 
         //context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
         context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
