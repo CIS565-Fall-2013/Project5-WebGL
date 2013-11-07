@@ -77,8 +77,15 @@
         vec3 normal = normalize(v_Normal);
         // normalized eye-to-position vector in camera coordinates
         vec3 eyeToPosition = normalize(v_Position);
-        
-        float signedDiffuse = dot(u_CameraSpaceDirLight, normal);
+
+        //bump mapping to find new normal
+        float center = texture2D(u_Bump, v_Texcoord).r;
+        float top = texture2D(u_Bump, vec2(v_Texcoord.s, v_Texcoord.t+(1.0/512.0))).r;
+        float right = texture2D(u_Bump, vec2(v_Texcoord.s+(1.0/1024.0), v_Texcoord.t)).r;
+        vec3 bumpNormal = normalize(vec3(center - right, center - top, 0.2));
+        bumpNormal = eastNorthUpToEyeCoordinates(normalize(v_positionMC), normal) * bumpNormal;
+
+        float signedDiffuse = dot(u_CameraSpaceDirLight, bumpNormal);
         float diffuse = clamp(signedDiffuse, 0.0, 1.0);
 
         vec3 toReflectedLight = reflect(-u_CameraSpaceDirLight, normal);
@@ -92,8 +99,8 @@
 
         //find color contribution from cloud 
         vec2 cloudAnim = v_Texcoord;
-        cloudAnim.t += u_time/100.0;
-        cloudAnim.s += u_time/100.0;
+        cloudAnim.s += u_time;
+
         float cloudContrib = texture2D(u_CloudTrans, cloudAnim).r;
         vec3 cloudColor = texture2D(u_Cloud, cloudAnim).rgb;
 
@@ -101,18 +108,24 @@
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
         //apply gamma correction to nighttime texture
         nightColor = pow(nightColor,vec3(gammaCorrect));
-
+        
         //color the globe
         vec3 color = ((0.6 * diffuse) + (0.4 * specular)) * dayColor;
+
+        //color the cloud
         cloudColor = ((0.6 * diffuse) + (0.4 * specular)) * cloudColor;
         color = mix(cloudColor, color, cloudContrib);
         
         //if fragment not facing sun, smooth transition to night color
-        if (diffuse < 0.05){
+        if (diffuse == 0.0){
             //blend to solid black if covered by cloud
             nightColor = mix(vec3(0.0, 0.0, 0.0), nightColor, cloudContrib);
             color = 2.0*mix(color, nightColor, abs(signedDiffuse));
         }
+
+        //rim lighting
+        float rim = max(0.0, dot(v_Normal, v_Position)+1.0);
+        color += vec3(rim/4.0, rim/2.0, rim/2.0); 
 
         gl_FragColor = vec4(color, 1.0);
     }

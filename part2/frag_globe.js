@@ -267,6 +267,9 @@
         gl.uniformMatrix4fv(u_InvTransLocation, false, invTrans);
 
         gl.uniform3fv(u_CameraSpaceDirLightLocation, lightdir);
+        
+        //pass in time
+        gl.uniform1f(u_timeLocation, time);
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, dayTex);
@@ -288,7 +291,7 @@
         gl.uniform1i(u_EarthSpecLocation, 5);
         gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
 
-        time += 0.001;
+        time += 0.0001;
         window.requestAnimFrame(animate);
     }
 
