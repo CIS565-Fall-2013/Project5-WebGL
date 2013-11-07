@@ -3,8 +3,8 @@
     /*global window,document,Float32Array,Uint16Array,mat4,vec3,snoise*/
     /*global getShaderSource,createWebGLContext,createProgram*/
 
-    var NUM_WIDTH_PTS = 32;
-    var NUM_HEIGHT_PTS = 32;
+    var NUM_WIDTH_PTS = 200;
+    var NUM_HEIGHT_PTS = 200;
 
     var message = document.getElementById("message");
     var canvas = document.getElementById("canvas");
@@ -143,7 +143,7 @@
         var mvp = mat4.create();
         mat4.multiply(persp, mv, mvp);
 
-        u_time += 0.02;
+        u_time += 0.01;
 
         ///////////////////////////////////////////////////////////////////////////
         // Render
