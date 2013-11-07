@@ -287,8 +287,9 @@
         gl.bindTexture(gl.TEXTURE_2D, specTex);
         gl.uniform1i(u_EarthSpecLocation, 5);
         gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
-
+        gl.uniform1f(u_timeLocation, time);
         time += 0.001;
+        
         window.requestAnimFrame(animate);
     }
 
