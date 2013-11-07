@@ -153,13 +153,16 @@
 
     var time = 0;
     var dt = 0.01;
+    var angle = 0.0;
 
     (function animate(){
         ///////////////////////////////////////////////////////////////////////////
         // Update
+        angle = angle + 0.01;
 
         var model = mat4.create();
         mat4.identity(model);
+        mat4.rotate(model, angle, [0, 0, 1]);
         mat4.translate(model, [-0.5, -0.5, 0.0]);
         var mv = mat4.create();
         mat4.multiply(view, model, mv);
