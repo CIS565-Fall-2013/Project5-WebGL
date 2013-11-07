@@ -70,6 +70,7 @@
         u_ViewLocation = gl.getUniformLocation(program,"u_View");
         u_PerspLocation = gl.getUniformLocation(program,"u_Persp");
         u_InvTransLocation = gl.getUniformLocation(program,"u_InvTrans");
+        u_InvTransModelLocation = gl.getUniformLocation(program,"u_InvTransModel");        
         u_DayDiffuseLocation = gl.getUniformLocation(program,"u_DayDiffuse");
         u_NightLocation = gl.getUniformLocation(program,"u_Night");
         u_CloudLocation = gl.getUniformLocation(program,"u_Cloud");
@@ -251,6 +252,10 @@
         var invTrans = mat4.create();
         mat4.inverse(mv, invTrans);
         mat4.transpose(invTrans);
+        
+        var invTransMod = mat4.create();
+        mat4.inverse (model, invTransMod);
+        mat4.transpose (invTransMod);
 
         var lightdir = vec3.create([1.0, 0.0, 1.0]);
         var lightdest = vec4.create();
@@ -267,7 +272,8 @@
         gl.uniformMatrix4fv(u_ViewLocation, false, view);
         gl.uniformMatrix4fv(u_PerspLocation, false, persp);
         gl.uniformMatrix4fv(u_InvTransLocation, false, invTrans);
-
+		gl.uniformMatrix4fv(u_InvTransModelLocation, false, invTransMod);
+		
         gl.uniform3fv(u_CameraSpaceDirLightLocation, lightdir);
 
         gl.activeTexture(gl.TEXTURE0);

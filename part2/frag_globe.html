@@ -17,7 +17,8 @@
     uniform mat4 u_View;
     uniform mat4 u_Persp;
     uniform mat4 u_InvTrans;
-
+	uniform mat4 u_InvTransModel;
+	
     attribute vec3 Position;
     attribute vec3 Normal;
     attribute vec2 Texcoord;
@@ -26,6 +27,15 @@
     varying vec2 v_Texcoord;
     varying vec3 v_Position;
     varying vec3 v_positionMC;
+    
+    varying vec3 v_ViewTangent;
+    varying vec3 v_NormalTangent;
+    varying vec2 v_ParOffset;
+    
+    varying vec3 v_ViewWorld;			// View Vector (Eye to Position) in World Space. 
+    varying vec3 v_NormalWorld;			// Normal in World Space. 
+
+	mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
 
     void main(void)
     {
@@ -36,6 +46,37 @@
         v_Position = camera.xyz;
         v_positionMC = Position;
         gl_Position = u_Persp * camera;
+        
+        
+        mat3 eyeToTangentSpace = eastNorthUpToEyeCoordinates (v_positionMC, v_Normal);
+        /* eyeToTangentSpace = */transpose (eyeToTangentSpace);
+        // Parallax Occlusion Mapping:
+        // Compute view vector and normal in tangent space and World Space:
+        v_ViewTangent = eyeToTangentSpace * v_Position;
+        v_NormalTangent = eyeToTangentSpace * v_Normal;
+        v_ViewWorld = world.xyz;							// View Vector (Eye to Position) in World Space. 
+     	v_NormalWorld = vec4 (u_InvTransModel * v_Normal).xyz;			// Normal in World Space. 
+
+        // Calculate maximum parallax limit:
+        float parLimit = (length (v_ViewTangent.xy) / v_ViewTangent.z) * 5.0 /* scale factor */;
+        
+        // Calculate (max) parallax offset vector:
+        v_ParOffset = normalize (v_ViewTangent.xy) * parLimit;
+    }
+    
+    mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC)
+    {
+        // normalized surface tangent in model coordinates
+        vec3 tangentMC = normalize(vec3(-positionMC.z, positionMC.x, 0.0)); 
+        // normalized surface tangent in eye coordiantes 
+        vec3 tangentEC = normalize(mat3(u_InvTrans) * tangentMC);
+        // normalized surface bitangent in eye coordinates
+        vec3 bitangentEC = normalize(cross(normalEC, tangentEC));
+
+        return mat3(
+            tangentEC.x,   tangentEC.y,   tangentEC.z,
+            bitangentEC.x, bitangentEC.y, bitangentEC.z,
+            normalEC.x,    normalEC.y,    normalEC.z);
     }
 </script>
 
@@ -68,31 +109,81 @@
     varying vec2 v_Texcoord;
     varying vec3 v_Position;            // position in camera coordinates
     varying vec3 v_positionMC;          // position in model coordinates
+    
+    varying vec3 v_ViewWorld;			// View Vector (Eye to Position) in World Space. 
+    varying vec3 v_NormalWorld;			// Normal in World Space. 
+    
+    varying vec3 v_ViewTangent;			// View Vector (Eye to Position) in Tangent Space. 
+    varying vec3 v_NormalTangent;		// Normal in Tangent Space. 
+    varying vec2 v_ParOffset;			// The maximum parallax offset vector.
 
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
 
     void main(void)
     {
-        // surface normal - normalized after rasterization
-        vec3 normal = normalize (v_Normal);
-        // normalized eye-to-position vector in camera coordinates
-        vec3 eyeToPosition = normalize (v_Position);
+    	// Acknowledgement for Parallax Occlusion Mapping:
+    	// "A Closer Look at Parallax Occlusion Mapping", Jason Zink, Advanced Game Programming, Chap. 12
+    	// and DirectX SDK Example by AMD. 
+        // Normalized Normal in Tangent Space
+        vec3 normal = normalize (v_NormalTangent);
+        // Normalized eye-to-position vector in Tangent Space
+        vec3 eyeToPosition = normalize (v_ViewTangent);
         
-        float bumpMap_center = texture2D (u_Bump, v_Texcoord).r;
-        float bumpMap_right = texture2D (u_Bump, vec2 (v_Texcoord.x+(1.0/1024.0), v_Texcoord.y)).r;
-        float bumpMap_up = texture2D (u_Bump, vec2 (v_Texcoord.x, v_Texcoord.y+(1.0/512.0))).r;
+        // Compute the number of samples required:
+        int	maxSamples = 10, minSamples = 4;
+        int nSamples = mix (maxSamples, minSamples, dot (v_ViewWorld, v_NormalWorld));
+        
+        float curHeight = 1.0, curSample = 1.0, lastSample = 1.0;
+        vec2 currOffset = vec2 (0, 0);
+        vec2 lastOffset = vec2 (0, 0);
+        int curSample = 0;
+        float stepSize = 1.0/nSamples;
+        
+        while (curSample < nSamples)
+        {
+        	curSample = texture2D (u_Bump, v_Texcoord+currOffset).r;
+        	
+        	if (curSample > curHeight)	// We have marched past the heightfield. Step back to find the
+        	{							// actual intersection point.
+        	// TODO: Use Binary search based implementation instead of this.
+        		float delta1 = curSample - curHeight;
+        		float delta2 = curHeight + stepSize - lastSample;
+        		float ratio = delta1 / (delta1+delta2);
+
+        		currOffset = ratio * lastOffset + (1-ratio)*currOffset;		// Lerp between current Offset and last Offset.
+        		curSample = nSamples + 1;
+        	}
+        	else		// Otherwise, step through to the next step and compute the height from the heightfield.
+        	{
+        		++ curSample;
+        		curHeight -= stepSize;
+        		lastOffset = currOffset;
+        		currOffset += stepSize * v_ParOffset;
+        		lastSample = curSample;
+        	}
+        }
+        
+        vec2 finalTexCoords = v_Texcoord + currOffset;
+        
+        // Now find normal from the bump map using finalTexCoords
+        float bumpMap_center = texture2D (u_Bump, finalTexCoords).r;
+        float bumpMap_right = texture2D (u_Bump, vec2 (finalTexCoords.x+(1.0/1024.0), finalTexCoords.y)).r;
+        float bumpMap_up = texture2D (u_Bump, vec2 (finalTexCoords.x, finalTexCoords.y+(1.0/512.0))).r;        
         vec3  bump_NormalEyeSpace = eastNorthUpToEyeCoordinates (v_positionMC, v_Normal) * 
         							normalize (vec3 (bumpMap_center - bumpMap_right, bumpMap_center - bumpMap_up, 1.0));
         bump_NormalEyeSpace = normalize (bump_NormalEyeSpace);
+        
 
+		// Lambertian shading:
         float diffuse = clamp(dot(u_CameraSpaceDirLight, bump_NormalEyeSpace), 0.0, 1.0);
-
+		// Specular shading:
         vec3 toReflectedLight = reflect(-u_CameraSpaceDirLight, bump_NormalEyeSpace);
         float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
         specular = pow(specular, 30.0);
 
         float gammaCorrect = 1.0/1.2; //gamma correct by 1/1.2
 
+		// Load the different colours from each of the textures.
         vec3 dayColor = texture2D(u_DayDiffuse, v_Texcoord).rgb;
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
         vec3 specularMap = texture2D (u_EarthSpec, v_Texcoord).rgb;
