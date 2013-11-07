@@ -86,7 +86,8 @@
         vec3 turbnormal=normalize(vec3(center-theright, center-theUp,0.2));
         vec3 normal=normalize(eastNorthUpToEyeCoordinates(v_positionMC, v_Normal)*turbnormal);
         
-        float rimfactor=dot(v_Normal, v_Position)+1.0;
+        float checkDayNightnorm=dot(u_CameraSpaceDirLight, v_Normal); 
+        
         
         //vec3 normal = normalize(v_Normal);
         // normalized eye-to-position vector in camera coordinates
@@ -116,23 +117,23 @@
         nightColor = pow(nightColor,vec3(gammaCorrect));
 
 				vec3 color;
-				if(dotlightnorm>0.0)
+				if(checkDayNightnorm>0.0)	//day
 				{
-						cloudColor*=0.6*diffuse+0.8*specular;
-        		color = ((0.6 * diffuse) + (0.8 * specular*(isOcean?1.0:0.0))) * dayColor;
+						cloudColor*=0.6*abs(dotlightnorm)+0.8*specular;
+        		color = ((0.6 * abs(dotlightnorm)) + (0.8 * specular*(isOcean?1.0:0.0))) * dayColor;
         		color = mix(cloudColor, color, cloudTrans.r);
         }
-        else
+        else		//night
         {
         	color = (-dotlightnorm)*nightColor;
         	cloudColor*=(1.0-cloudTrans.g)*0.2;
         	color+=cloudColor;
         	//color = mix(color, cloudColor,clamp(length(color),0.0,1.0));
         }
-        
-        if(rimfactor>0.0)
+        float rimfactor=dot(v_Normal, v_Position)+1.0;
+        if(rimfactor>-0.0)
         {
-        	color+=(rimfactor/4.0, rimfactor/2.0, rimfactor/2.0, 1.0);
+        	color+=vec3(rimfactor/4.0, rimfactor/2.0, rimfactor*1.0);
         }
         gl_FragColor = vec4(color, 1.0);
     }
