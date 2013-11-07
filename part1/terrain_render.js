@@ -1,4 +1,4 @@
-var rotateDir = 1.0;
+var blendDir = 1.0;
 
 (function() {
     "use strict";
@@ -165,11 +165,19 @@ var rotateDir = 1.0;
     var time = 0;
     var dt = 0.01;
     var angle = 0.0;
+    var heightBlend = 0.0;
 
     (function animate(){
+
+        heightBlend += blendDir*dt;
+        if(heightBlend < 0){
+            heightBlend = 0;
+        } else if(heightBlend > 1){
+            heightBlend = 1;
+        }
         ///////////////////////////////////////////////////////////////////////////
         // Update
-        angle = angle + rotateDir*0.01;
+        angle = angle + blendDir*0.01;
 
         var model = mat4.create();
         mat4.identity(model);
