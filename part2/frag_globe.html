@@ -89,8 +89,8 @@
         
         //calcuate normal of land 
         vec3 landNormal = normalize( vec3( height - heightRight, height - heightUp, 0.2 ) );
-        mat3 matr = eastNorthUpToEyeCoordinates( v_positionMC, normal );
-        landNormal = normalize( matr*landNormal );
+        mat3 eyeToTangent = eastNorthUpToEyeCoordinates( v_positionMC, normal );
+        landNormal = normalize( eyeToTangent*landNormal );
         
         float diffuse = clamp(dot(u_CameraSpaceDirLight, normal ), 0.0, 1.0);
         float landDiffuse = clamp(dot(u_CameraSpaceDirLight, landNormal ), 0.0, 1.0);
@@ -117,9 +117,10 @@
         vec3 color = ((0.6 * landDiffuse) + (0.4 * specular * specularMask )) * dayColor;
         
         //mat3 eyeToTangent = eyeToTangentSpace( v_Position, normal );
-        mat3 eyeToTangent = eastNorthUpToEyeCoordinates( v_positionMC, normal );
+        eyeToTangent = eastNorthUpToEyeCoordinates( v_positionMC, normal );
         
-        vec3 light = normalize( (eyeToTangent * u_CameraSpaceDirLight));
+        //calculate light vector in tangent space
+        vec3 light = normalize( eyeToTangent * (u_CameraSpaceDirLight - v_Position));
         
         vec2 texcoord2 = cloudTexcoord + 0.04 * light.xy;
         float cloudshadow = texture2D( u_CloudTrans, texcoord2 ).r;
