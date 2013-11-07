@@ -164,6 +164,11 @@
 
         context.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp);
         context.uniform1f(u_timeLocation, time);
+
+        context.activeTexture(context.TEXTURE0);
+        context.bindTexture(context.TEXTURE_2D, heightTex);
+        context.uniform1i(u_heightLocation, 0);
+ 
         context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
 
         time += dt;
