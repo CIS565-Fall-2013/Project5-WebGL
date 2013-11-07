@@ -33,7 +33,6 @@ var blendDir = -1.0;
     var positionLocation = 0;
     var heightLocation = 1;
     var u_modelViewPerspectiveLocation;
-    var u_timeLocation;
     var u_heightLocation;
     var u_heightLocation2;
     var u_heightBlendLocation;
@@ -77,7 +76,6 @@ var blendDir = -1.0;
         u_heightLocation = context.getUniformLocation(program, "u_Height");
         u_heightLocation2 = context.getUniformLocation(program, "u_Height2");
         u_heightBlendLocation = context.getUniformLocation(program, "u_heightBlend");
-		u_timeLocation = context.getUniformLocation(program,"u_time");
 
         context.useProgram(program);
     })();
@@ -164,7 +162,6 @@ var blendDir = -1.0;
         numberOfIndices = indices.length;
     })();
 
-    var time = 0;
     var dt = 0.01;
     var angle = 0.0;
     var heightBlend = 0.0;
@@ -195,7 +192,6 @@ var blendDir = -1.0;
         context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
 
         context.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp);
-        context.uniform1f(u_timeLocation, time);
         context.uniform1f(u_heightBlendLocation, heightBlend);
 
         context.activeTexture(context.TEXTURE0);
@@ -208,8 +204,6 @@ var blendDir = -1.0;
 
         //context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
         context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
-
-        time += dt;
 
 		window.requestAnimFrame(animate);
     })();
