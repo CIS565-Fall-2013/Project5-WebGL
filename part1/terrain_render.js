@@ -76,7 +76,7 @@ var blendDir = 1.0;
 		u_modelViewPerspectiveLocation = context.getUniformLocation(program,"u_modelViewPerspective");
         u_heightLocation = context.getUniformLocation(program, "u_Height");
         u_heightLocation2 = context.getUniformLocation(program, "u_Height2");
-        u_heightBlendLocation = context.getUniformLocation(program, "u_HeightBlend");
+        u_heightBlendLocation = context.getUniformLocation(program, "u_heightBlend");
 		u_timeLocation = context.getUniformLocation(program,"u_time");
 
         context.useProgram(program);
