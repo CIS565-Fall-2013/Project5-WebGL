@@ -43,7 +43,8 @@
         cubeImage = new Image();
         cubeImage.onload = function() { handleTextureLoaded(cubeImage, cubeTexture); };
         //cubeImage.src = "picogen_heightmap.png";
-        cubeImage.src = "mt_fuji_area.png";
+        //cubeImage.src = "mt_fuji_area.png";
+        cubeImage.src = "RAINIER_cropped.png";
     }
 
     function handleTextureLoaded(image, texture) {
@@ -181,6 +182,7 @@
         context.bindTexture(context.TEXTURE_2D, cubeTexture);
         context.uniform1i(u_heightLocation, 0); 
 
+        //context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
         context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
 
         time += dt;
