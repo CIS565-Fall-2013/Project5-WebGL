@@ -34,7 +34,28 @@
     var u_timeLocation;
     var u_heightLocation;
 
+    var cubeTexture;
+    var cubeImage;
+
+    //from https://developer.mozilla.org/en-US/docs/Web/WebGL/Using_textures_in_WebGL
+    function initTextures() {
+        cubeTexture = context.createTexture();
+        cubeImage = new Image();
+        cubeImage.onload = function() { handleTextureLoaded(cubeImage, cubeTexture); };
+        cubeImage.src = "picogen_heightmap.png";
+    }
+
+    function handleTextureLoaded(image, texture) {
+        context.bindTexture(context.TEXTURE_2D, texture);
+        context.texImage2D(context.TEXTURE_2D, 0, context.RGBA, context.RGBA, context.UNSIGNED_BYTE, image);
+        context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MAG_FILTER, context.LINEAR);
+        context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.LINEAR_MIPMAP_NEAREST);
+        context.generateMipmap(context.TEXTURE_2D);
+        context.bindTexture(context.TEXTURE_2D, null);
+    }
+
     (function initializeShader() {
+        initTextures();
         var program;
         var vs = getShaderSource(document.getElementById("vs"));
         var fs = getShaderSource(document.getElementById("fs"));
@@ -151,7 +172,11 @@
 
         context.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp);
         context.uniform1f(u_timeLocation, time);
- 
+
+        context.activeTexture(context.TEXTURE0);
+        context.bindTexture(context.TEXTURE_2D, cubeTexture);
+        context.uniform1i(u_heightLocation, 0); 
+
         context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
 
         time += dt;
