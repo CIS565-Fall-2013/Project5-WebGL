@@ -36,6 +36,7 @@ var blendDir = 1.0;
     var u_timeLocation;
     var u_heightLocation;
     var u_heightLocation2;
+    var u_heightBlendLocation;
 
     var terrainTex1;
     var terrainIm1;
@@ -75,6 +76,7 @@ var blendDir = 1.0;
 		u_modelViewPerspectiveLocation = context.getUniformLocation(program,"u_modelViewPerspective");
         u_heightLocation = context.getUniformLocation(program, "u_Height");
         u_heightLocation2 = context.getUniformLocation(program, "u_Height2");
+        u_heightBlendLocation = context.getUniformLocation(program, "u_HeightBlend");
 		u_timeLocation = context.getUniformLocation(program,"u_time");
 
         context.useProgram(program);
@@ -170,14 +172,14 @@ var blendDir = 1.0;
     (function animate(){
 
         heightBlend += blendDir*dt;
-        if(heightBlend < 0){
-            heightBlend = 0;
-        } else if(heightBlend > 1){
-            heightBlend = 1;
+        if(heightBlend < 0.0){
+            heightBlend = 0.0;
+        } else if(heightBlend > 1.0){
+            heightBlend = 1.0;
         }
         ///////////////////////////////////////////////////////////////////////////
         // Update
-        angle = angle + blendDir*0.01;
+        angle = angle + 0.01;
 
         var model = mat4.create();
         mat4.identity(model);
@@ -194,6 +196,7 @@ var blendDir = 1.0;
 
         context.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp);
         context.uniform1f(u_timeLocation, time);
+        context.uniform1f(u_heightBlendLocation, heightBlend);
 
         context.activeTexture(context.TEXTURE0);
         context.bindTexture(context.TEXTURE_2D, terrainTex1);

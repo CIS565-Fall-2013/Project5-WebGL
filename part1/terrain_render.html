@@ -15,6 +15,7 @@
     
     uniform mat4 u_modelViewPerspective;
     uniform float u_time;
+    uniform float u_heightBlend;
     uniform sampler2D u_Height;
     uniform sampler2D u_Height2;
     varying vec3 curr_color;
@@ -28,7 +29,8 @@
         vec2 texCoord = vec2(position.x, position.y);
         float height1 = texture2D(u_Height, texCoord).r; 
         float height2 = texture2D(u_Height2, texCoord).r; 
-        float height = mix(height1, height2, 0.5); 
+        float height = mix(height1, height2, u_heightBlend); 
+        //float height = mix(height1, height2, 0.5); 
 		gl_Position = u_modelViewPerspective * vec4(vec3(position, 0.5*height), 1.0);
         curr_color = mix(low_color, high_color, height);
     }
