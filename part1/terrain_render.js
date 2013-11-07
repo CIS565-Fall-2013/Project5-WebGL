@@ -48,19 +48,6 @@
         context.useProgram(program);
     })();
 
-    var heightTex = context.createTexture();
-
-    function initLoadedTexture(texture){
-        context.bindTexture(context.TEXTURE_2D, texture);
-        context.pixelStorei(context.UNPACK_FLIP_Y_WEBGL, true);
-        context.texImage2D(context.TEXTURE_2D, 0, context.RGBA, context.RGBA, context.UNSIGNED_BYTE, texture.image);
-        context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MAG_FILTER, context.LINEAR);
-        context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.LINEAR);
-        context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_S, context.REPEAT);
-        context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_T, context.REPEAT);
-        context.bindTexture(context.TEXTURE_2D, null);
-    }
-
     var heights;
     var numberOfIndices;
 
@@ -164,10 +151,6 @@
 
         context.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp);
         context.uniform1f(u_timeLocation, time);
-
-        context.activeTexture(context.TEXTURE0);
-        context.bindTexture(context.TEXTURE_2D, heightTex);
-        context.uniform1i(u_heightLocation, 0);
  
         context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
 
@@ -175,22 +158,5 @@
 
 		window.requestAnimFrame(animate);
     })();
-
-    var textureCount = 0;
-
-    function initializeTexture(texture, src) {
-        texture.image = new Image();
-        texture.image.onload = function() {
-            initLoadedTexture(texture);
-
-            // Animate once textures load.
-            if (++textureCount === 6) {
-                animate();
-            }
-        }
-        texture.image.src = src;
-    }
-
-    initializeTexture(heightTex, "picogen_heightmapp.png");
 
 }());
