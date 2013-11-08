@@ -178,6 +178,7 @@
     })();
 
     var time = 0;
+	var frameCount = 0 ;
 	var displayBump = 0.0 ;
     var mouseLeftDown = false;
     var mouseRightDown = false;
@@ -255,8 +256,9 @@
     document.onmousemove = handleMouseMove;
 	document.onkeydown = handleKeyDown;
     document.onkeyup = handleKeyUp;
+	
 
-
+    var then = Date.now()/1000 ;
     function animate() {
         ///////////////////////////////////////////////////////////////////////////
         // Update
@@ -282,6 +284,7 @@
 
         ///////////////////////////////////////////////////////////////////////////
         // Render
+		
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         gl.uniformMatrix4fv(u_ModelLocation, false, model);
@@ -312,8 +315,20 @@
 		gl.uniform1f(u_timeLocation, time);
 		gl.uniform1f(u_buttonLocation, displayBump);
         gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
-			
-        time += 0.001;
+		time += 0.001;
+		frameCount++ ;
+		if(frameCount == 30)
+		{
+		frameCount = 0;
+		var fpsElement = document.getElementById("fps");
+		var now = Date.now()/1000 ;
+		var elapsedTime = now - then;
+        then = now;
+		// compute fps
+        var fps = 1 / elapsedTime;
+        fpsElement.textContent = elapsedTime.toFixed(4);  
+		}	
+        
         window.requestAnimFrame(animate);
     }
 

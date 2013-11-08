@@ -7,8 +7,11 @@
 </head>
 
 <body>
+<div>Elapsed time: <span id="fps"></span></div>
 <div id="message" style="position:absolute;top:100px"></div> <!-- Pixel offset to avoid FPS counter -->
-<canvas id="canvas" style="border: none;" width="1024" height="768" tabindex="1"></canvas>
+
+<canvas id="canvas" style="border: none;" width="1024" height="768" tabindex="1">  </canvas>
+
 
 <script id="vs" type="x-shader/x-vertex">
     precision highp float;
