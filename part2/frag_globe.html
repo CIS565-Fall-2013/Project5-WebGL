@@ -233,6 +233,42 @@
     }
 </script>
 
+
+<script id="skyBoxVS" type="x-shader/x-vertex">
+    precision highp float;
+
+    uniform mat4 u_Model;
+    uniform mat4 u_View;
+    uniform mat4 u_Persp;
+
+    attribute vec3 Position;
+    attribute vec2 Texcoord;
+
+    varying vec2 v_Texcoord;
+
+    void main(void)
+    {
+        gl_Position = u_Persp * u_View * u_Model * vec4(Position, 1.0);
+        v_Texcoord = Texcoord;
+    }
+
+</script>
+
+<script id="skyBoxFS" type="x-shader/x-fragment">
+    precision highp float;
+    
+    uniform sampler2D u_textureSampler;
+    
+    varying vec2 v_Texcoord;
+    
+    void main(void)
+    {
+        gl_FragColor = texture2D(u_textureSampler, v_Texcoord).rgb;
+    }
+
+</script>
+
+
 <script src ="gl-matrix.js" type ="text/javascript"></script>
 <script src ="webGLUtility.js" type ="text/javascript"></script>
 <script src ="frag_globe.js" type ="text/javascript"></script>

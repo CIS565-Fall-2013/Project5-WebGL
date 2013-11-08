@@ -52,6 +52,9 @@
     var u_MoonDiffuseLocation;
     var u_MoonBumpLocation;
 
+    // skybox
+    var u_texSamplerLocation;
+
     // shared
     var positionLocation;
     var normalLocation;
@@ -107,6 +110,21 @@
         gl.useProgram(program);
     }
 
+    function initializeSkyboxShader() {
+        var vs = getShaderSource(document.getElementById("skyboxVS"));
+        var fs = getShaderSource(document.getElementById("skyboxFS"));
+
+        var program = createProgram(gl, vs, fs, message);
+        positionLocation = gl.getAttribLocation(program, "Position");
+        texCoordLocation = gl.getAttribLocation(program, "Texcoord");
+        u_ModelLocation = gl.getUniformLocation(program, "u_Model");
+        u_ViewLocation = gl.getUniformLocation(program, "u_View");
+        u_PerspLocation = gl.getUniformLocation(program, "u_Persp");
+        u_texSamplerLocation = gl.getUniformLocation(program, "u_textureSampler");
+        
+        gl.useProgram(program);
+    }
+
     function initLoadedTexture(texture){
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -115,7 +133,6 @@
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-        gl.generateMipmap(gl.TEXTURE_2D);
         gl.bindTexture(gl.TEXTURE_2D, null);
     }
 
@@ -398,6 +415,9 @@
         initializeSphere();
         drawMoon();
 
+        // Skybox
+        //initializeSkyboxShader();
+
         time += 0.001;
         
         window.requestAnimFrame(animate);
@@ -450,13 +470,15 @@
     function initializeTexture(texture, src, type) {
         texture.image = new Image();
         texture.image.onload = function() {
-            initLoadedTexture(texture);
+            
 
             if (type == "earth") {
                 earthTextureCount++;
+                initLoadedTexture(texture);
             }
             else if (type == "moon") {
                 moonTextureCount++;
+                initLoadedNPOTTexture(texture);
             }
                 
 
