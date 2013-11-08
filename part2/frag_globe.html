@@ -96,6 +96,7 @@
     
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);	// Matrix to transform tangent space to view space.
     int int_lerp (int a, int b, float mixFactor);
+    float simplexNoise (vec2 input);
     
     const float PI = 3.1415926;
     
@@ -169,14 +170,20 @@
         eyeToPosition = normalize (v_Position);		
         normal = normalize (v_Normal);
         
+		// Load the different colours from each of the textures.
+        vec3 dayColor = texture2D(u_DayDiffuse, finalTexCoords/*v_Texcoord*/).rgb;
+        vec3 nightColor = texture2D(u_Night, finalTexCoords/*v_Texcoord*/).rgb;
+        vec3 specularMap = texture2D (u_EarthSpec, v_Texcoord).rgb;
+        vec3 cloudMap = texture2D (u_CloudTrans, vec2(fract(v_Texcoord.x+(u_time*0.4)), v_Texcoord.y)).rgb;	// Cloud transmittence map.
+        vec3 cloudColourMap = texture2D (u_Cloud, vec2(fract(v_Texcoord.x+(u_time*0.4)), v_Texcoord.y)).rgb;
+           	 
         // Now find normal from the bump map using finalTexCoords
         float bumpMap_center = texture2D (u_Bump, finalTexCoords).r;
         float bumpMap_right = texture2D (u_Bump, vec2 (finalTexCoords.x+(1.0/1024.0), finalTexCoords.y)).r;
         float bumpMap_up = texture2D (u_Bump, vec2 (finalTexCoords.x, finalTexCoords.y+(1.0/512.0))).r;        
         vec3  bump_NormalEyeSpace = eastNorthUpToEyeCoordinates (v_positionMC, v_Normal) * 
         							normalize (vec3 (bumpMap_center - bumpMap_right, bumpMap_center - bumpMap_up, 0.2));
-        bump_NormalEyeSpace = normalize (bump_NormalEyeSpace);
-        
+        bump_NormalEyeSpace = normalize (bump_NormalEyeSpace);        
 
 		// Lambertian shading:
         float diffuse = clamp(dot(u_CameraSpaceDirLight, bump_NormalEyeSpace), 0.0, 1.0);
@@ -187,13 +194,6 @@
 
         float gammaCorrect = 1.0/1.2; //gamma correct by 1/1.2
 
-		// Load the different colours from each of the textures.
-        vec3 dayColor = texture2D(u_DayDiffuse, finalTexCoords/*v_Texcoord*/).rgb;
-        vec3 nightColor = texture2D(u_Night, finalTexCoords/*v_Texcoord*/).rgb;
-        vec3 specularMap = texture2D (u_EarthSpec, v_Texcoord).rgb;
-        vec3 cloudMap = texture2D (u_CloudTrans, vec2(fract(v_Texcoord.x+(u_time*0.4)), v_Texcoord.y)).rgb;	// Cloud transmittence map.
-        vec3 cloudColourMap = texture2D (u_Cloud, vec2(fract(v_Texcoord.x+(u_time*0.4)), v_Texcoord.y)).rgb;
-           	 
         //apply gamma correction to nighttime texture
         nightColor = pow(nightColor,vec3(gammaCorrect));
 
