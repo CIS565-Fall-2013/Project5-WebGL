@@ -678,7 +678,7 @@
 	   		fps = frameCount;
 			frameCount = 0;
 			elapsedTime -= 1000;
-			document.getElementById('fps').innerHTML = fps;
+			document.getElementById('fps').innerHTML = 'fps: '+fps;
 	  }
 		lastTime = new Date().getTime();
 
