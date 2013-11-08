@@ -183,6 +183,81 @@
         numberOfIndices = indicesIndex;
     })();
 
+    (function initializeSphere2() {
+        function uploadMesh(positions, texCoords, indices) {
+            // Positions
+            var positionsName = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionsName);
+            gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+            gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(positionLocation);
+            
+            // Normals
+            var normalsName = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, normalsName);
+            gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+            gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(normalLocation);
+            
+            // TextureCoords
+            var texCoordsName = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, texCoordsName);
+            gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
+            gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(texCoordLocation);
+
+            // Indices
+            var indicesName = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesName);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+        }
+
+        var WIDTH_DIVISIONS = NUM_WIDTH_PTS - 1;
+        var HEIGHT_DIVISIONS = NUM_HEIGHT_PTS - 1;
+
+        var numberOfPositions = NUM_WIDTH_PTS * NUM_HEIGHT_PTS;
+
+        var positions = new Float32Array(3 * numberOfPositions);
+        var texCoords = new Float32Array(2 * numberOfPositions);
+        var indices = new Uint16Array(6 * (WIDTH_DIVISIONS * HEIGHT_DIVISIONS));
+
+        var positionsIndex = 0;
+        var texCoordsIndex = 0;
+        var indicesIndex = 0;
+        var length;
+
+        for( var j = 0; j < NUM_HEIGHT_PTS; ++j )
+        {
+            var inclination = Math.PI * (j / HEIGHT_DIVISIONS);
+            for( var i = 0; i < NUM_WIDTH_PTS; ++i )
+            {
+                var azimuth = 2 * Math.PI * (i / WIDTH_DIVISIONS);
+                positions[positionsIndex++] = 0.1*Math.sin(inclination)*Math.cos(azimuth);
+                positions[positionsIndex++] = 0.1*Math.cos(inclination);
+                positions[positionsIndex++] = 0.1*Math.sin(inclination)*Math.sin(azimuth);
+                texCoords[texCoordsIndex++] = i / WIDTH_DIVISIONS;
+                texCoords[texCoordsIndex++] = j / HEIGHT_DIVISIONS;
+            } 
+        }
+
+        for( var j = 0; j < HEIGHT_DIVISIONS; ++j )
+        {
+            var index = j*NUM_WIDTH_PTS;
+            for( var i = 0; i < WIDTH_DIVISIONS; ++i )
+            {
+                    indices[indicesIndex++] = index + i;
+                    indices[indicesIndex++] = index + i+1;
+                    indices[indicesIndex++] = index + i+NUM_WIDTH_PTS;
+                    indices[indicesIndex++] = index + i+NUM_WIDTH_PTS;
+                    indices[indicesIndex++] = index + i+1;
+                    indices[indicesIndex++] = index + i+NUM_WIDTH_PTS+1;
+            }
+        }
+
+        uploadMesh(positions, texCoords, indices);
+        numberOfIndices = indicesIndex;
+    })();
+
     var time = 0;
     var mouseLeftDown = false;
     var mouseRightDown = false;
@@ -248,9 +323,9 @@
 
         var model = mat4.create();
         mat4.identity(model);
-        mat4.rotate(model, 23.4/180*Math.PI, [0.0, 0.0, 1.0]);
+        //mat4.rotate(model, 23.4/180*Math.PI, [0.0, 0.0, 1.0]);
         mat4.rotate(model, Math.PI, [1.0, 0.0, 0.0]);
-        mat4.rotate(model, -time, [0.0, 1.0, 0.0]);
+        //mat4.rotate(model, -time, [0.0, 1.0, 0.0]);
         var mv = mat4.create();
         mat4.multiply(view, model, mv);
 
