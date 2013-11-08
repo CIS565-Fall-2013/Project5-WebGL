@@ -85,6 +85,40 @@
         return x - floor(x * (1.0 / 289.0)) * 289.0;
     }
 
+    float simplexNoise(vec2 v){
+      const vec4 C = vec4(0.211324865405187, 0.366025403784439,  -0.577350269189626, 0.024390243902439); 
+
+      vec2 i  = floor(v + dot(v, C.yy) );
+      vec2 x0 = v -   i + dot(i, C.xx);
+
+      vec2 i1;
+      i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+
+      vec4 x12 = x0.xyxy + C.xxzz;
+      x12.xy -= i1;
+
+      i = i - floor(i * (1.0 / 289.0)) * 289.0;
+
+      vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
+            + i.x + vec3(0.0, i1.x, 1.0 ));
+
+      vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+      m = m*m ;
+      m = m*m ;
+
+      vec3 x = 2.0 * fract(p * C.www) - 1.0;
+      vec3 h = abs(x) - 0.5;
+      vec3 ox = floor(x + 0.5);
+      vec3 a0 = x - ox;
+
+      m *= inversesqrt( a0*a0 + h*h );
+
+      vec3 g;
+      g.x  = a0.x  * x0.x  + h.x  * x0.y;
+      g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+      return 130.0 * dot(m, g);
+    }
+
     void main(){
         if (u_RenderMode == 49){
             renderHeightMap();
@@ -118,29 +152,16 @@
         float right = texture2D(u_Bump, vec2(v_Texcoord.s+(1.0/1024.0), v_Texcoord.t)).r; 
 
         float specContrib = texture2D(u_EarthSpec, v_Texcoord).r;
-        float noise = cos(10.0*u_time);
 
-        center += 0.1*sin(v_Texcoord.s * fract(0.6 * u_time )* 200.0)*cos(v_Texcoord.t * fract(0.6 * u_time))* specContrib;
-        top += 0.1*cos(v_Texcoord.t+(1.0/512.0) * fract(0.6 * u_time) * 200.0 )*sin(v_Texcoord.s * fract(0.6 * u_time)) * specContrib;
-        //right += 0.5*cos(v_Texcoord.s+(1.0/1024.0) * sin(u_time) * 100.0 ) * specContrib;
-     
-        //center += sin(20.0*height)* noise * specContrib;
-        //top += sin(30.0 * height) * noise* specContrib;
-        //right += sin(30.0 * height) * cos(noise)* specContrib;
-        //top += cos(height) * specContrib;
-        //right += sin(height) * specContrib;
-        //center += 0.01 * sin(1000.0*u_time + 500.0)* cos(50.0*u_time) * specContrib;
-        //top += 0.01*cos(1000.0*u_time + 900.0)* cos(50.0*u_time) * specContrib;
-        //right += 10.0*sin(100.0*u_time + v_Position.y + v_Position.x + 300.0) * cos(50.0*u_time) * specContrib;
-    
-    /*    float waveIntensity = 0.5;
-        center = ((1.2 - waveIntensity) * sin(33.0 * v_Texcoord.s*v_positionMC.y + 53.0 * (1.2 - waveIntensity) * (abs(fract(0.75*u_time) - 0.5) + 0.2))) 
-                                           * ((1.2 - waveIntensity) * cos(50.0 * v_Texcoord.t*v_positionMC.y + 35.0 * (1.2 - waveIntensity) * (abs(fract(0.75*u_time) - 0.5) + 0.2)));
-        right =  ((1.2 - waveIntensity) * sin(33.0 *(v_Texcoord.s+(1.0/1024.0))  + 53.0 * (1.2 - waveIntensity) * (abs(fract(0.75*u_time) - 0.5) + 0.2))) 
-                                           * ((1.2 - waveIntensity) * cos(50.0 * v_Texcoord.t                                    + 35.0 * (1.2 - waveIntensity) * (abs(fract(0.75*u_time) - 0.5) + 0.2)));
-        top =          ((1.2 - waveIntensity) * sin(33.0 * v_Texcoord.s                              + 53.0 * (1.2 - waveIntensity) * (abs(fract(0.75*u_time) - 0.5) + 0.2))) 
-                                           * ((1.2 - waveIntensity) * cos(50.0 *(v_Texcoord.t+(1.0/512.0))   + 35.0 * (1.2 - waveIntensity) * (abs(fract(0.75*u_time) - 0.5) + 0.2)));
-    */
+        // find noise parameters based on time
+        float noise = abs(fract(u_time) - 0.5);
+        float s_contrib = sin(v_positionMC.x*2.0*3.14159 + u_time);
+        float t_contrib = cos(v_positionMC.y*2.0*3.14159 + u_time);
+		float height = s_contrib*t_contrib;
+
+        top += 0.02*sin(v_positionMC.x * 150.0 *height) * cos(v_positionMC.y * noise* 300.0)*specContrib;
+        right += 0.02*sin(v_positionMC.y * noise* 200.0) * cos(v_positionMC.x * 100.0 * height)*specContrib;
+
         vec3 bumpNormal = normalize(vec3(center - right, center - top, 0.2));
         
         //transform to eye space and return
