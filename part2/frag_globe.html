@@ -9,18 +9,6 @@
 
 <body>
 
-<script type="text/javascript">
- 
-$(document).ready(function(){
- $.getJSON('http://api.open-notify.org/iss-now.json?callback=?', function(data) {
-        var lat = data['iss_position']['latitude'];
-        var lon = data['iss_position']['longitude'];
-        console.log(lat);
-    });
- $("#msgid").html("This is Hello World by JQuery");
-});
- 
-</script>
 
 <div id="msgid">
 </div>
