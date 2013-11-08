@@ -141,7 +141,7 @@
 
     var numberOfIndices;
 
-    (function initializeSphere() {
+    function initializeSphere() {
         function uploadMesh(positions, texCoords, indices) {
             // Positions
             var positionsName = gl.createBuffer();
@@ -214,9 +214,9 @@
 
         uploadMesh(positions, texCoords, indices);
         numberOfIndices = indicesIndex;
-    })();
+    }
 
-    (function initializeSphere2() {
+    function initializeSphere2() {
         function uploadMesh(positions, texCoords, indices) {
             // Positions
             var positionsNameISS = gl.createBuffer();
@@ -289,7 +289,7 @@
 
         uploadMesh(positions, texCoords, indices);
         numberOfIndices = indicesIndex;
-    })();
+    }
 
     var time = 0;
     var mouseLeftDown = false;
@@ -356,7 +356,7 @@
 
         var model = mat4.create();
         mat4.identity(model);
-        mat4.translate(model, [0.0, 0.0, 1.0]);
+        //mat4.translate(model, [0.0, 0.0, 1.0]);
         //mat4.rotate(model, 23.4/180*Math.PI, [0.0, 0.0, 1.0]);
         mat4.rotate(model, Math.PI, [1.0, 0.0, 0.0]);
         var mv = mat4.create();
@@ -375,6 +375,10 @@
 
         ///////////////////////////////////////////////////////////////////////////
         // Render
+
+        //initializeSphere2();
+        initializeSphere();
+
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         gl.uniformMatrix4fv(u_ModelLocation, false, model);
