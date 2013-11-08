@@ -87,6 +87,7 @@ Since we are primarily concerned with perturbing the texel-read normal in one di
 perturb the texel-read normal in the x direction. In order to animation the water, 
 we add the u_time term to add periodicity of the osciallation of the simplex
 noise.
+
 -----------
 
 #Performance Analysis
@@ -96,12 +97,51 @@ to note that this is not the most accurate way to measure the performance of
 WebGL, this widget gives approximate number based on the call time of the 
 animate function, which is called for every frame.
 
+###Integrated Graphics Card
+Program | FPS | ms per frame
+----| ----- | -----
+Globe | 32 FPS | 32 ms
+Sine Wave | 37 FPS | 27 ms
+Custom Wave | 36 FPS | 28 ms
+Simplex Wave | 38 FPS | 24 ms
+Simplex 2D | 38 FPS | 27 ms
+
+###GPU Enabled
 Program | FPS | ms per frame
 ---- | ---- | ----
-Globe (basic requirements) | 60 FPS | 17 ms
+Globe | 60 FPS | 17 ms
+Sine Wave | 60 FPS | 17 ms
+Custom Wave | 60 FPS | 17 ms
+Simplex | 60 FPS | 17 ms
+Simplex 2D | 60 FPS | 17 ms
+
+NOTE : All of these were taken from the github hosted versions on the 
+same internet connection.
 
 -----------
+
 #Acknowledgements
+
+Much of the audio visualizer code is based off the following tutorials and 
+discussion of the current uses of Web Audio API:
+
+![Web Audio API Analysis and Visualisation](http://chimera.labs.oreilly.com/books/1234000001552/ch05.html)
+![A Web Audio Spectrum Analyzer](http://0xfe.blogspot.com/2011/08/web-audio-spectrum-analyzer.html)
+![WebGL + WebAudio = Fun](http://wemadeyoulook.at/en/blog/webgl-webaudio-api-fun/)
+
 -----------
+
 #External Libraries
 
+![Stats.js](https://github.com/mrdoob/stats.js)
+![Web Audio API](https://dvcs.w3.org/hg/audio/raw-file/tip/webaudio/specification.html)
+
+-----------
+
+#Miscellaneous
+
+##GPU Specs
+NVIDIA GeFore 650M
+
+##Integrated Card Specs
+Intel HD Graphics 4000
