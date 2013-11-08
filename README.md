@@ -3,17 +3,18 @@ CIS 565 : Project 5 : WebGL
 -------------------------------------------------------------------------------
 #Overview
 
-In this project, we aim to work with WebGL to write vertex and fragment shaders.
+In this project, we aim to work with WebGL to write vertex and fragment shaders. 
+(Click picture to view demo.)
  
 ##Part 1
 
 ###Requirements:
-* Sine Wave Vertex Shader
-* Simplex Wave Vertex Shader
-* 2D Simplex Wave Vertex Shader
+* Sine Wave Vertex Shader [![Sine Wave Vertex Shader](resources/sine_wave.png)](harmoli.github.io/Project5-WebGL/vert_wave.html)
+* Simplex Wave Vertex Shader [![Simplex Wave Vertex Shader](resources/simplex_1D.png)](harmoli.github.io/Project5-WebGL/simplex.html)
+* 2D Simplex Wave Vertex Shader [![Simplex Wave Vertex Shader](resources/simplex_2D2.png)](harmoli.github.io/Project5-WebGL/simplex2D.html)
 
 ###Extra:
-* Custom Simplex Wave Vertex Shader
+* Custom Simplex Wave Vertex Shader [![Simplex Wave Vertex Shader](resources/custom_wave2.png)](harmoli.github.io/Project5-WebGL/wave.html)
 * (in development) Audio Driven Vertex Shader
 
 ##Part 2
@@ -28,6 +29,8 @@ In this project, we aim to work with WebGL to write vertex and fragment shaders.
 
 ###Extras:
 * Procedural water rendering and animation using noise 
+
+[![Globe](resources/frag_globe.png)](harmoli.github.io/Project5-WebGL/index.html)
 
 -----------
 
@@ -126,7 +129,9 @@ Much of the audio visualizer code is based off the following tutorials and
 discussion of the current uses of Web Audio API:
 
 ![Web Audio API Analysis and Visualisation](http://chimera.labs.oreilly.com/books/1234000001552/ch05.html)
+
 ![A Web Audio Spectrum Analyzer](http://0xfe.blogspot.com/2011/08/web-audio-spectrum-analyzer.html)
+
 ![WebGL + WebAudio = Fun](http://wemadeyoulook.at/en/blog/webgl-webaudio-api-fun/)
 
 -----------
@@ -134,6 +139,7 @@ discussion of the current uses of Web Audio API:
 #External Libraries
 
 ![Stats.js](https://github.com/mrdoob/stats.js)
+
 ![Web Audio API](https://dvcs.w3.org/hg/audio/raw-file/tip/webaudio/specification.html)
 
 -----------
