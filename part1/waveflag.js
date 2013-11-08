@@ -47,7 +47,7 @@
 		Texcoord = context.getAttribLocation (program, "Texcoord");
 		u_modelViewPerspectiveLocation = context.getUniformLocation(program,"u_modelViewPerspective");
 		u_timeLocation = context.getUniformLocation (program, "u_time");
-		u_FlagSampleLocation = context.getUniformLocation (program, "u_FlagSampler");
+		u_FlagSamplerLocation = context.getUniformLocation (program, "u_FlagSampler");
 
         context.useProgram(program);
     })();
@@ -96,8 +96,8 @@
             var texCoordsName = context.createBuffer();
             context.bindBuffer(context.ARRAY_BUFFER, texCoordsName);
             context.bufferData(context.ARRAY_BUFFER, texCoords, context.STATIC_DRAW);
-            context.vertexAttribPointer(texCoordLocation, 2, context.FLOAT, false, 0, 0);
-            context.enableVertexAttribArray(texCoordLocation);
+            context.vertexAttribPointer(Texcoord, 2, context.FLOAT, false, 0, 0);
+            context.enableVertexAttribArray(Texcoord);
 
         }
 
@@ -149,7 +149,7 @@
                  positions[positionsIndex++] = (k + 1) / WIDTH_DIVISIONS;
                  positions[positionsIndex++] = v;
                  texCoords[texCoordsIndex++] = (k + 1) / WIDTH_DIVISIONS;
-             	 texCoords[texCoordsIndex++] = i / HEIGHT_DIVISIONS;
+             	 texCoords[texCoordsIndex++] = v;
 
 
                  length = positionsIndex / 2;
@@ -187,7 +187,7 @@
         context.uniform1f (u_timeLocation, curTime);
         context.activeTexture(context.TEXTURE0);
         context.bindTexture(context.TEXTURE_2D, flagTex);
-        context.uniform1i(u_FlagSampler, 0);
+        context.uniform1i(u_FlagSamplerLocation, 0);
 
         context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
 
