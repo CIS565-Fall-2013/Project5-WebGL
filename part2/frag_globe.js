@@ -26,6 +26,7 @@
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable (gl.DEPTH_TEST);
+    gl.depthFunc (gl.LESS);
     gl.enable (gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 
@@ -41,13 +42,18 @@
     var up = [0.0, 1.0, 0.0];
     var view = mat4.create();
     mat4.lookAt(eye, center, up, view);
+    var inverse_view = mat4.create ();
+    mat4.inverse (view, inverse_view);
 
     var positionLocation;
     var normalLocation;
     var texCoordLocation;
     var u_InvTransLocation;
+	var u_InvTransModelLocation;
     var u_ModelLocation;
+    var u_InvModelLocation;
     var u_ViewLocation;
+    var u_InvViewLocation;
     var u_PerspLocation;
     var u_CameraSpaceDirLightLocation;
     var u_DayDiffuseLocation;
@@ -57,6 +63,8 @@
     var u_EarthSpecLocation;
     var u_BumpLocation;
     var u_timeLocation;
+    var u_BumpOrPOMLocation;
+    var u_heightFieldColourLocation;
 
     (function initializeShader() {
         var vs = getShaderSource(document.getElementById("vs"));
@@ -67,9 +75,12 @@
         normalLocation = gl.getAttribLocation(program, "Normal");
         texCoordLocation = gl.getAttribLocation(program, "Texcoord");
         u_ModelLocation = gl.getUniformLocation(program,"u_Model");
+        u_InvModelLocation = gl.getUniformLocation(program,"u_InvModel");
         u_ViewLocation = gl.getUniformLocation(program,"u_View");
+        u_InvViewLocation = gl.getUniformLocation(program,"u_InvView");
         u_PerspLocation = gl.getUniformLocation(program,"u_Persp");
         u_InvTransLocation = gl.getUniformLocation(program,"u_InvTrans");
+        u_InvTransModelLocation = gl.getUniformLocation(program,"u_InvTransModel");        
         u_DayDiffuseLocation = gl.getUniformLocation(program,"u_DayDiffuse");
         u_NightLocation = gl.getUniformLocation(program,"u_Night");
         u_CloudLocation = gl.getUniformLocation(program,"u_Cloud");
@@ -78,6 +89,8 @@
         u_BumpLocation = gl.getUniformLocation(program,"u_Bump");
         u_timeLocation = gl.getUniformLocation(program,"u_time");
         u_CameraSpaceDirLightLocation = gl.getUniformLocation(program,"u_CameraSpaceDirLight");
+        u_BumpOrPOMLocation = gl.getUniformLocation(program,"u_BumpOrPOM");
+        u_heightFieldColourLocation = gl.getUniformLocation(program,"u_heightFieldColour");
 
         gl.useProgram(program);
     })();
@@ -247,10 +260,18 @@
         mat4.rotate(model, -time, [0.0, 1.0, 0.0]);
         var mv = mat4.create();
         mat4.multiply(view, model, mv);
+        
+        var inverse_model = mat4.create ();
+        mat4.inverse (model, inverse_model);        
 
         var invTrans = mat4.create();
         mat4.inverse(mv, invTrans);
         mat4.transpose(invTrans);
+        
+        var invTransMod = mat4.create();
+        mat4.transpose (inverse_model);
+        invTransMod = inverse_model;
+        mat4.transpose (inverse_model);
 
         var lightdir = vec3.create([1.0, 0.0, 1.0]);
         var lightdest = vec4.create();
@@ -264,9 +285,12 @@
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         gl.uniformMatrix4fv(u_ModelLocation, false, model);
+        gl.uniformMatrix4fv(u_InvModelLocation, false, inverse_model);        
         gl.uniformMatrix4fv(u_ViewLocation, false, view);
+        gl.uniformMatrix4fv(u_InvViewLocation, false, inverse_view);
         gl.uniformMatrix4fv(u_PerspLocation, false, persp);
         gl.uniformMatrix4fv(u_InvTransLocation, false, invTrans);
+		gl.uniformMatrix4fv(u_InvTransModelLocation, false, invTransMod);
 
         gl.uniform3fv(u_CameraSpaceDirLightLocation, lightdir);
 
@@ -289,7 +313,9 @@
         gl.bindTexture(gl.TEXTURE_2D, specTex);
         gl.uniform1i(u_EarthSpecLocation, 5);
         gl.uniform1f (u_timeLocation, time);
-        gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
+		gl.uniform1f(u_BumpOrPOMLocation, b_pressed);
+		gl.uniform1f(u_heightFieldColourLocation, h_pressed);
+		gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
 
         time += 0.001;
         window.requestAnimFrame(animate);

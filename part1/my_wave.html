@@ -1,7 +1,7 @@
 <html>
 
 <head>
-<title>Vertex Wave</title>
+<title>Sawtooth Wave</title>
 <meta charset ="utf-8">
 <meta http-equiv="X-UA-Compatible" content="chrome=1">  <!-- Use Chrome Frame in IE --> 
 </head>
@@ -20,7 +20,8 @@
     
     void main(void)
     {
-		height = sin (2.0*3.141596*position.x + u_time) * cos (2.0*3.141596*position.y + u_time);
+    	float currentPos = position.y + u_time;
+		height = currentPos - floor (currentPos);
 		gl_Position = u_modelViewPerspective * vec4(vec3(position, height), 1.0);
     }
 </script>
@@ -33,7 +34,7 @@
     {
     	vec3 lowColour = vec3 (1.0, 0.0, 0.0);
     	vec3 highColour = vec3 (0.0, 1.0, 0.0);
-		gl_FragColor = vec4(mix (lowColour, highColour, height+0.5), 1.0);
+		gl_FragColor = vec4(mix (lowColour, highColour, height), 1.0);
     }    
 </script>
 
