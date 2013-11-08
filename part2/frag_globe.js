@@ -21,7 +21,15 @@
         return;
     }
 
+    console.log("trololo");
+
+
     ///////////////////////////////////////////////////////////////////////////
+
+    
+    $.getJSON("http://api.open-notify.org/iss-now.json", function(data) {
+        console.log(data);
+    }); 
 
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
