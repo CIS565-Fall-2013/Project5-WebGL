@@ -86,10 +86,10 @@
 		
         vec3 toReflectedLight = reflect(-u_CameraSpaceDirLight, normal);
         float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
-        specular = pow(specular, 20.0);
+        specular = pow(specular, 20.0)*texture2D(u_EarthSpec, v_Texcoord).x;//Choice is arbitrary, map is white/black
 
         float gammaCorrect = 1.6/1.2; //gamma correct by 1/1.2
-
+		
         vec3 dayColor = ((0.6 * diffuse) + (0.4 * specular))*texture2D(u_DayDiffuse, v_Texcoord).rgb;
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
         //apply gamma correction to nighttime texture
