@@ -13,6 +13,8 @@
 
     var NUM_WIDTH_PTS = 64;
     var NUM_HEIGHT_PTS = 64;
+    var iss_lat; 
+    var iss_lon;
 
     var message = document.getElementById("message");
     var canvas = document.getElementById("canvas");
@@ -22,11 +24,12 @@
     }
 
     console.log("trololo");
-    $.getJSON('http://api.open-notify.org/iss-now.json?callback=?', function(data) {
-            var lat = data['iss_position']['latitude'];
-            var lon = data['iss_position']['longitude'];
-            console.log(lat);
-        });
+    //$.getJSON('http://api.open-notify.org/iss-now.json?callback=?', function(data) {
+            //var lat = data['iss_position']['latitude'];
+            //var lon = data['iss_position']['longitude'];
+            //console.log(lat);
+            //console.log(lon);
+        //});
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -437,6 +440,20 @@
         //initializeSphere2();
 
         //gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        
+
+        function set_lat_lon( lat, lon ){
+            iss_lat = lat;
+            iss_lon = lon;
+        }
+        
+    $.getJSON('http://api.open-notify.org/iss-now.json?callback=?', function(data) {
+            var lat = data['iss_position']['latitude'];
+            var lon = data['iss_position']['longitude'];
+            //console.log(lat);
+            //console.log(lon);
+            set_lat_lon( lat, lon );
+        });
 
         gl.uniformMatrix4fv(u_ModelLocation, false, model);
         gl.uniformMatrix4fv(u_ViewLocation, false, view);
