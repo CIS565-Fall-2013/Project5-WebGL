@@ -54,6 +54,7 @@
     var u_CloudTransLocation;
     var u_EarthSpecLocation;
     var u_BumpLocation;
+    var u_HeightLocation;
     var u_TimeLocation;
     var u_RenderModeLocation;
 
@@ -74,7 +75,8 @@
         u_CloudLocation = gl.getUniformLocation(program,"u_Cloud");
         u_CloudTransLocation = gl.getUniformLocation(program,"u_CloudTrans");
         u_EarthSpecLocation = gl.getUniformLocation(program,"u_EarthSpec");
-        u_BumpLocation = gl.getUniformLocation(program,"u_Bump");
+        u_BumpLocation = gl.getUniformLocation(program, "u_Bump");
+        u_HeightLocation = gl.getUniformLocation(program, "u_Height");
         u_TimeLocation = gl.getUniformLocation(program,"u_time");
         u_CameraSpaceDirLightLocation = gl.getUniformLocation(program, "u_CameraSpaceDirLight");
         u_RenderModeLocation = gl.getUniformLocation(program, "u_RenderMode");
@@ -87,7 +89,8 @@
     var cloudTex = gl.createTexture();
     var transTex = gl.createTexture();
     var lightTex = gl.createTexture();
-    var specTex  = gl.createTexture();
+    var specTex = gl.createTexture();
+    var heightTex = gl.createTexture();
 
     function initLoadedTexture(texture){
         gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -301,9 +304,14 @@
         gl.activeTexture(gl.TEXTURE5);
         gl.bindTexture(gl.TEXTURE_2D, specTex);
         gl.uniform1i(u_EarthSpecLocation, 5);
-        gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
 
-        time += 0.0001;
+        gl.activeTexture(gl.TEXTURE6);
+        gl.bindTexture(gl.TEXTURE_2D, heightTex);
+        gl.uniform1i(u_HeightLocation, 6);
+
+        gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT, 0);
+
+        time += 0.0005;
         window.requestAnimFrame(animate);
     }
 
@@ -315,7 +323,7 @@
             initLoadedTexture(texture);
 
             // Animate once textures load.
-            if (++textureCount === 6) {
+            if (++textureCount === 7) {
                 animate();
             }
         }
@@ -328,4 +336,5 @@
     initializeTexture(transTex, "earthtrans1024.png");
     initializeTexture(lightTex, "earthlight1024.png");
     initializeTexture(specTex, "earthspec1024.png");
+    initializeTexture(heightTex, "earthheight1024.png");
 }());
