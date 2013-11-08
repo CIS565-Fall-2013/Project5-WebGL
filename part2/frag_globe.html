@@ -62,6 +62,7 @@
     uniform sampler2D u_Bump;
 
     uniform float u_time;
+	uniform float u_button;
     uniform mat4 u_InvTrans;
 
     varying vec3 v_Normal;              // surface normal in camera coordinates
@@ -113,8 +114,9 @@
 		vec3 cloudTransColor = texture2D(u_CloudTrans , vec2( v_Texcoord.x + u_time ,v_Texcoord.y )).rgb;
         vec3 color = mix(cloudColor ,((0.6 * diffuse) + (0.4 * specular)) * dayColor, cloudTransColor.x);
         nightColor = mix(vec3(0.0,0.0,0.0),nightColor, cloudTransColor.x);
-		
-		vec4 bumpColor = vec4(mix(vec3(0.0,0.0,0.0),vec3(1.0,0.0,1.0), center.x),0.0);
+		vec4 bumpColor =vec4(0.0,0.0,0.0,0.0);
+		if (u_button == 1.0) 
+			bumpColor = vec4(mix(vec3(0.0,0.0,0.0),vec3(1.0,0.0,1.0), center.x),0.0);
 		gl_FragColor = vec4(mix(nightColor,color ,diffuse), 1.0) + rimColor + bumpColor;
     }
 
