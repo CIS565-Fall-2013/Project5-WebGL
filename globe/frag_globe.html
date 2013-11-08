@@ -75,6 +75,17 @@
     {
         // surface normal - normalized after rasterization
         vec3 normal = normalize(v_Normal);
+		
+		//Bump Mapping
+		float bumpCenter = texture2D(u_Bump, v_Texcoord).x;
+		float bumpRight = texture2D(u_Bump, v_Texcoord+vec2(1.0/1024.0, 0.0)).x;
+		float bumpTop = texture2D(u_Bump, v_Texcoord+vec2(0.0, 1.0/512.0)).x;
+		
+		vec3 bump = normalize(vec3(bumpCenter - bumpRight, bumpCenter - bumpTop, 0.3));
+		
+		normal = eastNorthUpToEyeCoordinates(v_positionMC, v_Normal)*bump;
+		
+		
         // normalized eye-to-position vector in camera coordinates
         vec3 eyeToPosition = normalize(v_Position);
         
