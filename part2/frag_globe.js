@@ -17,6 +17,7 @@
     var message = document.getElementById("message");
     var canvas = document.getElementById("canvas");
     var gl = createWebGLContext(canvas, message);
+    //var gl = canvas.getContext("webgl", {antialias: true});
     if (!gl) {
         return;
     }
@@ -110,8 +111,6 @@
             gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(positionLocation);
            
-            // Time 
-            gl.uniform1f( u_timeLocation, time );
 
             // Normals
             var normalsName = gl.createBuffer();
@@ -261,6 +260,9 @@
         lightdir = vec3.createFrom(lightdest[0],lightdest[1],lightdest[2]);
         vec3.normalize(lightdir);
     
+
+        // Time 
+        gl.uniform1f( u_timeLocation, time );
 
         ///////////////////////////////////////////////////////////////////////////
         // Render
