@@ -14,6 +14,16 @@
     var NUM_WIDTH_PTS = 64;
     var NUM_HEIGHT_PTS = 64;
 
+    var stats = new Stats();
+    var stats_ms = new Stats();
+    stats_ms.setMode(1);
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.top = '10px';
+    document.body.appendChild( stats.domElement );
+    stats_ms.domElement.style.position = 'absolute';
+    stats_ms.domElement.style.top = '60px';
+    document.body.appendChild( stats_ms.domElement );
+
     var message = document.getElementById("message");
     var canvas = document.getElementById("canvas");
     var gl = createWebGLContext(canvas, message);
@@ -55,6 +65,8 @@
     var u_EarthSpecLocation;
     var u_BumpLocation;
     var u_timeLocation;
+
+    var u_time = 0;
 
     (function initializeShader() {
         var vs = getShaderSource(document.getElementById("vs"));
@@ -265,8 +277,8 @@
         gl.uniformMatrix4fv(u_ViewLocation, false, view);
         gl.uniformMatrix4fv(u_PerspLocation, false, persp);
         gl.uniformMatrix4fv(u_InvTransLocation, false, invTrans);
-
         gl.uniform3fv(u_CameraSpaceDirLightLocation, lightdir);
+        gl.uniform1f(u_timeLocation, .07 * time);
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, dayTex);
@@ -290,6 +302,8 @@
 
         time += 0.001;
         window.requestAnimFrame(animate);
+        stats.update();
+        stats_ms.update();
     }
 
     var textureCount = 0;
