@@ -84,21 +84,39 @@
         vec3 perturbedNormal = normalize(vec3(center - right, center - top, 0.2));
         vec3 normal = normalize(eastNorthUpToEyeCoordinates(v_positionMC, v_Normal) * perturbedNormal);
 
+        // Use earthSpecular to find the ocean area
+        vec3 earthSpecular = texture2D(u_EarthSpec, v_Texcoord).rgb;
+        // If the fragment is the ocean add the noise to ocean
+        if(earthSpecular.r > 0.0) {
+            vec2 simplexVec = v_Texcoord * 50.0;
+            float s_contrib = simplexNoise(simplexVec);
+            float t_contrib = simplexNoise(vec2(s_contrib, 50.0 * u_time));
+            float noiseCenter = 0.5 * s_contrib * t_contrib;
+
+            vec2 v_TexcoordRight = v_Texcoord * 50.0 + vec2(1.0 / 1024.0, 0.0);
+            s_contrib = simplexNoise(v_TexcoordRight);
+            t_contrib = simplexNoise(vec2(s_contrib, 50.0 * u_time));
+            float noiseRight = 0.5 * s_contrib * t_contrib;
+
+            vec2 v_TexcoordAbove = v_Texcoord * 50.0 + vec2(0.0, 1.0 / 512.0);
+            s_contrib = simplexNoise(v_TexcoordAbove);
+            t_contrib = simplexNoise(vec2(s_contrib, 50.0 * u_time));
+            float noiseAbove = 0.5 * s_contrib * t_contrib;           
+            
+            // perturbedNormal.x = .0125 * simplexNoise(45.0*vec2(v_positionMC)-22.0*vec2(u_time*0.1, u_time*0.1)) *simplexNoise(20.0*vec2(v_positionMC.z-15.0*u_time*0.1,v_positionMC.y-7.0*u_time*0.1));
+            perturbedNormal = normalize(vec3(noiseCenter - noiseRight, noiseCenter - noiseAbove, 0.2));
+            normal = normalize(eastNorthUpToEyeCoordinates(v_positionMC, v_Normal) * perturbedNormal);
+        }
+        
         // normalized eye-to-position vector in camera coordinates
         vec3 eyeToPosition = normalize(v_Position);
         
         float diffuse = clamp(dot(u_CameraSpaceDirLight, normal), 0.0, 1.0);
 
         // Check the fragment is on ocean or land
-        vec3 earthSpecular = texture2D(u_EarthSpec, v_Texcoord).rgb;
         vec3 toReflectedLight = reflect(-u_CameraSpaceDirLight, normal);
         float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
         specular = earthSpecular.r * pow(specular, 20.0);
-
-        // If the fragment is the ocean add the noise to ocean
-        if(earthSpecular.r > 0.0) {
-
-        }
 
         // Day and night color
         float gammaCorrect = 1.0 / 1.2; //gamma correct by 1/1.2
@@ -272,8 +290,34 @@
     
 </script>
 
+<script id="vs_bg" type="x-shader/x-vertex">
+    precision highp float;
+    
+    attribute vec3 PositionBG;
+    attribute vec2 TexcoordBG;
+
+    varying vec2 v_Texcoord;
+
+    void main() {
+        v_Texcoord = TexcoordBG;
+        gl_Position = vec4(PositionBG, 1.0);
+    }
+</script>
+
+<script id="fs_bg" type="x-shader/x-fragment">
+    precision highp float;
+
+    uniform sampler2D u_bg;
+    
+    varying vec2 v_Texcoord;
+
+    void main() {
+            gl_FragColor = vec4(texture2D(u_bg, v_Texcoord).rgb, 1.0);  // green
+    }
+    </script>
 <script src ="gl-matrix.js" type ="text/javascript"></script>
 <script src ="webGLUtility.js" type ="text/javascript"></script>
+<script src= "three.js/build/three.js" type ="text/javascript"></script>
 <script src ="frag_globe.js" type ="text/javascript"></script>
 </body>
 

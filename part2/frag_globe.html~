@@ -42,7 +42,7 @@
 <script id="fs" type="x-shader/x-fragment">
     precision highp float;
 
-/*    //View-Space directional light
+    //View-Space directional light
     //A unit vector
     uniform vec3 u_CameraSpaceDirLight;
 
@@ -70,6 +70,8 @@
     varying vec3 v_positionMC;          // position in model coordinates
 
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
+    vec3 permute(vec3 x);
+    float simplexNoise(vec2 v);
 
     void main(void)
     {
@@ -93,6 +95,27 @@
         float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
         specular = earthSpecular.r * pow(specular, 20.0);
 
+        // If the fragment is the ocean add the noise to ocean
+        if(earthSpecular.r > 0.0) {
+            vec2 simplexVec = 1000.0 * v_Texcoord;
+            float s_contrib = simplexNoise(simplexVec);
+            float t_contrib = simplexNoise(vec2(s_contrib, 100.0 * u_time));
+            float noiseCenter = s_contrib * t_contrib;
+
+            vec2 v_TexcoordRight = v_Texcoord + vec2(1.0 / 1024.0, 0.0);
+            s_contrib = simplexNoise(1000.0 * v_TexcoordRight);
+            t_contrib = simplexNoise(vec2(s_contrib, 100.0 * u_time));
+            float noiseRight = s_contrib * t_contrib;
+
+            vec2 v_TexcoordAbove = v_Texcoord + vec2(0.0, 1.0 / 512.0);
+            s_contrib = simplexNoise(1000.0 * v_TexcoordAbove);
+            t_contrib = simplexNoise(vec2(s_contrib, 100.0 * u_time));
+            float noiseAbove = s_contrib * t_contrib * 100.0;           
+            
+            perturbedNormal = normalize(vec3(noiseCenter - noiseRight, noiseCenter - noiseAbove, 0.2));
+            normal = normalize(eastNorthUpToEyeCoordinates(v_positionMC, v_Normal) * perturbedNormal);
+        }
+
         // Day and night color
         float gammaCorrect = 1.0 / 1.2; //gamma correct by 1/1.2
         vec3 dayColor = ((0.6 * diffuse) + (0.8 * specular)) *  texture2D(u_DayDiffuse, v_Texcoord).rgb;
@@ -101,7 +124,7 @@
         nightColor = pow(nightColor,vec3(gammaCorrect));
         
         // Adding clouds
-        vec2 v_TexcoordClouds = v_Texcoord + vec2(u_time, 0);
+        vec2 v_TexcoordClouds = v_Texcoord + vec2(-u_time, 0.0);
         vec3 cloudsColor = texture2D(u_Cloud, v_TexcoordClouds).rgb;
         vec3 cloudsTrans = texture2D(u_CloudTrans, v_TexcoordClouds).rgb;
         vec3 dayClouds =  mix(max(dot(u_CameraSpaceDirLight, normalize(v_Normal)), 0.0) * cloudsColor, dayColor, cloudsTrans);
@@ -130,88 +153,47 @@
             tangentEC.x,   tangentEC.y,   tangentEC.z,
             bitangentEC.x, bitangentEC.y, bitangentEC.z,
             normalEC.x,    normalEC.y,    normalEC.z);
-    }*/
+    }
 
-/View-Space directional light
-//A unit vector
-uniform vec3 u_CameraSpaceDirLight;
+    vec3 permute(vec3 x) {
+      x = ((x*34.0)+1.0)*x;
+      return x - floor(x * (1.0 / 289.0)) * 289.0;
+    }
 
-//Diffuse texture map for the day
-uniform sampler2D u_DayDiffuse;
-//Ambient texture map for the night side
-uniform sampler2D u_Night;
-//Color map for the clouds
-uniform sampler2D u_Cloud;
-//Transparency map for the clouds.  Note that light areas are where clouds are NOT
-//Dark areas are were clouds are present
-uniform sampler2D u_CloudTrans;
-//Mask of which areas of the earth have specularity
-//Oceans are specular, landmasses are not
-uniform sampler2D u_EarthSpec;
-//Bump map
-uniform sampler2D u_Bump;
+    float simplexNoise(vec2 v)
+      {
+      const vec4 C = vec4(0.211324865405187, 0.366025403784439,  -0.577350269189626, 0.024390243902439); 
 
-uniform float u_time;
-uniform float u_toon;
-uniform mat4 u_InvTrans;
+      vec2 i  = floor(v + dot(v, C.yy) );
+      vec2 x0 = v -   i + dot(i, C.xx);
 
-varying vec3 v_Normal;              // surface normal in camera coordinates
-varying vec2 v_Texcoord;
-varying vec3 v_Position;            // position in camera coordinates
-varying vec3 v_viewMC;
-varying vec3 v_positionMC;          // position in model coordinates
+      vec2 i1;
+      i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
 
-mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
+      vec4 x12 = x0.xyxy + C.xxzz;
+      x12.xy -= i1;
 
-void main(void)
-{
-    vec3 normal = normalize(v_Normal);            // surface normal - normalized after rasterization
-    vec3 eyeToPosition = normalize(v_Position);   // normalized eye-to-position vector in camera coordinates
-        
-        float rim = dot( normal, v_Position )+1.0;
-        vec4 rimlight = vec4(rim/4.0, rim/3.0, rim/2.0, 0.0);
+      i = i - floor(i * (1.0 / 289.0)) * 289.0;
 
-        if( rim < 0.0 )
-                rimlight = vec4( 0.0 );
+      vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
+            + i.x + vec3(0.0, i1.x, 1.0 ));
 
-        float top = texture2D( u_Bump, v_Texcoord + vec2(0.0, 1.0/500.0) );
-        float center = texture2D( u_Bump, v_Texcoord );
-        float right = texture2D( u_Bump, v_Texcoord + vec2(1.0/1000.0, 0.0) );
+      vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+      m = m*m ;
+      m = m*m ;
 
-        vec3 bnorm = normalize(eastNorthUpToEyeCoordinates(v_positionMC, normal) * normalize(vec3(center - right, center - top, 0.2)));
+      vec3 x = 2.0 * fract(p * C.www) - 1.0;
+      vec3 h = abs(x) - 0.5;
+      vec3 ox = floor(x + 0.5);
+      vec3 a0 = x - ox;
 
-    float diffuse = max(dot(u_CameraSpaceDirLight, bnorm), 0.0);
+      m *= inversesqrt( a0*a0 + h*h );
 
-    vec3 toReflectedLight = reflect(-u_CameraSpaceDirLight, normal);
-    float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
-    specular = pow(specular, 20.0) * texture2D(u_EarthSpec, v_Texcoord);
-        vec2 cloudTexcoord = v_Texcoord + vec2( u_time, 0.0 );
-        float cloudAlpha = texture2D(u_CloudTrans,cloudTexcoord);
-    float gammaCorrect = 1.0/1.2; //gamma correct by 1/1.8
-
-    vec4 dayColor = ((0.6 * diffuse) + (0.6 * specular)) * texture2D(u_DayDiffuse, v_Texcoord);
-
-    diffuse = max(dot(u_CameraSpaceDirLight, normal), 0.0);
-        
-        dayColor = mix( (0.6 * diffuse)*texture2D(u_Cloud,cloudTexcoord), dayColor, cloudAlpha );
-
-    vec4 nightColor = pow(texture2D(u_Night, v_Texcoord),gammaCorrect);    //apply gamma correction to nighttime texture
-        nightColor = mix( vec4( 0.0 ), nightColor, cloudAlpha );
-
-    gl_FragColor = rimlight + mix( dayColor, nightColor, pow(1.0 - diffuse, 8.0) );
-}
-
-mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC)
-{
-    vec3 tangentMC = normalize(vec3(-positionMC.y, positionMC.x, 0.0));  // normalized surface tangent in model coordinates
-    vec3 tangentEC = normalize(mat3(u_InvTrans) * tangentMC);            // normalized surface tangent in eye coordiantes
-    vec3 bitangentEC = normalize(cross(normalEC, tangentEC));            // normalized surface bitangent in eye coordinates
-
-    return mat3(
-        tangentEC.x,   tangentEC.y,   tangentEC.z,
-        bitangentEC.x, bitangentEC.y, bitangentEC.z,
-        normalEC.x,    normalEC.y,    normalEC.z);
-}
+      vec3 g;
+      g.x  = a0.x  * x0.x  + h.x  * x0.y;
+      g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+      return 130.0 * dot(m, g);
+    }    
 </script>
 
 <script id="moon_vs" type="x-shader/x-vertex">
@@ -306,8 +288,34 @@ mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC)
     
 </script>
 
+<script id="vs_bg" type="x-shader/x-vertex">
+    precision highp float;
+    
+    attribute vec2 PositionBG;
+    attribute vec2 TexcoordBG;
+
+    varying vec2 v_Texcoord;
+
+    void main() {
+        v_Texcoord = TexcoordBG;
+        gl_Position = vec4(PositionBG, 0.0, 1.0);
+    }
+</script>
+
+<script id="fs_bg" type="x-shader/x-fragment">
+    precision highp float;
+
+    uniform sampler2D u_bg;
+    
+    varying vec2 v_Texcoord;
+
+    void main() {
+            gl_FragColor = vec4(texture2D(u_bg, v_Texcoord).rgb, 1.0);  // green
+    }
+    </script>
 <script src ="gl-matrix.js" type ="text/javascript"></script>
 <script src ="webGLUtility.js" type ="text/javascript"></script>
+<script src= "three.js/build/three.js"></script>
 <script src ="frag_globe.js" type ="text/javascript"></script>
 </body>
 
