@@ -94,6 +94,31 @@
         gl.useProgram(program);
     })();
 
+    (function initializeShader2() {
+        var program2;
+        var vs = getShaderSource(document.getElementById("vs"));
+        var fs = getShaderSource(document.getElementById("fs"));
+
+        var program2 = createProgram(gl, vs, fs, message);
+        positionLocation_ISS = gl.getAttribLocation(program2, "Position");
+        normalLocation_ISS = gl.getAttribLocation(program2, "Normal");
+        texCoordLocation_ISS = gl.getAttribLocation(program2, "Texcoord");
+        u_ModelLocation = gl.getUniformLocation(program2,"u_Model");
+        u_ViewLocation = gl.getUniformLocation(program2,"u_View");
+        u_PerspLocation = gl.getUniformLocation(program2,"u_Persp");
+        u_InvTransLocation = gl.getUniformLocation(program2,"u_InvTrans");
+        u_DayDiffuseLocation = gl.getUniformLocation(program2,"u_DayDiffuse");
+        u_NightLocation = gl.getUniformLocation(program2,"u_Night");
+        u_CloudLocation = gl.getUniformLocation(program2,"u_Cloud");
+        u_CloudTransLocation = gl.getUniformLocation(program2,"u_CloudTrans");
+        u_EarthSpecLocation = gl.getUniformLocation(program2,"u_EarthSpec");
+        u_BumpLocation = gl.getUniformLocation(program2,"u_Bump");
+        u_timeLocation = gl.getUniformLocation(program2,"u_time");
+        u_CameraSpaceDirLightLocation = gl.getUniformLocation(program2,"u_CameraSpaceDirLight");
+
+        gl.useProgram(program2);
+    })();
+
     var dayTex   = gl.createTexture();
     var bumpTex  = gl.createTexture();
     var cloudTex = gl.createTexture();
@@ -192,29 +217,29 @@
     (function initializeSphere2() {
         function uploadMesh(positions, texCoords, indices) {
             // Positions
-            var positionsName = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, positionsName);
+            var positionsNameISS = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionsNameISS);
             gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-            gl.vertexAttribPointer(positionLocation_ISS, 3, gl.FLOAT, false, 0, 0);
+            gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(positionLocation_ISS);
             
             // Normals
-            var normalsName = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, normalsName);
+            var normalsNameISS = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, normalsNameISS);
             gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-            gl.vertexAttribPointer(normalLocation_ISS, 3, gl.FLOAT, false, 0, 0);
+            gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(normalLocation_ISS);
             
             // TextureCoords
-            var texCoordsName = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, texCoordsName);
+            var texCoordsNameISS = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, texCoordsNameISS);
             gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
-            gl.vertexAttribPointer(texCoordLocation_ISS, 2, gl.FLOAT, false, 0, 0);
+            gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(texCoordLocation_ISS);
 
             // Indices
-            var indicesName = gl.createBuffer();
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesName);
+            var indicesNameISS = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesNameISS);
             gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
         }
 
