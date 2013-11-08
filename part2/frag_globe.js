@@ -55,12 +55,29 @@
     var u_EarthSpecLocation;
     var u_BumpLocation;
     var u_timeLocation;
+	var program;
+	//skybox
+	var spositionLocation;
+	var snormalLocation;
+	var stexCoordLocation;
+	var u_frontLoc;
+	var u_backLoc;
+	var u_leftLoc;
+	var u_rightLoc;
+	var u_bottomLoc;
+	var u_topLoc;
+	
+	var u_sModelLocation;
+    var u_sViewLocation;
+    var u_sPerspLocation;
+	var program2;
+
 
     (function initializeShader() {
         var vs = getShaderSource(document.getElementById("vs"));
         var fs = getShaderSource(document.getElementById("fs"));
 
-        var program = createProgram(gl, vs, fs, message);
+        program = createProgram(gl, vs, fs, message);
         positionLocation = gl.getAttribLocation(program, "Position");
         normalLocation = gl.getAttribLocation(program, "Normal");
         texCoordLocation = gl.getAttribLocation(program, "Texcoord");
@@ -77,8 +94,26 @@
         u_timeLocation = gl.getUniformLocation(program,"u_time");
         u_CameraSpaceDirLightLocation = gl.getUniformLocation(program,"u_CameraSpaceDirLight");
 
-        gl.useProgram(program);
+       // gl.useProgram(program);
+		
+		var skyvs = getShaderSource(document.getElementById("skyvs"));
+		var skyfs = getShaderSource(document.getElementById("skyfs"));
+		program2 = createProgram(gl,skyvs,skyfs,message);
+		spositionLocation = gl.getAttribLocation(program2,"Position");
+		stexCoordLocation = gl.getAttribLocation(program2,"Texcoord");
+		u_frontLoc = gl.getUniformLocation(program2,"u_Front");
+		u_backLoc = gl.getUniformLocation(program2,"u_Back");
+		u_leftLoc = gl.getUniformLocation(program2,"u_Left");
+		u_rightLoc = gl.getUniformLocation(program2,"u_Right");
+		u_bottomLoc = gl.getUniformLocation(program2,"u_Bottom");
+		u_topLoc = gl.getUniformLocation(program2,"u_Top");
+		u_sModelLocation = gl.getUniformLocation(program2,"u_Model");
+        u_sViewLocation = gl.getUniformLocation(program2,"u_View");
+        u_sPerspLocation = gl.getUniformLocation(program2,"u_Persp");
+		
     })();
+
+	
 
     var dayTex   = gl.createTexture();
     var bumpTex  = gl.createTexture();
@@ -86,6 +121,14 @@
     var transTex = gl.createTexture();
     var lightTex = gl.createTexture();
     var specTex  = gl.createTexture();
+	
+	var frontTex = gl.createTexture();
+	var backTex = gl.createTexture();
+	var leftTex = gl.createTexture();
+	var rightTex = gl.createTexture();
+	var bottomTex = gl.createTexture();
+	var topTex = gl.createTexture();
+
 
     function initLoadedTexture(texture){
         gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -97,34 +140,50 @@
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
         gl.bindTexture(gl.TEXTURE_2D, null);
     }
+	
+	function initLoadedsTexture(texture){
+		gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+        //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+	}
 
     var numberOfIndices;
-
+	var positionsName;
+	var normalsName;
+	var texCoordsName;
+	var indicesName;
     (function initializeSphere() {
         function uploadMesh(positions, texCoords, indices) {
             // Positions
-            var positionsName = gl.createBuffer();
+            positionsName = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, positionsName);
             gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-            gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(positionLocation);
+            //gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+            //gl.enableVertexAttribArray(positionLocation);
             
             // Normals
-            var normalsName = gl.createBuffer();
+            normalsName = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, normalsName);
             gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-            gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(normalLocation);
+            //gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+            //gl.enableVertexAttribArray(normalLocation);
             
             // TextureCoords
-            var texCoordsName = gl.createBuffer();
+            texCoordsName = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, texCoordsName);
             gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
-            gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(texCoordLocation);
+           // gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
+            //gl.enableVertexAttribArray(texCoordLocation);
 
             // Indices
-            var indicesName = gl.createBuffer();
+            indicesName = gl.createBuffer();
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesName);
             gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
         }
@@ -174,6 +233,376 @@
         uploadMesh(positions, texCoords, indices);
         numberOfIndices = indicesIndex;
     })();
+
+	//TODO: Initialize Skybox
+	var cubeIndicesNum = 0;
+	var spositionsName;
+	var stexCoordsName;
+	var sindicesName;
+	var frind; var baind; var lind; var rind; var boind; var tind;
+	var ftex; var batex; var ltex; var rtex; var botex; var ttex;
+	var fpositions; var bapositions; var lpositions;	var rpositions;	var bopositions;	var tpositions;
+	(function initializeCube(){
+		/*function uploadMesh(positions,texCoords,indices){
+			
+			spositionsName = gl.createBuffer();			
+            gl.bindBuffer(gl.ARRAY_BUFFER, spositionsName);
+            gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+            gl.vertexAttribPointer(spositionLocation, 3, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(spositionLocation);
+			
+			 // TextureCoords
+            stexCoordsName = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, stexCoordsName);
+            gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
+            gl.vertexAttribPointer(stexCoordLocation, 2, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(stexCoordLocation);
+
+            // Indices
+            sindicesName = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sindicesName);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+		}*/
+		
+		var faceNum = 2;
+		//var verticeNum = faceNum * 3;
+		var verticeNum = 4;
+		var cubePositions = new Float32Array(3 * verticeNum);
+		var cubeTexcoord = new Float32Array(2 * verticeNum);
+		var cubeIndices = new Uint16Array(3 * faceNum);
+		
+		//front face
+		var posIdx = 0;
+		var texIdx = 0;
+		var indicIdx = 0;
+		cubePositions[posIdx ++] = -0.5; //left bottom
+		cubePositions[posIdx ++] = -0.5;
+		cubePositions[posIdx ++] = 0.5; 
+		cubeTexcoord[texIdx ++] = 1.0;
+		cubeTexcoord[texIdx ++] = 0.0;		
+		
+		cubePositions[posIdx ++] = -0.5; //left top
+		cubePositions[posIdx ++] = 0.5; 
+		cubePositions[posIdx ++] = 0.5; 
+		cubeTexcoord[texIdx ++] = 1.0;
+		cubeTexcoord[texIdx ++] = 1.0;	
+		
+		cubePositions[posIdx ++] = 0.5;  //right top
+		cubePositions[posIdx ++] = 0.5; 
+		cubePositions[posIdx ++] = 0.5; 
+		cubeTexcoord[texIdx ++] = 0.0;
+		cubeTexcoord[texIdx ++] = 1.0;	
+		
+		cubePositions[posIdx ++] = 0.5;  //right bottom
+		cubePositions[posIdx ++] = -0.5; 
+		cubePositions[posIdx ++] = 0.5; 
+		cubeTexcoord[texIdx ++] = 0.0;
+		cubeTexcoord[texIdx ++] = 0.0;	
+		//indices		
+		cubeIndices[indicIdx++] = 0;
+		cubeIndices[indicIdx++] = 1;
+		cubeIndices[indicIdx++] = 2;
+		cubeIndices[indicIdx++] = 3;
+		cubeIndices[indicIdx++] = 0;
+		cubeIndices[indicIdx++] = 2;	
+		
+		fpositions = gl.createBuffer();			
+		gl.bindBuffer(gl.ARRAY_BUFFER, fpositions);
+		gl.bufferData(gl.ARRAY_BUFFER, cubePositions, gl.STATIC_DRAW);
+		gl.vertexAttribPointer(fpositions, 3, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(fpositions);		
+		 // TextureCoords
+		ftex = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, ftex);
+		gl.bufferData(gl.ARRAY_BUFFER, cubeTexcoord, gl.STATIC_DRAW);
+		gl.vertexAttribPointer(ftex, 2, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(ftex);
+
+		// Indices
+		frind = gl.createBuffer();
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, frind);
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cubeIndices, gl.STATIC_DRAW);
+		
+		//back face	
+		var posIdx = 0;
+		var texIdx = 0;
+		var indicIdx = 0;
+		cubePositions[posIdx ++] = -0.5; //left bottom
+		cubePositions[posIdx ++] = -0.5;
+		cubePositions[posIdx ++] = -0.5; 
+		cubeTexcoord[texIdx ++] = 0.0;
+		cubeTexcoord[texIdx ++] = 0.0;	
+		
+		cubePositions[posIdx ++] = -0.5; //left top
+		cubePositions[posIdx ++] = 0.5; 
+		cubePositions[posIdx ++] = -0.5; 
+		cubeTexcoord[texIdx ++] = 0.0;
+		cubeTexcoord[texIdx ++] = 1.0;
+		
+		cubePositions[posIdx ++] = 0.5;  //right top
+		cubePositions[posIdx ++] = 0.5; 
+		cubePositions[posIdx ++] = -0.5; 
+		cubeTexcoord[texIdx ++] = 1.0;
+		cubeTexcoord[texIdx ++] = 1.0;	
+		
+		cubePositions[posIdx ++] = 0.5;  //right bottom
+		cubePositions[posIdx ++] = -0.5; 
+		cubePositions[posIdx ++] = -0.5; 
+		cubeTexcoord[texIdx ++] = 1.0;
+		cubeTexcoord[texIdx ++] = 0.0;	
+		
+		//indices		
+		cubeIndices[indicIdx++] = 0;
+		cubeIndices[indicIdx++] = 1;
+		cubeIndices[indicIdx++] = 2;
+		cubeIndices[indicIdx++] = 3;
+		cubeIndices[indicIdx++] = 0;
+		cubeIndices[indicIdx++] = 2;	
+		
+		bapositions = gl.createBuffer();			
+		gl.bindBuffer(gl.ARRAY_BUFFER, bapositions);
+		gl.bufferData(gl.ARRAY_BUFFER, cubePositions, gl.STATIC_DRAW);
+		gl.vertexAttribPointer(bapositions, 3, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(bapositions);		
+		 // TextureCoords
+		batex = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, batex);
+		gl.bufferData(gl.ARRAY_BUFFER, cubeTexcoord, gl.STATIC_DRAW);
+		gl.vertexAttribPointer(batex, 2, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(batex);
+
+		// Indices
+		baind = gl.createBuffer();
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, baind);
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cubeIndices, gl.STATIC_DRAW);
+		
+		//left face
+		var posIdx = 0;
+		var texIdx = 0;
+		var indicIdx = 0;
+		cubePositions[posIdx ++] = -0.5; //left bottom
+		cubePositions[posIdx ++] = -0.5;
+		cubePositions[posIdx ++] = -0.5; 
+		cubeTexcoord[texIdx ++] = 1.0;
+		cubeTexcoord[texIdx ++] = 0.0;	
+		
+		cubePositions[posIdx ++] = -0.5; //left top
+		cubePositions[posIdx ++] = 0.5; 
+		cubePositions[posIdx ++] = -0.5; 
+		cubeTexcoord[texIdx ++] = 1.0;
+		cubeTexcoord[texIdx ++] = 1.0;	
+		
+		cubePositions[posIdx ++] = -0.5;  //right top
+		cubePositions[posIdx ++] = 0.5; 
+		cubePositions[posIdx ++] = 0.5; 
+		cubeTexcoord[texIdx ++] = 0.0;
+		cubeTexcoord[texIdx ++] = 1.0;	
+		
+		cubePositions[posIdx ++] = -0.5;  //right bottom
+		cubePositions[posIdx ++] = -0.5; 
+		cubePositions[posIdx ++] = 0.5; 
+		cubeTexcoord[texIdx ++] = 0.0;
+		cubeTexcoord[texIdx ++] = 0.0;	
+
+		//indices		
+		cubeIndices[indicIdx++] = 0;
+		cubeIndices[indicIdx++] = 1;
+		cubeIndices[indicIdx++] = 2;
+		cubeIndices[indicIdx++] = 3;
+		cubeIndices[indicIdx++] = 0;
+		cubeIndices[indicIdx++] = 2;	
+		
+		lpositions = gl.createBuffer();			
+		gl.bindBuffer(gl.ARRAY_BUFFER, lpositions);
+		gl.bufferData(gl.ARRAY_BUFFER, cubePositions, gl.STATIC_DRAW);
+		gl.vertexAttribPointer(lpositions, 3, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(lpositions);		
+		 // TextureCoords
+		ltex = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, ltex);
+		gl.bufferData(gl.ARRAY_BUFFER, cubeTexcoord, gl.STATIC_DRAW);
+		gl.vertexAttribPointer(ltex, 2, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(ltex);
+
+		// Indices
+		lind = gl.createBuffer();
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, lind);
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cubeIndices, gl.STATIC_DRAW);
+		
+		//right face
+		var posIdx = 0;
+		var texIdx = 0;
+		var indicIdx = 0;
+		cubePositions[posIdx ++] = 0.5; //left bottom
+		cubePositions[posIdx ++] = -0.5;
+		cubePositions[posIdx ++] = -0.5; 
+		cubeTexcoord[texIdx ++] = 0.0;
+		cubeTexcoord[texIdx ++] = 0.0;	
+		
+		cubePositions[posIdx ++] = 0.5; //left top
+		cubePositions[posIdx ++] = 0.5; 
+		cubePositions[posIdx ++] = -0.5; 
+		cubeTexcoord[texIdx ++] = 0.0;
+		cubeTexcoord[texIdx ++] = 1.0;	
+		
+		cubePositions[posIdx ++] = 0.5;  //right top
+		cubePositions[posIdx ++] = 0.5; 
+		cubePositions[posIdx ++] = 0.5; 
+		cubeTexcoord[texIdx ++] = 1.0;
+		cubeTexcoord[texIdx ++] = 1.0;	
+		
+		cubePositions[posIdx ++] = 0.5;  //right bottom
+		cubePositions[posIdx ++] = -0.5; 
+		cubePositions[posIdx ++] = 0.5; 
+		cubeTexcoord[texIdx ++] = 1.0;
+		cubeTexcoord[texIdx ++] = 0.0;	
+		
+		//indices		
+		cubeIndices[indicIdx++] = 0;
+		cubeIndices[indicIdx++] = 1;
+		cubeIndices[indicIdx++] = 2;
+		cubeIndices[indicIdx++] = 3;
+		cubeIndices[indicIdx++] = 0;
+		cubeIndices[indicIdx++] = 2;	
+		
+		rpositions = gl.createBuffer();			
+		gl.bindBuffer(gl.ARRAY_BUFFER, rpositions);
+		gl.bufferData(gl.ARRAY_BUFFER, cubePositions, gl.STATIC_DRAW);
+		gl.vertexAttribPointer(rpositions, 3, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(rpositions);		
+		 // TextureCoords
+		rtex = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, rtex);
+		gl.bufferData(gl.ARRAY_BUFFER, cubeTexcoord, gl.STATIC_DRAW);
+		gl.vertexAttribPointer(rtex, 2, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(rtex);
+
+		// Indices
+		rind = gl.createBuffer();
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, rind);
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cubeIndices, gl.STATIC_DRAW);
+		
+		//bottom
+		var posIdx = 0;
+		var texIdx = 0;
+		var indicIdx = 0;
+		cubePositions[posIdx ++] = -0.5; //left bottom
+		cubePositions[posIdx ++] = -0.5;
+		cubePositions[posIdx ++] = 0.5; 
+		cubeTexcoord[texIdx ++] = 1.0;
+		cubeTexcoord[texIdx ++] = 1.0;	
+		
+		cubePositions[posIdx ++] = -0.5; //left top
+		cubePositions[posIdx ++] = -0.5; 
+		cubePositions[posIdx ++] = -0.5; 
+		cubeTexcoord[texIdx ++] = 1.0;
+		cubeTexcoord[texIdx ++] = 0.0;	
+		
+		cubePositions[posIdx ++] = 0.5;  //right top
+		cubePositions[posIdx ++] = -0.5; 
+		cubePositions[posIdx ++] = -0.5; 
+		cubeTexcoord[texIdx ++] = 0.0;
+		cubeTexcoord[texIdx ++] = 0.0;	
+		
+		cubePositions[posIdx ++] = 0.5;  //right bottom
+		cubePositions[posIdx ++] = -0.5; 
+		cubePositions[posIdx ++] = 0.5; 
+		cubeTexcoord[texIdx ++] = 0.0;
+		cubeTexcoord[texIdx ++] = 1.0;	
+		
+		//indices		
+		cubeIndices[indicIdx++] = 0;
+		cubeIndices[indicIdx++] = 1;
+		cubeIndices[indicIdx++] = 2;
+		cubeIndices[indicIdx++] = 3;
+		cubeIndices[indicIdx++] = 0;
+		cubeIndices[indicIdx++] = 2;	
+		
+		bopositions = gl.createBuffer();			
+		gl.bindBuffer(gl.ARRAY_BUFFER, bopositions);
+		gl.bufferData(gl.ARRAY_BUFFER, cubePositions, gl.STATIC_DRAW);
+		gl.vertexAttribPointer(bopositions, 3, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(bopositions);		
+		 // TextureCoords
+		botex = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, botex);
+		gl.bufferData(gl.ARRAY_BUFFER, cubeTexcoord, gl.STATIC_DRAW);
+		gl.vertexAttribPointer(botex, 2, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(botex);
+
+		// Indices
+		boind = gl.createBuffer();
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, boind);
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cubeIndices, gl.STATIC_DRAW);
+		
+		//top
+		var posIdx = 0;
+		var texIdx = 0;
+		var indicIdx = 0;
+		cubePositions[posIdx ++] = -0.5; //left bottom
+		cubePositions[posIdx ++] = 0.5;
+		cubePositions[posIdx ++] = -0.5; 
+		cubeTexcoord[texIdx ++] = 1.0;
+		cubeTexcoord[texIdx ++] = 1.0;	
+		
+		cubePositions[posIdx ++] = -0.5; //left top
+		cubePositions[posIdx ++] = 0.5; 
+		cubePositions[posIdx ++] = 0.5; 
+		cubeTexcoord[texIdx ++] = 1.0;
+		cubeTexcoord[texIdx ++] = 0.0;	
+		
+		cubePositions[posIdx ++] = 0.5;  //right top
+		cubePositions[posIdx ++] = 0.5; 
+		cubePositions[posIdx ++] = 0.5; 
+		cubeTexcoord[texIdx ++] = 0.0;
+		cubeTexcoord[texIdx ++] = 0.0;	
+		
+		cubePositions[posIdx ++] = 0.5;  //right bottom
+		cubePositions[posIdx ++] = 0.5; 
+		cubePositions[posIdx ++] = -0.5; 
+		cubeTexcoord[texIdx ++] = 0.0;
+		cubeTexcoord[texIdx ++] = 1.0;
+		
+		//indices		
+		cubeIndices[indicIdx++] = 0;
+		cubeIndices[indicIdx++] = 1;
+		cubeIndices[indicIdx++] = 2;
+		cubeIndices[indicIdx++] = 3;
+		cubeIndices[indicIdx++] = 0;
+		cubeIndices[indicIdx++] = 2;	
+		
+		tpositions = gl.createBuffer();			
+		gl.bindBuffer(gl.ARRAY_BUFFER, tpositions);
+		gl.bufferData(gl.ARRAY_BUFFER, cubePositions, gl.STATIC_DRAW);
+		gl.vertexAttribPointer(tpositions, 3, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(tpositions);		
+		 // TextureCoords
+		ttex = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, ttex);
+		gl.bufferData(gl.ARRAY_BUFFER, cubeTexcoord, gl.STATIC_DRAW);
+		gl.vertexAttribPointer(ttex, 2, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(ttex);
+
+		// Indices
+		tind = gl.createBuffer();
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, tind);
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cubeIndices, gl.STATIC_DRAW);
+		
+		/*var indicIdx = 0;
+		for(var i = 0;i<faceNum / 2; ++i)
+		{
+			cubeIndices[indicIdx++] = i*4;
+			cubeIndices[indicIdx++] = i*4+1;
+			cubeIndices[indicIdx++] = i*4+2;
+			cubeIndices[indicIdx++] = i*4+3;
+			cubeIndices[indicIdx++] = i*4;
+			cubeIndices[indicIdx++] = i*4+2;			
+		}
+	
+		uploadMesh(cubePositions,cubeTexcoord,cubeIndices);*/
+		cubeIndicesNum = indicIdx;
+	})();
+
 
     var time = 0;
     var mouseLeftDown = false;
@@ -233,16 +662,32 @@
     document.onmouseup = handleMouseUp;
     document.onmousemove = handleMouseMove;
 
-
+	var fps = 0;
+	var elapsedTime = 9;
+	var frameCount = 0;
+	var lastTime = new Date().getTime();
     function animate() {
         ///////////////////////////////////////////////////////////////////////////
-        // Update
+       //calculate frame rate here
+	   var now = new Date().getTime();
+	   frameCount ++;
+	   elapsedTime += (now - lastTime);
+	   lastTime = now;
+	   if(elapsedTime >= 1000)
+	   {
+	   		fps = frameCount;
+			frameCount = 0;
+			elapsedTime -= 1000;
+			document.getElementById('fps').innerHTML = 'fps: '+fps;
+	  }
+		lastTime = new Date().getTime();
 
+		 // Update
         var model = mat4.create();
         mat4.identity(model);
         mat4.rotate(model, 23.4/180*Math.PI, [0.0, 0.0, 1.0]);
         mat4.rotate(model, Math.PI, [1.0, 0.0, 0.0]);
-        mat4.rotate(model, -time, [0.0, 1.0, 0.0]);
+        mat4.rotate(model, -time, [0.0, 1.0, 0.0]);		
         var mv = mat4.create();
         mat4.multiply(view, model, mv);
 
@@ -259,8 +704,22 @@
 
         ///////////////////////////////////////////////////////////////////////////
         // Render
+		gl.useProgram(program);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
+		gl.bindBuffer(gl.ARRAY_BUFFER, positionsName);
+		gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(positionLocation);
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, normalsName);
+		gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(normalLocation);
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, texCoordsName);
+		gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(texCoordLocation);
+		
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesName);
+		 
         gl.uniformMatrix4fv(u_ModelLocation, false, model);
         gl.uniformMatrix4fv(u_ViewLocation, false, view);
         gl.uniformMatrix4fv(u_PerspLocation, false, persp);
@@ -287,10 +746,154 @@
         gl.bindTexture(gl.TEXTURE_2D, specTex);
         gl.uniform1i(u_EarthSpecLocation, 5);
         gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
-
+	
+		
+		//draw skybox
+		var modelSky = mat4.create();
+		mat4.identity(modelSky);
+		mat4.rotate(modelSky, -90.0, [1.0, 0.0, 0.0]);
+		mat4.rotate(modelSky, 60.0, [0.0, 1.0, 0.0]);
+		mat4.scale(modelSky,[22.0,22.0,22.0]);
+		var mv = mat4.create();
+		mat4.multiply(view,modelSky,mv);
+		
+		gl.useProgram(program2);
+			
+		
+		//front face
+		gl.bindBuffer(gl.ARRAY_BUFFER,fpositions);
+		gl.vertexAttribPointer(spositionLocation, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(spositionLocation);
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, ftex);
+		gl.vertexAttribPointer(stexCoordLocation, 2, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(stexCoordLocation);
+		
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, frind);
+		
+		gl.uniformMatrix4fv(u_sModelLocation, false, modelSky);
+        gl.uniformMatrix4fv(u_sViewLocation, false, view);
+        gl.uniformMatrix4fv(u_sPerspLocation, false, persp);
+		
+		
+		gl.activeTexture(gl.TEXTURE6);
+        gl.bindTexture(gl.TEXTURE_2D, frontTex);
+        gl.uniform1i(u_frontLoc, 6);
+		
+		gl.drawElements(gl.TRIANGLES,cubeIndicesNum,gl.UNSIGNED_SHORT,0);
+		
+		//back
+		gl.bindBuffer(gl.ARRAY_BUFFER,bapositions);
+		gl.vertexAttribPointer(spositionLocation, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(spositionLocation);
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, batex);
+		gl.vertexAttribPointer(stexCoordLocation, 2, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(stexCoordLocation);
+		
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, baind);
+		
+		gl.uniformMatrix4fv(u_sModelLocation, false, modelSky);
+        gl.uniformMatrix4fv(u_sViewLocation, false, view);
+        gl.uniformMatrix4fv(u_sPerspLocation, false, persp);
+		
+		
+		gl.activeTexture(gl.TEXTURE7);
+        gl.bindTexture(gl.TEXTURE_2D, backTex);
+        gl.uniform1i(u_frontLoc, 7);
+		
+		gl.drawElements(gl.TRIANGLES,cubeIndicesNum,gl.UNSIGNED_SHORT,0);
+		
+		//left
+		gl.bindBuffer(gl.ARRAY_BUFFER,lpositions);
+		gl.vertexAttribPointer(spositionLocation, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(spositionLocation);
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, ltex);
+		gl.vertexAttribPointer(stexCoordLocation, 2, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(stexCoordLocation);
+		
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, lind);
+		
+		gl.uniformMatrix4fv(u_sModelLocation, false, modelSky);
+        gl.uniformMatrix4fv(u_sViewLocation, false, view);
+        gl.uniformMatrix4fv(u_sPerspLocation, false, persp);
+		
+		
+		gl.activeTexture(gl.TEXTURE8);
+        gl.bindTexture(gl.TEXTURE_2D, leftTex);
+        gl.uniform1i(u_frontLoc, 8);
+		
+		gl.drawElements(gl.TRIANGLES,cubeIndicesNum,gl.UNSIGNED_SHORT,0);
+		
+		//right
+		gl.bindBuffer(gl.ARRAY_BUFFER,rpositions);
+		gl.vertexAttribPointer(spositionLocation, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(spositionLocation);
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, rtex);
+		gl.vertexAttribPointer(stexCoordLocation, 2, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(stexCoordLocation);
+		
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, rind);
+		
+		gl.uniformMatrix4fv(u_sModelLocation, false, modelSky);
+        gl.uniformMatrix4fv(u_sViewLocation, false, view);
+        gl.uniformMatrix4fv(u_sPerspLocation, false, persp);
+		
+		
+		gl.activeTexture(gl.TEXTURE9);
+        gl.bindTexture(gl.TEXTURE_2D, rightTex);
+        gl.uniform1i(u_frontLoc, 9);	
+		gl.drawElements(gl.TRIANGLES,cubeIndicesNum,gl.UNSIGNED_SHORT,0);
+		
+		//top
+		gl.bindBuffer(gl.ARRAY_BUFFER,tpositions);
+		gl.vertexAttribPointer(spositionLocation, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(spositionLocation);
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, ttex);
+		gl.vertexAttribPointer(stexCoordLocation, 2, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(stexCoordLocation);
+		
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, tind);
+		
+		gl.uniformMatrix4fv(u_sModelLocation, false, modelSky);
+        gl.uniformMatrix4fv(u_sViewLocation, false, view);
+        gl.uniformMatrix4fv(u_sPerspLocation, false, persp);
+	
+		gl.activeTexture(gl.TEXTURE10);
+        gl.bindTexture(gl.TEXTURE_2D, topTex);
+        gl.uniform1i(u_frontLoc, 10);	
+		gl.drawElements(gl.TRIANGLES,cubeIndicesNum,gl.UNSIGNED_SHORT,0);
+		
+		//bottom
+		gl.bindBuffer(gl.ARRAY_BUFFER,bopositions);
+		gl.vertexAttribPointer(spositionLocation, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(spositionLocation);
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, botex);
+		gl.vertexAttribPointer(stexCoordLocation, 2, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(stexCoordLocation);
+		
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, boind);
+		
+		gl.uniformMatrix4fv(u_sModelLocation, false, modelSky);
+        gl.uniformMatrix4fv(u_sViewLocation, false, view);
+        gl.uniformMatrix4fv(u_sPerspLocation, false, persp);
+	
+		gl.activeTexture(gl.TEXTURE10);
+        gl.bindTexture(gl.TEXTURE_2D, bottomTex);
+        gl.uniform1i(u_frontLoc, 10);	
+		gl.drawElements(gl.TRIANGLES,cubeIndicesNum,gl.UNSIGNED_SHORT,0);
+		
         time += 0.001;
+		//console.log(time);
         window.requestAnimFrame(animate);
+		//FPSMeter.stop();
+		
     }
+
 
     var textureCount = 0;
         
@@ -305,12 +908,33 @@
             }
         }
         texture.image.src = src;
-    }
-
+    }	
     initializeTexture(dayTex, "earthmap1024.png");
     initializeTexture(bumpTex, "earthbump1024.png");
     initializeTexture(cloudTex, "earthcloud1024.png");
     initializeTexture(transTex, "earthtrans1024.png");
     initializeTexture(lightTex, "earthlight1024.png");
     initializeTexture(specTex, "earthspec1024.png");
+	
+	function initializesTexture(texture,src){
+		texture.image = new Image();
+        texture.image.onload = function() {
+            initLoadedsTexture(texture);
+        }
+        texture.image.src = src;
+	}
+	
+	/*initializesTexture(frontTex, "front.png");
+	initializesTexture(backTex, "back.png");
+	initializesTexture(leftTex, "left.png");
+	initializesTexture(rightTex, "right.png");
+	initializesTexture(topTex, "top.png");
+	initializesTexture(bottomTex, "bottom.png");*/
+	initializesTexture(frontTex, "Front.png");
+	initializesTexture(backTex, "Back.png");
+	initializesTexture(leftTex, "Left.png");
+	initializesTexture(rightTex, "Right.png");
+	initializesTexture(topTex, "Up.png");
+	initializesTexture(bottomTex, "Down.png");
+	
 }());
