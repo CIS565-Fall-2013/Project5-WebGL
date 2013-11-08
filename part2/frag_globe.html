@@ -53,6 +53,7 @@
     uniform vec3 u_CameraSpaceDirLight; //normalized view-Space light direction  
     uniform float u_time;
     uniform mat4 u_InvTrans;
+    uniform mat4 u_View;
     uniform mat4 u_ModelViewInverse;
 
     varying vec3 v_Normal;              // surface normal in camera coordinates
@@ -61,7 +62,7 @@
     varying vec3 v_positionMC;          // position in model coordinates
 
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
-    vec3 cloudIntersectionTest(float cloudHeight, vec3 surfacePosition, vec3 direction);
+    vec3 cloudIntersectionTest(vec3 sphereCenter, float cloudHeight, vec3 surfacePosition, vec3 direction);
 
     void main(void)
     {
@@ -91,10 +92,10 @@
         specular *= texture2D(u_EarthSpec, v_Texcoord).r;
 
         // get colors from maps
-        //vec3 cloudColor = texture2D(u_Cloud, vec2(v_Texcoord.s - 0.1*u_time, v_Texcoord.t)).rgb; // range of v_Texcoord.s and v_Texcoord.t [0, size], TEXTURE_WRAP enabled
-        //vec3 cloudTrans = texture2D(u_CloudTrans, vec2(v_Texcoord.s - 0.1*u_time, v_Texcoord.t)).rgb;
-        vec3 cloudColor = texture2D(u_Cloud, vec2(v_Texcoord.s, v_Texcoord.t)).rgb; // range of v_Texcoord.s and v_Texcoord.t [0, size], TEXTURE_WRAP enabled
-        vec3 cloudTrans = texture2D(u_CloudTrans, vec2(v_Texcoord.s, v_Texcoord.t)).rgb;
+        vec3 cloudColor = texture2D(u_Cloud, vec2(v_Texcoord.s - 0.1*u_time, v_Texcoord.t)).rgb; // range of v_Texcoord.s and v_Texcoord.t [0, size], TEXTURE_WRAP enabled
+        vec3 cloudTrans = texture2D(u_CloudTrans, vec2(v_Texcoord.s - 0.1*u_time, v_Texcoord.t)).rgb;
+        //vec3 cloudColor = texture2D(u_Cloud, vec2(v_Texcoord.s, v_Texcoord.t)).rgb; // range of v_Texcoord.s and v_Texcoord.t [0, size], TEXTURE_WRAP enabled
+        //vec3 cloudTrans = texture2D(u_CloudTrans, vec2(v_Texcoord.s, v_Texcoord.t)).rgb;
         vec3 dayColor   = texture2D(u_DayDiffuse, v_Texcoord).rgb;        
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
 
@@ -105,21 +106,21 @@
         vec3 color = (0.6 * diffuse + 0.4 * specular) * dayColor;
         cloudColor = diffuseNoBump * cloudColor;
 
-        float cloudHeight = 0.001;
-        //vec3 cloudIntersectionVS = cloudIntersectionTest(cloudHeight, v_Position, u_CameraSpaceDirLight);
-        //vec3 cloudIntersectionVS = v_Position;
-        //vec3 cloudIntersectionMS = normalize((u_ModelViewInverse * vec4(cloudIntersectionVS, 1.0)).xyz);
-        vec3 cloudIntersectionMS = v_positionMC;
+        float cloudHeight = 0.02;  // the height of cloud is about 2% of earth's radius
+        vec3 centerOfSphere = (u_View * vec4(vec3(0.0), 1.0)).xyz;
+        vec3 cloudIntersectionVS = cloudIntersectionTest(centerOfSphere, cloudHeight, v_Position, u_CameraSpaceDirLight);  // find intersection between light vector and cloud
+        vec3 cloudIntersectionMS = normalize((u_ModelViewInverse * vec4(cloudIntersectionVS, 1.0)).xyz);  // map the intersection back to earth's surface
+
+        // find the texture coordinates of projection of intersection point
         float zenith = acos(cloudIntersectionMS.y);
         float azimuth = atan(cloudIntersectionMS.x, cloudIntersectionMS.z);
         if(azimuth<0.0) azimuth += 2.0*M_PI; 
+        vec2 shadowTextureCoords = vec2(0.5/M_PI*azimuth - 0.1*u_time, -1.0/M_PI*zenith + 1.0); 
 
-        vec2 shadowTextureCoords = vec2(-1.0/M_PI*zenith + 1.0, 1.0/M_PI*azimuth);
-        //vec3 shadowColor = texture2D(u_CloudTrans, vec2(shadowTextureCoords.s, shadowTextureCoords.t)).rgb;
-        vec3 shadowColor = texture2D(u_CloudTrans, vec2(v_Texcoord.s, v_Texcoord.t)).rgb;
-        //color = mix(vec3(0.0), color, shadowColor.r);
-        cloudColor = mix(vec3(0.0), cloudColor, shadowColor.r);
-
+        // use the transparency map as color of shadow cast by clouds
+        vec3 shadowColor = texture2D(u_CloudTrans, vec2(shadowTextureCoords.s, shadowTextureCoords.t)).rgb;
+        color = mix(vec3(0.0), color, shadowColor.r);
+        
         color = mix(cloudColor, color, cloudTrans.r);
 
         // TODO: get rid of the branching
@@ -148,31 +149,42 @@
             bitangentEC.x, bitangentEC.y, bitangentEC.z,
             normalEC.x,    normalEC.y,    normalEC.z);
     }
-    vec3 cloudIntersectionTest(float cloudHeight, vec3 surfacePosition, vec3 direction){
-  
-        float radius = 1.0+cloudHeight;
-  
-        float vDotDirection = dot(surfacePosition, direction);
-        float radicand = vDotDirection * vDotDirection - (dot(surfacePosition, surfacePosition) - pow(radius, 2.0));
-        if (radicand < 0.0){
-          return vec3(0.0);
+    vec3 cloudIntersectionTest(vec3 sphereCenter, float cloudHeight, vec3 surfacePosition, vec3 direction){
+
+        float a = dot(direction, direction);
+        float b = 2.0 * dot(direction, surfacePosition - sphereCenter);
+        float c = dot(surfacePosition - sphereCenter, surfacePosition - sphereCenter) - (1.0+cloudHeight)*(1.0+cloudHeight);
+
+	    float t;
+        float disc = b * b - 4.0 * a * c;
+        if (disc < 0.0) return vec3(0.0);
+
+        float distSqrt = sqrt(disc);
+        float q;
+        if (b < 0.0) q = (-b + distSqrt)/2.0;
+        else         q = (-b - distSqrt)/2.0;
+
+        float t0 = q / a;
+        float t1 = c / q;
+
+        // make sure t0 is smaller than t1
+        if (t0 > t1)
+        {
+            float temp = t0;
+            t0 = t1;
+            t1 = temp;
         }
-  
-        float squareRoot = sqrt(radicand);
-        float firstTerm = -vDotDirection;
-        float t1 = firstTerm + squareRoot;
-        float t2 = firstTerm - squareRoot;
-  
-        float t = 0.0;
-        if (t1 < 0.0 && t2 < 0.0) {
-            return vec3(0.0);;
-        } else if (t1 > 0.0 && t2 > 0.0) {
-            t = min(t1, t2);
-        } else {
-            t = max(t1, t2);
-        }
-  
-        vec3 IntersectionPoint = surfacePosition + t*direction;
+
+        // if t1 is less than zero, the object is in the ray's negative direction and consequently the ray misses the sphere
+        if (t1 < 0.0) return vec3(0.0);
+
+        // if t0 is less than zero, the intersection point is at t1
+        if (t0 < 0.0) t = t1;
+
+        // else the intersection point is at t0	
+        else  t = t0;
+
+	    vec3 IntersectionPoint = surfacePosition + t*direction;
         return IntersectionPoint;
     }
 
