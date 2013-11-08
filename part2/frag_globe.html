@@ -21,6 +21,7 @@
     uniform mat4 u_InvTrans;
 	uniform mat4 u_InvTransModel;
 	uniform float u_BumpOrPOM;
+    uniform float u_heightFieldColour;
 	
     attribute vec3 Position;
     attribute vec3 Normal;
@@ -35,6 +36,7 @@
     varying vec3 v_NormalModel;			// Normal in Mode Space. 
     
     varying float isBump;
+    varying float isHMap;
 
 	mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
 
@@ -51,7 +53,7 @@
         vec3 eyeWorld = vec4 (u_InvView * vec4 (0.0, 0.0, 0.0, 1.0)).xyz;
         
         isBump = u_BumpOrPOM;
-        
+        isHMap = u_heightFieldColour;
         // Parallax Occlusion Mapping:
         // Compute view vector and normal in Model Space:
         v_ViewModel = world.xyz - eyeWorld.xyz;		
@@ -86,6 +88,7 @@
     uniform mat4 u_InvTrans;			// Transpose of the inverse of the modelview.
 
     varying float isBump;
+    varying float isHMap;
     varying vec3 v_Normal;              // surface normal in camera coordinates
     varying vec2 v_Texcoord;
     varying vec3 v_Position;            // position in camera coordinates
@@ -96,7 +99,7 @@
     
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);	// Matrix to transform tangent space to view space.
     int int_lerp (int a, int b, float mixFactor);
-    float simplexNoise (vec2 input);
+    float simplexNoise (vec2 inputVec);
     
     const float PI = 3.1415926;
     
@@ -163,7 +166,7 @@
 	        	TexCoord.y = atan (curSamplePosOnSphere.y, curSamplePosOnSphere.z/sin (azimuth)) / PI;
 	        }
 	        
-	    }	
+	    }
         
         vec2 finalTexCoords = TexCoord;
         // Now, transform eyeToPosition and normal in camera space.
@@ -185,33 +188,38 @@
         							normalize (vec3 (bumpMap_center - bumpMap_right, bumpMap_center - bumpMap_up, 0.2));
         bump_NormalEyeSpace = normalize (bump_NormalEyeSpace);        
 
-		// Lambertian shading:
-        float diffuse = clamp(dot(u_CameraSpaceDirLight, bump_NormalEyeSpace), 0.0, 1.0);
-		// Specular shading:
-        vec3 toReflectedLight = reflect(-u_CameraSpaceDirLight, bump_NormalEyeSpace);
-        float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
-        specular = pow(specular, 30.0);
-
-        float gammaCorrect = 1.0/1.2; //gamma correct by 1/1.2
-
-        //apply gamma correction to nighttime texture
-        nightColor = pow(nightColor,vec3(gammaCorrect));
-
-        vec3 color1, color2;
-        vec4 finalColour;
-        	color2 = (1.0-diffuse) * nightColor;
-        	color2 = color2 * cloudMap;//mix (color2, vec3 (0.0, 0.0, 0.0), cloudMap);
-        	
-        	cloudMap = vec3 (1.0, 1.0, 1.0) - cloudMap;
+		vec4 finalColour;
+		if (isHMap == 0.0)
+		{
+			// Lambertian shading:
+	        float diffuse = clamp(dot(u_CameraSpaceDirLight, bump_NormalEyeSpace), 0.0, 1.0);
+			// Specular shading:
+	        vec3 toReflectedLight = reflect(-u_CameraSpaceDirLight, bump_NormalEyeSpace);
+	        float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
+	        specular = pow(specular, 30.0);
+	
+	        float gammaCorrect = 1.0/1.2; //gamma correct by 1/1.2
+	
+	        //apply gamma correction to nighttime texture
+	        nightColor = pow(nightColor,vec3(gammaCorrect));
+	
+	        vec3 color1, color2;
+	        	color2 = (1.0-diffuse) * nightColor;
+	        	color2 = color2 * cloudMap;//mix (color2, vec3 (0.0, 0.0, 0.0), cloudMap);
+	        	
+	        	cloudMap = vec3 (1.0, 1.0, 1.0) - cloudMap;
+				
+				color1 = 0.6 * diffuse * dayColor + 0.4 * specular * specularMap * dayColor;
+	//			color1 = mix (color1, cloudColourMap, cloudMap);
 			
-			color1 = 0.6 * diffuse * dayColor + 0.4 * specular * specularMap * dayColor;
-//			color1 = mix (color1, cloudColourMap, cloudMap);
-		
-		float rimCoeff = dot (normal, -eyeToPosition);
-		if (rimCoeff < 0.18)
-			finalColour = vec4 (0.5273, 0.8046, 0.9765, clamp (exp(rimCoeff/0.25)-1.0, 0.0, 1.0));
+			float rimCoeff = dot (normal, -eyeToPosition);
+			if (rimCoeff < 0.18)
+				finalColour = vec4 (0.5273, 0.8046, 0.9765, clamp (exp(rimCoeff/0.25)-1.0, 0.0, 1.0));
+			else
+				finalColour = vec4 (mix (color2, color1, diffuse), 1.0);
+		}
 		else
-			finalColour = vec4 (mix (color2, color1, diffuse), 1.0);
+			finalColour = mix (vec4 (0.0,1.0,0.0,1.0), vec4 (1.0, 0.0, 0.0, 1.0), bumpMap_center);
         gl_FragColor = finalColour;
     }
 
@@ -280,7 +288,7 @@
 </script>
 <script type ="text/javascript">
 var b_pressed = 0;
-
+var h_pressed = 0;
 function onKeyUp (e)
 {
 	if ((e.keyCode == 98) || (e.keyCode == 66))
@@ -289,6 +297,13 @@ function onKeyUp (e)
 		  b_pressed = 0;
 		else
 		  b_pressed = 1;
+	}
+	else if ((e.keyCode == 104) || (e.keyCode == 72))
+	{  
+		if (h_pressed>0)
+		  h_pressed = 0;
+		else
+		  h_pressed = 1;
 	}
 }
 

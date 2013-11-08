@@ -63,6 +63,7 @@
     var u_BumpLocation;
     var u_timeLocation;
     var u_BumpOrPOMLocation;
+    var u_heightFieldColourLocation;
 
     (function initializeShader() {
         var vs = getShaderSource(document.getElementById("vs"));
@@ -88,6 +89,7 @@
         u_timeLocation = gl.getUniformLocation(program,"u_time");
         u_CameraSpaceDirLightLocation = gl.getUniformLocation(program,"u_CameraSpaceDirLight");
         u_BumpOrPOMLocation = gl.getUniformLocation(program,"u_BumpOrPOM");
+        u_heightFieldColourLocation = gl.getUniformLocation(program,"u_heightFieldColour");
 
         gl.useProgram(program);
     })();
@@ -311,7 +313,8 @@
         gl.uniform1i(u_EarthSpecLocation, 5);
         gl.uniform1f (u_timeLocation, time);
 		gl.uniform1f(u_BumpOrPOMLocation, b_pressed);
-        gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
+		gl.uniform1f(u_heightFieldColourLocation, h_pressed);
+		gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
 
         time += 0.001;
         window.requestAnimFrame(animate);
