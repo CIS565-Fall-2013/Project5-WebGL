@@ -132,9 +132,28 @@
 	var u_time;
 	var time = 1;
 	var decrease = false;
-
+	
+	var fps = 0;
+	var elapsedTime = 9;
+	var frameCount = 0;
+	var lastTime = new Date().getTime();
+	
     (function animate(){
         ///////////////////////////////////////////////////////////////////////////
+		  //calculate frame rate here
+	   var now = new Date().getTime();
+	   frameCount ++;
+	   elapsedTime += (now - lastTime);
+	   lastTime = now;
+	   if(elapsedTime >= 1000)
+	   {
+	   		fps = frameCount;
+			frameCount = 0;
+			elapsedTime -= 1000;
+			document.getElementById('fps').innerHTML = fps;
+	  }
+		lastTime = new Date().getTime();
+
         // Update
 
         var model = mat4.create();

@@ -662,11 +662,27 @@
     document.onmouseup = handleMouseUp;
     document.onmousemove = handleMouseMove;
 
-
+	var fps = 0;
+	var elapsedTime = 9;
+	var frameCount = 0;
+	var lastTime = new Date().getTime();
     function animate() {
         ///////////////////////////////////////////////////////////////////////////
-        // Update
-		
+       //calculate frame rate here
+	   var now = new Date().getTime();
+	   frameCount ++;
+	   elapsedTime += (now - lastTime);
+	   lastTime = now;
+	   if(elapsedTime >= 1000)
+	   {
+	   		fps = frameCount;
+			frameCount = 0;
+			elapsedTime -= 1000;
+			document.getElementById('fps').innerHTML = fps;
+	  }
+		lastTime = new Date().getTime();
+
+		 // Update
         var model = mat4.create();
         mat4.identity(model);
         mat4.rotate(model, 23.4/180*Math.PI, [0.0, 0.0, 1.0]);
@@ -874,6 +890,8 @@
         time += 0.001;
 		//console.log(time);
         window.requestAnimFrame(animate);
+		//FPSMeter.stop();
+		
     }
 
 
