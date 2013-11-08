@@ -55,8 +55,9 @@
     var u_EarthSpecLocation;
     var u_BumpLocation;
     var u_timeLocation;
+    var u_diffuseLocation; // for moon
 
-    (function initializeShader() {
+    function initializeEarthShader() {
         var vs = getShaderSource(document.getElementById("vs"));
         var fs = getShaderSource(document.getElementById("fs"));
 
@@ -78,14 +79,7 @@
         u_CameraSpaceDirLightLocation = gl.getUniformLocation(program,"u_CameraSpaceDirLight");
 
         gl.useProgram(program);
-    })();
-
-    var dayTex   = gl.createTexture();
-    var bumpTex  = gl.createTexture();
-    var cloudTex = gl.createTexture();
-    var transTex = gl.createTexture();
-    var lightTex = gl.createTexture();
-    var specTex  = gl.createTexture();
+    }
 
     function initLoadedTexture(texture){
         gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -98,9 +92,9 @@
         gl.bindTexture(gl.TEXTURE_2D, null);
     }
 
-    var numberOfIndices;
+    var numberOfIndicesEarth;
 
-    (function initializeSphere() {
+    function initializeSphere() {
         function uploadMesh(positions, texCoords, indices) {
             // Positions
             var positionsName = gl.createBuffer();
@@ -172,8 +166,8 @@
         }
 
         uploadMesh(positions, texCoords, indices);
-        numberOfIndices = indicesIndex;
-    })();
+        numberOfIndicesEarth = indicesIndex;
+    };
 
     var time = 0;
     var mouseLeftDown = false;
@@ -234,13 +228,14 @@
     document.onmousemove = handleMouseMove;
 
 
-    function animate() {
+    function drawEarth() {
         ///////////////////////////////////////////////////////////////////////////
         // Update
 
         var model = mat4.create();
         mat4.identity(model);
-        mat4.rotate(model, 23.4/180*Math.PI, [0.0, 0.0, 1.0]);
+        mat4.scale(model, [1.2, 1.2, 1.2]);
+        mat4.rotate(model, 23.4 / 180 * Math.PI, [0.0, 0.0, 1.0]);
         mat4.rotate(model, Math.PI, [1.0, 0.0, 0.0]);
         mat4.rotate(model, -time, [0.0, 1.0, 0.0]);
         var mv = mat4.create();
@@ -254,7 +249,7 @@
         var lightdest = vec4.create();
         vec3.normalize(lightdir);
         mat4.multiplyVec4(view, [lightdir[0], lightdir[1], lightdir[2], 0.0], lightdest);
-        lightdir = vec3.createFrom(lightdest[0],lightdest[1],lightdest[2]);
+        lightdir = vec3.createFrom(lightdest[0], lightdest[1], lightdest[2]);
         vec3.normalize(lightdir);
 
         ///////////////////////////////////////////////////////////////////////////
@@ -286,32 +281,97 @@
         gl.activeTexture(gl.TEXTURE5);
         gl.bindTexture(gl.TEXTURE_2D, specTex);
         gl.uniform1i(u_EarthSpecLocation, 5);
-        gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
+        gl.drawElements(gl.TRIANGLES, numberOfIndicesEarth, gl.UNSIGNED_SHORT, 0);
         gl.uniform1f(u_timeLocation, time);
+
+    }
+    
+
+    function animate() {
+
+        // Earth
+        initializeEarthShader();
+        initializeSphere();
+        drawEarth();
+
+
+
+
         time += 0.001;
         
         window.requestAnimFrame(animate);
     }
 
-    var textureCount = 0;
-        
+    var earthTextureCount = 0;
+
+    // earth textures
+    var dayTex;
+    var bumpTex;
+    var cloudTex;
+    var transTex;
+    var lightTex;
+    var specTex;
+
+    // moon textures
+    var moonDiffuseTex;
+    var moonBumpTex;
+
+    (function createEarthTexture() {
+
+        dayTex = gl.createTexture();
+        bumpTex = gl.createTexture();
+        cloudTex = gl.createTexture();
+        transTex = gl.createTexture();
+        lightTex = gl.createTexture();
+        specTex = gl.createTexture();
+    }());
+    
+
+    (function initializeEarthTextures() {
+        initializeTexture(dayTex, "earthmap1024.png");
+        initializeTexture(bumpTex, "earthbump1024.png");
+        initializeTexture(cloudTex, "earthcloud1024.png");
+        initializeTexture(transTex, "earthtrans1024.png");
+        initializeTexture(lightTex, "earthlight1024.png");
+        initializeTexture(specTex, "earthspec1024.png");
+    }());
+
     function initializeTexture(texture, src) {
         texture.image = new Image();
         texture.image.onload = function() {
             initLoadedTexture(texture);
 
             // Animate once textures load.
-            if (++textureCount === 6) {
+            if (++earthTextureCount === 6) {
                 animate();
             }
         }
         texture.image.src = src;
     }
 
-    initializeTexture(dayTex, "earthmap1024.png");
-    initializeTexture(bumpTex, "earthbump1024.png");
-    initializeTexture(cloudTex, "earthcloud1024.png");
-    initializeTexture(transTex, "earthtrans1024.png");
-    initializeTexture(lightTex, "earthlight1024.png");
-    initializeTexture(specTex, "earthspec1024.png");
+    // draw moon
+    //(function initializeMoonShader() {
+    //    var vs = getShaderSource(document.getElementById("moonVS"));
+    //    var fs = getShaderSource(document.getElementById("moonFS"));
+
+    //    var program = createProgram(gl, vs, fs, message);
+    //    positionLocation = gl.getAttribLocation(program, "Position");
+    //    normalLocation = gl.getAttribLocation(program, "Normal");
+    //    texCoordLocation = gl.getAttribLocation(program, "Texcoord");
+    //    u_ModelLocation = gl.getUniformLocation(program, "u_Model");
+    //    u_ViewLocation = gl.getUniformLocation(program, "u_View");
+    //    u_PerspLocation = gl.getUniformLocation(program, "u_Persp");
+    //    u_InvTransLocation = gl.getUniformLocation(program, "u_InvTrans");
+    //    u_BumpLocation = gl.getUniformLocation(program, "u_Bump");
+    //    u_timeLocation = gl.getUniformLocation(program, "u_time");
+    //    u_CameraSpaceDirLightLocation = gl.getUniformLocation(program, "u_CameraSpaceDirLight");
+
+    //    gl.useProgram(program);
+    //})();
+
+    var moonTex = gl.createTexture();
+    var moonBump = gl.createTexture();
+
+
+
 }());

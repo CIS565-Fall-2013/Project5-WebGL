@@ -147,6 +147,79 @@
     }
 </script>
 
+<script id="moonVS" type="x-shader/x-vertex">
+    precision highp float;
+
+    uniform mat4 u_MoonModel;
+    uniform mat4 u_MoonView;
+    uniform mat4 u_MoonPersp;
+    uniform mat4 u_MoonInvTrans;
+
+    attribute vec3 Position;
+    attribute vec3 Normal;
+    attribute vec2 Texcoord;
+
+    varying vec3 v_Normal;
+    varying vec2 v_Texcoord;
+    varying vec3 v_Position;
+    varying vec3 v_positionMC;
+
+    void main(void)
+    {
+        v_Normal = (u_InvTrans*vec4(Normal,0.0)).xyz;
+        v_Texcoord = Texcoord;
+        vec4 world = u_Model * vec4(Position, 1.0);
+        vec4 camera = u_View * world;
+        v_Position = camera.xyz;
+        v_positionMC = Position;
+        gl_Position = u_Persp * camera;
+    }
+</script>
+
+<script id="moonFS" type="x-shader/x-fragment">
+    precision highp float;
+
+    //View-Space directional light
+    //A unit vector
+    uniform vec3 u_CameraSpaceDirLight;
+
+    // Diffuse Texture
+    uniform sampler2D u_Diffuse;
+    //Bump map
+    uniform sampler2D u_Bump;
+
+    uniform float u_time;
+    uniform mat4 u_InvTrans;
+
+    varying vec3 v_Normal;              // surface normal in camera coordinates
+    varying vec2 v_Texcoord;
+    varying vec3 v_Position;            // position in camera coordinates
+    varying vec3 v_positionMC;          // position in model coordinates
+
+    mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
+
+    void main(void)
+    {
+        vec3 color = vec3(1.0,1.0,1.0);
+        gl_FragColor = vec4(color, 1.0);
+    }
+
+    mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC)
+    {
+        // normalized surface tangent in model coordinates
+        vec3 tangentMC = normalize(vec3(-positionMC.z, positionMC.x, 0.0)); 
+        // normalized surface tangent in eye coordiantes 
+        vec3 tangentEC = normalize(mat3(u_InvTrans) * tangentMC);
+        // normalized surface bitangent in eye coordinates
+        vec3 bitangentEC = normalize(cross(normalEC, tangentEC));
+
+        return mat3(
+            tangentEC.x,   tangentEC.y,   tangentEC.z,
+            bitangentEC.x, bitangentEC.y, bitangentEC.z,
+            normalEC.x,    normalEC.y,    normalEC.z);
+    }
+</script>
+
 <script src ="gl-matrix.js" type ="text/javascript"></script>
 <script src ="webGLUtility.js" type ="text/javascript"></script>
 <script src ="frag_globe.js" type ="text/javascript"></script>
