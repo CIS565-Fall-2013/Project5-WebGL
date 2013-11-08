@@ -17,43 +17,21 @@ In the second part of this project, I implemented a GLSL fragment shader to rend
 
 Here are some renders:
 
-<center>![dragon diffuse](https://raw.github.com/josephto/Project4-Rasterizer/master/renders/dragonDiff.png "screenshots")
+<center>![vert_wave](https://raw.github.com/josephto/Project5-WebGL/master/vert_wave.png "screenshots")
 
-Diffuse full stanford dragon
+First wave calculated using a producto of sin and cosine waves
 
-<center>![dragon specular](https://raw.github.com/josephto/Project4-Rasterizer/master/renders/dragonSpec.png "screenshots")
+<center>![simplex_wave](https://raw.github.com/josephto/Project5-WebGL/master/simplex_wave.png "screenshots")
 
-Specular full stanford dragon
+Second simplex wave
 
-<center>![dragon color interpolation diffuse](https://raw.github.com/josephto/Project4-Rasterizer/master/renders/dragonColorInterpDiff.png "screenshots")
+<center>![wave_wave](https://raw.github.com/josephto/Project5-WebGL/master/wave_wave.png "screenshots")
 
-Diffuse color interpolation stanford dragon
+Third original wave that mimics a wave of water as it experiences initial turbulence and then calms down
 
-<center>![dragon color interpolation specular](https://raw.github.com/josephto/Project4-Rasterizer/master/renders/dragonColorInterpSpec.png "screenshots")
+<center>![globe](https://raw.github.com/josephto/Project5-WebGL/master/globe.png "screenshots")
 
-Specular color interpolation stanford dragon
-
-<center>![bunny normals diffuse](https://raw.github.com/josephto/Project4-Rasterizer/master/renders/bunnyNormalsDiff.png "screenshots") 
-
-Diffuse bunny colored with normals
-
-<center>![cow colored with normals](https://raw.github.com/josephto/Project4-Rasterizer/master/renders/cowNormals.png "screenshots")
-
-Cow colored with just normals
-
-<center>![diffuse skull](https://raw.github.com/josephto/Project4-Rasterizer/master/renders/skullDiff.png "screenshots")
-
-Diffuse Skull
-
-Here's a video: http://www.youtube.com/watch?v=WD7VULD4eeU
-
--------------------------------------------------------------------------------
-<center>BUG RENDERS:
--------------------------------------------------------------------------------
-
-Here's a pretty cool specular bug render that I stumbled over when I accidentally flipped my camera to position ray.
-
-<center>![specular dragon bug](https://raw.github.com/josephto/Project4-Rasterizer/master/renders/dragonSpecWeird.png "screenshots")
+A globe render
 
 -------------------------------------------------------------------------------
 <center>PERFORMANCE REPORT:
