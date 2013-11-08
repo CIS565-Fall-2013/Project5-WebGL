@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
-<center>Project 4: WebGL
+<center>Project 5: WebGL
 -------------------------------------------------------------------------------
 <center>Fall 2013
 -------------------------------------------------------------------------------
@@ -19,19 +19,19 @@ Here are some renders:
 
 <center>![vert_wave](https://raw.github.com/josephto/Project5-WebGL/master/vert_wave.png "screenshots")
 
-First wave calculated using a producto of sin and cosine waves
+First wave calculated using a producto of sin and cosine waves. Link: http://josephto.github.io/Project5-WebGL/part1/vert_wave.html
 
 <center>![simplex_wave](https://raw.github.com/josephto/Project5-WebGL/master/simplex_wave.png "screenshots")
 
-Second simplex wave
+Second simplex wave. Link: http://josephto.github.io/Project5-WebGL/part1/simplex_wave.html
 
 <center>![wave_wave](https://raw.github.com/josephto/Project5-WebGL/master/wave_wave.png "screenshots")
 
-Third original wave that mimics a wave of water as it experiences initial turbulence and then calms down
+Third original wave that mimics a wave of water as it experiences initial turbulence and then calms down. The screen shot doesn't really depict the motion of the wave. Its better to watch the video. Link: http://josephto.github.io/Project5-WebGL/part1/wave_wave.html
 
 <center>![globe](https://raw.github.com/josephto/Project5-WebGL/master/globe.png "screenshots")
 
-A globe render
+A globe render. Link: http://josephto.github.io/Project5-WebGL/part2/frag_globe.html
 
 -------------------------------------------------------------------------------
 <center>PERFORMANCE REPORT:
