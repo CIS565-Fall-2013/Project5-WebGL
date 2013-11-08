@@ -76,6 +76,8 @@
         // surface normal - normalized after rasterization
         vec3 normal = normalize(v_Normal);
 		
+        float flatdiffuse = clamp(dot(u_CameraSpaceDirLight, normal), 0.0, 1.0);
+		
 		//Bump Mapping
 		float bumpCenter = texture2D(u_Bump, v_Texcoord).x;
 		float bumpRight = texture2D(u_Bump, v_Texcoord+vec2(1.0/1024.0, 0.0)).x;
@@ -89,10 +91,10 @@
         // normalized eye-to-position vector in camera coordinates
         vec3 eyeToPosition = normalize(v_Position);
         
-        float diffuse = clamp(dot(u_CameraSpaceDirLight, normal), 0.0, 1.0);
+        float bumpdiffuse = clamp(dot(u_CameraSpaceDirLight, normal), 0.0, 1.0);
 
 		//determine twilight shading mix alpha
-		float dayalpha = pow(1.0-diffuse,5.0);
+		float dayalpha = pow(1.0-flatdiffuse,5.0);
 		
 		
         vec3 toReflectedLight = reflect(-u_CameraSpaceDirLight, normal);
@@ -101,7 +103,7 @@
 
         float gammaCorrect = 1.6/1.2; //gamma correct by 1/1.2
 		
-        vec3 dayColor = ((0.6 * diffuse) + (0.4 * specular))*texture2D(u_DayDiffuse, v_Texcoord).rgb;
+        vec3 dayColor = ((0.6 * bumpdiffuse) + (0.4 * specular))*texture2D(u_DayDiffuse, v_Texcoord).rgb;
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
         
 		//apply gamma correction to nighttime texture (before mixing clouds)
@@ -112,7 +114,7 @@
 		float cloudTrans = texture2D(u_CloudTrans, cloudTexCoords).x;
 		vec3 cloudColor = texture2D(u_Cloud, cloudTexCoords).rgb;
 		
-		dayColor = mix(diffuse*cloudColor, dayColor, cloudTrans);
+		dayColor = mix(flatdiffuse*cloudColor, dayColor, cloudTrans);
 		nightColor = mix(vec3(0.0,0.0,0.0), nightColor, cloudTrans);
 		
 		float rimFactor = pow(clamp(1.0 + dot(v_Normal, v_Position), 0.0, 1.0),2.0);
