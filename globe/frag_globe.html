@@ -92,8 +92,19 @@
 		
         vec3 dayColor = ((0.6 * diffuse) + (0.4 * specular))*texture2D(u_DayDiffuse, v_Texcoord).rgb;
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
-        //apply gamma correction to nighttime texture
+        
+		//apply gamma correction to nighttime texture (before mixing clouds)
         nightColor = pow(nightColor,vec3(gammaCorrect));
+		
+		//Mix in cloud data
+		vec2 cloudTexCoords = v_Texcoord + vec2(u_time, 0.0);
+		float cloudTrans = texture2D(u_CloudTrans, cloudTexCoords).x;
+		vec3 cloudColor = texture2D(u_Cloud, cloudTexCoords).rgb;
+		
+		dayColor = mix(diffuse*cloudColor, dayColor, cloudTrans);
+		nightColor = mix(vec3(0.0,0.0,0.0), nightColor, cloudTrans);
+		
+		
 
         vec3 color = mix(dayColor, nightColor, dayalpha);
         gl_FragColor = vec4(color, 1.0);
