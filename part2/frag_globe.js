@@ -34,6 +34,8 @@
             document.getElementById("myDiv").innerHTML = xmlhttp.responseText;
         }
         console.log("HA HA HA!");
+        var resp = xmlhttp.response;
+        console.log(resp);
     }
     xmlhttp.open("GET", "https://api.wheretheiss.at/v1/satellites/25544", true);
     xmlhttp.send();
