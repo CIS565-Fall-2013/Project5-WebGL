@@ -9,12 +9,12 @@ In this project, we aim to work with WebGL to write vertex and fragment shaders.
 ##Part 1
 
 ###Requirements:
-* Sine Wave Vertex Shader [![Sine Wave Vertex Shader](resources/sine_wave.png)](harmoli.github.io/Project5-WebGL/vert_wave.html)
-* Simplex Wave Vertex Shader [![Simplex Wave Vertex Shader](resources/simplex_1D.png)](harmoli.github.io/Project5-WebGL/simplex.html)
-* 2D Simplex Wave Vertex Shader [![Simplex Wave Vertex Shader](resources/simplex_2D2.png)](harmoli.github.io/Project5-WebGL/simplex2D.html)
+* Sine Wave Vertex Shader [![Sine Wave Vertex Shader](resources/sine_wave.png)](http://harmoli.github.io/Project5-WebGL/vert_wave.html)
+* Simplex Wave Vertex Shader [![Simplex Wave Vertex Shader](resources/simplex_1D.png)](http://harmoli.github.io/Project5-WebGL/simplex.html)
+* 2D Simplex Wave Vertex Shader [![Simplex Wave Vertex Shader](resources/simplex_2D2.png)](http://harmoli.github.io/Project5-WebGL/simplex2D.html)
 
 ###Extra:
-* Custom Simplex Wave Vertex Shader [![Simplex Wave Vertex Shader](resources/custom_wave2.png)](harmoli.github.io/Project5-WebGL/wave.html)
+* Custom Simplex Wave Vertex Shader [![Simplex Wave Vertex Shader](resources/custom_wave2.png)](http://harmoli.github.io/Project5-WebGL/wave.html)
 * (in development) Audio Driven Vertex Shader
 
 ##Part 2
@@ -30,7 +30,7 @@ In this project, we aim to work with WebGL to write vertex and fragment shaders.
 ###Extras:
 * Procedural water rendering and animation using noise 
 
-[![Globe](resources/frag_globe.png)](harmoli.github.io/Project5-WebGL/index.html)
+[![Globe](resources/frag_globe.png)](http://harmoli.github.io/Project5-WebGL/index.html)
 
 -----------
 
