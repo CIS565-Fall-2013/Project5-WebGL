@@ -1,14 +1,14 @@
-(function() {
+(function () {
     "use strict";
     /*global window,document,Float32Array,Uint16Array,mat4,vec3,snoise*/
     /*global getShaderSource,createWebGLContext,createProgram*/
 
-    function sphericalToCartesian( r, a, e ) {
-        var x = r * Math.cos(e) * Math.cos(a);
-        var y = r * Math.sin(e);
-        var z = r * Math.cos(e) * Math.sin(a);
+    function sphericalToCartesian(r, a, z) {
+        var x = r * Math.sin(z) * Math.sin(a);
+        var y = r * Math.cos(z);
+        var z = r * Math.sin(z) * Math.cos(a);
 
-        return [x,y,z];
+        return [x, y, z];
     }
 
     var NUM_WIDTH_PTS = 64;
@@ -28,13 +28,13 @@
     gl.enable(gl.DEPTH_TEST);
 
     var persp = mat4.create();
-    mat4.perspective(45.0, canvas.width/canvas.height, 0.1, 100.0, persp);
+    mat4.perspective(45.0, canvas.width / canvas.height, 0.1, 100.0, persp);
 
     var radius = 5.0;
-    var azimuth = Math.PI;
-    var elevation = 0.0001;
+    var azimuth = 0.0;
+    var zenith = Math.PI / 2.0;
 
-    var eye = sphericalToCartesian(radius, azimuth, elevation);
+    var eye = sphericalToCartesian(radius, azimuth, zenith);
     var center = [0.0, 0.0, 0.0];
     var up = [0.0, 1.0, 0.0];
     var view = mat4.create();
@@ -46,6 +46,7 @@
     var u_InvTransLocation;
     var u_ModelLocation;
     var u_ViewLocation;
+    var u_ModelViewInverseLocation;
     var u_PerspLocation;
     var u_CameraSpaceDirLightLocation;
     var u_DayDiffuseLocation;
@@ -61,54 +62,55 @@
         var vs = getShaderSource(document.getElementById("vs"));
         var fs = getShaderSource(document.getElementById("fs"));
 
-		var program = createProgram(gl, vs, fs, message);
-		gl.bindAttribLocation(program, positionLocation, "Position");
-		u_ModelLocation = gl.getUniformLocation(program,"u_Model");
-        u_ViewLocation = gl.getUniformLocation(program,"u_View");
-        u_PerspLocation = gl.getUniformLocation(program,"u_Persp");
-        u_InvTransLocation = gl.getUniformLocation(program,"u_InvTrans");
-        u_DayDiffuseLocation = gl.getUniformLocation(program,"u_DayDiffuse");
-        u_NightLocation = gl.getUniformLocation(program,"u_Night");
-        u_CloudLocation = gl.getUniformLocation(program,"u_Cloud");
-        u_CloudTransLocation = gl.getUniformLocation(program,"u_CloudTrans");
-        u_EarthSpecLocation = gl.getUniformLocation(program,"u_EarthSpec");
-        u_BumpLocation = gl.getUniformLocation(program,"u_Bump");
-        u_timeLocation = gl.getUniformLocation(program,"u_time");
-        u_CameraSpaceDirLightLocation = gl.getUniformLocation(program,"u_CameraSpaceDirLight");
+        var program = createProgram(gl, vs, fs, message);
+        gl.bindAttribLocation(program, positionLocation, "Position");
+        u_ModelLocation = gl.getUniformLocation(program, "u_Model");
+        u_ViewLocation = gl.getUniformLocation(program, "u_View");
+        u_ModelViewInverseLocation = gl.getUniformLocation(program, "u_ModelViewInverse");
+        u_PerspLocation = gl.getUniformLocation(program, "u_Persp");
+        u_InvTransLocation = gl.getUniformLocation(program, "u_InvTrans");
+        u_DayDiffuseLocation = gl.getUniformLocation(program, "u_DayDiffuse");
+        u_NightLocation = gl.getUniformLocation(program, "u_Night");
+        u_CloudLocation = gl.getUniformLocation(program, "u_Cloud");
+        u_CloudTransLocation = gl.getUniformLocation(program, "u_CloudTrans");
+        u_EarthSpecLocation = gl.getUniformLocation(program, "u_EarthSpec");
+        u_BumpLocation = gl.getUniformLocation(program, "u_Bump");
+        u_timeLocation = gl.getUniformLocation(program, "u_time");
+        u_CameraSpaceDirLightLocation = gl.getUniformLocation(program, "u_CameraSpaceDirLight");
 
         gl.useProgram(program);
     })();
 
-    var dayTex   = gl.createTexture();
-    var bumpTex  = gl.createTexture();
+    var dayTex = gl.createTexture();
+    var bumpTex = gl.createTexture();
     var cloudTex = gl.createTexture();
     var transTex = gl.createTexture();
     var lightTex = gl.createTexture();
-    var specTex  = gl.createTexture();
+    var specTex = gl.createTexture();
 
     (function initTextures() {
-        function initLoadedTexture(texture){
+        function initLoadedTexture(texture) {
             gl.bindTexture(gl.TEXTURE_2D, texture);
             gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, 
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,
                                gl.UNSIGNED_BYTE, texture.image);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, 
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER,
                                   gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, 
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
                                   gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, 
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S,
                                   gl.REPEAT);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, 
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T,
                                   gl.REPEAT);
             gl.bindTexture(gl.TEXTURE_2D, null);
         }
-        
+
         function initializeTexture(texture, src) {
             texture.image = new Image();
-            texture.image.onload = function() {
+            texture.image.onload = function () {
                 initLoadedTexture(texture);
             }
-             texture.image.src = src;
+            texture.image.src = src;
         }
 
         initializeTexture(dayTex, "earthmap1024.png");
@@ -116,7 +118,7 @@
         initializeTexture(cloudTex, "earthcloud1024.png");
         initializeTexture(transTex, "earthtrans1024.png");
         initializeTexture(lightTex, "earthlight1024.png");
-         initializeTexture(specTex, "earthspec1024.png");
+        initializeTexture(specTex, "earthspec1024.png");
     })();
 
     var numberOfIndices;
@@ -129,14 +131,14 @@
             gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
             gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(positionLocation);
-            
+
             // Normals
             var normalsName = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, normalsName);
             gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
             gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(normalLocation);
-            
+
             // TextureCoords
             var texCoordsName = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, texCoordsName);
@@ -164,31 +166,28 @@
         var indicesIndex = 0;
         var length;
 
-        for( var j = 0; j < NUM_HEIGHT_PTS; ++j )
-        {
+        for (var j = 0; j < NUM_HEIGHT_PTS; ++j) {
             var inclination = Math.PI * (j / HEIGHT_DIVISIONS);
-            for( var i = 0; i < NUM_WIDTH_PTS; ++i )
-            {
+            for (var i = 0; i < NUM_WIDTH_PTS; ++i) {
                 var azimuth = 2 * Math.PI * (i / WIDTH_DIVISIONS);
-                positions[positionsIndex++] = Math.sin(inclination)*Math.cos(azimuth);
+                positions[positionsIndex++] = Math.sin(inclination) * Math.sin(azimuth);
                 positions[positionsIndex++] = Math.cos(inclination);
-                positions[positionsIndex++] = Math.sin(inclination)*Math.sin(azimuth);
+                positions[positionsIndex++] = Math.sin(inclination) * Math.cos(azimuth);
                 texCoords[texCoordsIndex++] = i / WIDTH_DIVISIONS;
-                texCoords[texCoordsIndex++] = j / HEIGHT_DIVISIONS;
-            } 
+                texCoords[texCoordsIndex++] = 1.0 - j / HEIGHT_DIVISIONS;
+            }
         }
 
-        for( var j = 0; j < HEIGHT_DIVISIONS; ++j )
+        for (var j = 0; j < HEIGHT_DIVISIONS; ++j)  // a bunch of degenerate triangles at poles
         {
-            var index = j*NUM_WIDTH_PTS;
-            for( var i = 0; i < WIDTH_DIVISIONS; ++i )
-            {
-                    indices[indicesIndex++] = index + i;
-                    indices[indicesIndex++] = index + i+1;
-                    indices[indicesIndex++] = index + i+NUM_WIDTH_PTS;
-                    indices[indicesIndex++] = index + i+NUM_WIDTH_PTS;
-                    indices[indicesIndex++] = index + i+1;
-                    indices[indicesIndex++] = index + i+NUM_WIDTH_PTS+1;
+            var index = j * NUM_WIDTH_PTS;
+            for (var i = 0; i < WIDTH_DIVISIONS; ++i) {
+                indices[indicesIndex++] = index + i;
+                indices[indicesIndex++] = index + i + 1;
+                indices[indicesIndex++] = index + i + NUM_WIDTH_PTS;
+                indices[indicesIndex++] = index + i + NUM_WIDTH_PTS;
+                indices[indicesIndex++] = index + i + 1;
+                indices[indicesIndex++] = index + i + NUM_WIDTH_PTS + 1;
             }
         }
 
@@ -203,7 +202,7 @@
     var lastMouseY = null;
 
     function handleMouseDown(event) {
-        if( event.button == 2 ) {
+        if (event.button == 2) {
             mouseLeftDown = false;
             mouseRightDown = true;
         }
@@ -229,19 +228,17 @@
 
         var deltaX = newX - lastMouseX;
         var deltaY = newY - lastMouseY;
-        
-        if( mouseLeftDown )
-        {
-            azimuth += 0.01 * deltaX;
-            elevation += 0.01 * deltaY;
-            elevation = Math.min(Math.max(elevation, -Math.PI/2+0.001), Math.PI/2-0.001);
+
+        if (mouseLeftDown) {
+            azimuth -= 0.01 * deltaX;
+            zenith -= 0.01 * deltaY;
+            zenith = Math.min(Math.max(zenith, 0.001), Math.PI - 0.001);
         }
-        else
-        {
+        else {
             radius += 0.01 * deltaY;
             radius = Math.min(Math.max(radius, 2.0), 10.0);
         }
-        eye = sphericalToCartesian(radius, azimuth, elevation);
+        eye = sphericalToCartesian(radius, azimuth, zenith);
         view = mat4.create();
         mat4.lookAt(eye, center, up, view);
 
@@ -250,22 +247,24 @@
     }
 
     canvas.onmousedown = handleMouseDown;
-    canvas.oncontextmenu = function(ev) {return false;};
+    canvas.oncontextmenu = function (ev) { return false; };
     document.onmouseup = handleMouseUp;
     document.onmousemove = handleMouseMove;
 
 
-    (function animate(){
+    (function animate() {
         ///////////////////////////////////////////////////////////////////////////
         // Update
 
         var model = mat4.create();
         mat4.identity(model);
-        mat4.rotate(model, 23.4/180*Math.PI, [0.0, 0.0, 1.0]);
-        mat4.rotate(model, Math.PI, [1.0, 0.0, 0.0]);
-        mat4.rotate(model, -time, [0.0, 1.0, 0.0]);
+        mat4.rotate(model, 23.4 / 180 * Math.PI, [0.0, 0.0, 1.0]);
+        mat4.rotate(model, time, [0.0, 1.0, 0.0]);
         var mv = mat4.create();
         mat4.multiply(view, model, mv);
+
+        var modelViewMatrixInverse = mat4.create();
+        mat4.inverse(mv, modelViewMatrixInverse);
 
         var invTrans = mat4.create();
         mat4.inverse(mv, invTrans);
@@ -275,8 +274,10 @@
         var lightdest = vec4.create();
         vec3.normalize(lightdir);
         mat4.multiplyVec4(view, [lightdir[0], lightdir[1], lightdir[2], 0.0], lightdest);
-        lightdir = vec3.createFrom(lightdest[0],lightdest[1],lightdest[2]);
+        lightdir = vec3.createFrom(lightdest[0], lightdest[1], lightdest[2]);
         vec3.normalize(lightdir);
+
+
 
 
 
@@ -286,6 +287,7 @@
 
         gl.uniformMatrix4fv(u_ModelLocation, false, model);
         gl.uniformMatrix4fv(u_ViewLocation, false, view);
+        gl.uniformMatrix4fv(u_ModelViewInverseLocation, false, modelViewMatrixInverse);
         gl.uniformMatrix4fv(u_PerspLocation, false, persp);
         gl.uniformMatrix4fv(u_InvTransLocation, false, invTrans);
 
@@ -311,10 +313,10 @@
         gl.uniform1i(u_EarthSpecLocation, 5);
         gl.uniform1f(u_timeLocation, time);
 
-        gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
+        gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT, 0);
 
         time += 0.001;
-		window.requestAnimFrame(animate);
+        window.requestAnimFrame(animate);
     })();
 
-}());
+} ());

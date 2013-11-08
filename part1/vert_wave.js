@@ -18,7 +18,7 @@
     context.viewport(0, 0, canvas.width, canvas.height);
     context.clearColor(1.0, 1.0, 1.0, 1.0);
     context.enable(context.DEPTH_TEST);
-
+    var available_extensions = context.getSupportedExtensions();
     var persp = mat4.create();
     mat4.perspective(45.0, 0.5, 0.1, 100.0, persp);
 

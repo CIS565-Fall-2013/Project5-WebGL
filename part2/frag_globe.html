@@ -41,28 +41,19 @@
 
 <script id="fs" type="x-shader/x-fragment">
     precision highp float;
+    #define M_PI 3.1415926535897932384626433832795
+       
+    uniform sampler2D u_DayDiffuse; //Diffuse texture map for the day   
+    uniform sampler2D u_Night;      //Ambient texture map for the night   
+    uniform sampler2D u_Cloud;      //Color map for the clouds  
+    uniform sampler2D u_CloudTrans; //Transparency map for the clouds.  Note that light areas are where clouds are NOT; Dark areas are where clouds are present
+    uniform sampler2D u_EarthSpec;  //Mask of which areas of the earth have specularity. Oceans are specular, landmasses are not  
+    uniform sampler2D u_Bump;       //Bump map
 
-    //View-Space directional light
-    //A unit vector
-    uniform vec3 u_CameraSpaceDirLight;
-
-    //Diffuse texture map for the day
-    uniform sampler2D u_DayDiffuse;
-    //Ambient texture map for the night side
-    uniform sampler2D u_Night;
-    //Color map for the clouds
-    uniform sampler2D u_Cloud;
-    //Transparency map for the clouds.  Note that light areas are where clouds are NOT
-    //Dark areas are where clouds are present
-    uniform sampler2D u_CloudTrans;
-    //Mask of which areas of the earth have specularity
-    //Oceans are specular, landmasses are not
-    uniform sampler2D u_EarthSpec;
-    //Bump map
-    uniform sampler2D u_Bump;
-
+    uniform vec3 u_CameraSpaceDirLight; //normalized view-Space light direction  
     uniform float u_time;
     uniform mat4 u_InvTrans;
+    uniform mat4 u_ModelViewInverse;
 
     varying vec3 v_Normal;              // surface normal in camera coordinates
     varying vec2 v_Texcoord;
@@ -70,12 +61,13 @@
     varying vec3 v_positionMC;          // position in model coordinates
 
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
+    vec3 cloudIntersectionTest(float cloudHeight, vec3 surfacePosition, vec3 direction);
 
     void main(void)
     {
-        vec3 height = texture2D(u_Bump, vec2(v_Texcoord.s, v_Texcoord.t)).rgb;
-        vec3 heightUp = texture2D(u_Bump, vec2(v_Texcoord.s, v_Texcoord.t+1.0/1024.0)).rgb;
-        vec3 heightRight = texture2D(u_Bump, vec2(v_Texcoord.s+1.0/512.0, v_Texcoord.t)).rgb;
+        vec3 height        = texture2D(u_Bump, vec2(v_Texcoord.s,           v_Texcoord.t)).rgb;
+        vec3 heightUp      = texture2D(u_Bump, vec2(v_Texcoord.s,           v_Texcoord.t+1.0/1024.0)).rgb;
+        vec3 heightRight   = texture2D(u_Bump, vec2(v_Texcoord.s+1.0/512.0, v_Texcoord.t)).rgb;
         vec3 tangentNormal = normalize(vec3(height.y - heightRight.y, height.y - heightUp.y, 0.2));
 
         // surface normal - normalized after rasterization
@@ -84,6 +76,7 @@
 
         // perturbed normal
         mat3 tangnetToEye = eastNorthUpToEyeCoordinates(v_positionMC, normal);
+        //mat3 test = inverse(tangnetToEye);
         normal = normalize(tangnetToEye * tangentNormal);
        
         // normalized eye-to-position vector in camera coordinates
@@ -98,9 +91,11 @@
         specular *= texture2D(u_EarthSpec, v_Texcoord).r;
 
         // get colors from maps
-        vec3 cloudColor = texture2D(u_Cloud, vec2(v_Texcoord.s - 0.1*u_time, v_Texcoord.t)).rgb; // range of v_Texcoord.s and v_Texcoord.t [0, size], TEXTURE_WRAP enabled
-        vec3 cloudTrans = texture2D(u_CloudTrans, vec2(v_Texcoord.s - 0.1*u_time, v_Texcoord.t)).rgb;
-        vec3 dayColor = texture2D(u_DayDiffuse, v_Texcoord).rgb;        
+        //vec3 cloudColor = texture2D(u_Cloud, vec2(v_Texcoord.s - 0.1*u_time, v_Texcoord.t)).rgb; // range of v_Texcoord.s and v_Texcoord.t [0, size], TEXTURE_WRAP enabled
+        //vec3 cloudTrans = texture2D(u_CloudTrans, vec2(v_Texcoord.s - 0.1*u_time, v_Texcoord.t)).rgb;
+        vec3 cloudColor = texture2D(u_Cloud, vec2(v_Texcoord.s, v_Texcoord.t)).rgb; // range of v_Texcoord.s and v_Texcoord.t [0, size], TEXTURE_WRAP enabled
+        vec3 cloudTrans = texture2D(u_CloudTrans, vec2(v_Texcoord.s, v_Texcoord.t)).rgb;
+        vec3 dayColor   = texture2D(u_DayDiffuse, v_Texcoord).rgb;        
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
 
         //apply gamma correction to nighttime texture
@@ -109,6 +104,21 @@
 
         vec3 color = (0.6 * diffuse + 0.4 * specular) * dayColor;
         cloudColor = diffuseNoBump * cloudColor;
+
+        float cloudHeight = 0.001;
+        //vec3 cloudIntersectionVS = cloudIntersectionTest(cloudHeight, v_Position, u_CameraSpaceDirLight);
+        //vec3 cloudIntersectionVS = v_Position;
+        //vec3 cloudIntersectionMS = normalize((u_ModelViewInverse * vec4(cloudIntersectionVS, 1.0)).xyz);
+        vec3 cloudIntersectionMS = v_positionMC;
+        float zenith = acos(cloudIntersectionMS.y);
+        float azimuth = atan(cloudIntersectionMS.x, cloudIntersectionMS.z);
+        if(azimuth<0.0) azimuth += 2.0*M_PI; 
+
+        vec2 shadowTextureCoords = vec2(-1.0/M_PI*zenith + 1.0, 1.0/M_PI*azimuth);
+        //vec3 shadowColor = texture2D(u_CloudTrans, vec2(shadowTextureCoords.s, shadowTextureCoords.t)).rgb;
+        vec3 shadowColor = texture2D(u_CloudTrans, vec2(v_Texcoord.s, v_Texcoord.t)).rgb;
+        //color = mix(vec3(0.0), color, shadowColor.r);
+        cloudColor = mix(vec3(0.0), cloudColor, shadowColor.r);
 
         color = mix(cloudColor, color, cloudTrans.r);
 
@@ -119,8 +129,8 @@
         
         rimFactor = max(rimFactor, 0.0);
         vec3 rimColor = vec3(rimFactor/4.0, rimFactor/2.0, rimFactor/2.0);
-        color = rimColor;
-        //if(abs(dot(v_Position, v_Normal) + 1.0)<1e-4) color = vec3(1.0);
+        color += rimColor;
+
         gl_FragColor = vec4(color, 1.0);
     }
 
@@ -138,6 +148,34 @@
             bitangentEC.x, bitangentEC.y, bitangentEC.z,
             normalEC.x,    normalEC.y,    normalEC.z);
     }
+    vec3 cloudIntersectionTest(float cloudHeight, vec3 surfacePosition, vec3 direction){
+  
+        float radius = 1.0+cloudHeight;
+  
+        float vDotDirection = dot(surfacePosition, direction);
+        float radicand = vDotDirection * vDotDirection - (dot(surfacePosition, surfacePosition) - pow(radius, 2.0));
+        if (radicand < 0.0){
+          return vec3(0.0);
+        }
+  
+        float squareRoot = sqrt(radicand);
+        float firstTerm = -vDotDirection;
+        float t1 = firstTerm + squareRoot;
+        float t2 = firstTerm - squareRoot;
+  
+        float t = 0.0;
+        if (t1 < 0.0 && t2 < 0.0) {
+            return vec3(0.0);;
+        } else if (t1 > 0.0 && t2 > 0.0) {
+            t = min(t1, t2);
+        } else {
+            t = max(t1, t2);
+        }
+  
+        vec3 IntersectionPoint = surfacePosition + t*direction;
+        return IntersectionPoint;
+    }
+
 </script>
 
 <script src ="gl-matrix.js" type ="text/javascript"></script>
