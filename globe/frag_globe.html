@@ -115,9 +115,10 @@
 		dayColor = mix(diffuse*cloudColor, dayColor, cloudTrans);
 		nightColor = mix(vec3(0.0,0.0,0.0), nightColor, cloudTrans);
 		
-		
+		float rimFactor = clamp(1.0 + dot(v_Normal, v_Position), 0.0, 1.0);
+		vec3 rimColor = rimFactor*vec3(0.25, 0.5, 0.5);
 
-        vec3 color = mix(dayColor, nightColor, dayalpha);
+        vec3 color = rimColor + mix(dayColor, nightColor, dayalpha);
         gl_FragColor = vec4(color, 1.0);
     }
 
