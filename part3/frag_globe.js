@@ -47,9 +47,15 @@
     var view = mat4.create();
     mat4.lookAt(eye, center, up, view);
 
+    //position, normal, texCoord location for the earth
     var positionLocation;
     var normalLocation;
     var texCoordLocation;
+
+    var positionLocation_ISS;
+    var normalLocation_ISS;
+    var texCoordLocation_ISS;
+
     var u_InvTransLocation;
     var u_ModelLocation;
     var u_ViewLocation;
@@ -189,22 +195,22 @@
             var positionsName = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, positionsName);
             gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-            gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(positionLocation);
+            gl.vertexAttribPointer(positionLocation_ISS, 3, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(positionLocation_ISS);
             
             // Normals
             var normalsName = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, normalsName);
             gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-            gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(normalLocation);
+            gl.vertexAttribPointer(normalLocation_ISS, 3, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(normalLocation_ISS);
             
             // TextureCoords
             var texCoordsName = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, texCoordsName);
             gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
-            gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(texCoordLocation);
+            gl.vertexAttribPointer(texCoordLocation_ISS, 2, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(texCoordLocation_ISS);
 
             // Indices
             var indicesName = gl.createBuffer();
