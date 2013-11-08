@@ -1,7 +1,7 @@
 <html>
 
 <head>
-<title>Vertex Wave</title>
+<title>Random Noise Wave</title>
 <meta charset ="utf-8">
 <meta http-equiv="X-UA-Compatible" content="chrome=1">  <!-- Use Chrome Frame in IE --> 
 </head>
@@ -63,7 +63,7 @@
 			float s_contrib = snoise(simplexVec);
 			float t_contrib = snoise(vec2(s_contrib,u_time));
 			
-			float height = s_contrib*t_contrib;
+			float height = s_contrib+t_contrib;
 			theheight=height;
 		gl_Position = u_modelViewPerspective * vec4(vec3(position, height), 1.0);
     }

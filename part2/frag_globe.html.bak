@@ -21,20 +21,26 @@
     attribute vec3 Position;
     attribute vec3 Normal;
     attribute vec2 Texcoord;
+    attribute vec3 randHeight;
 
     varying vec3 v_Normal;
     varying vec2 v_Texcoord;
     varying vec3 v_Position;
     varying vec3 v_positionMC;
+    varying vec3 waterTurb;
 
+		
     void main(void)
     {
+					
         v_Normal = (u_InvTrans*vec4(Normal,0.0)).xyz;
+    
         v_Texcoord = Texcoord;
         vec4 world = u_Model * vec4(Position, 1.0);
         vec4 camera = u_View * world;
         v_Position = camera.xyz;
         v_positionMC = Position;
+        waterTurb = randHeight;
         gl_Position = u_Persp * camera;
     }
 </script>
@@ -62,15 +68,113 @@
     uniform sampler2D u_Bump;
 
     uniform float u_time;
+    uniform float u_showWhich;
     uniform mat4 u_InvTrans;
+    uniform vec3 u_CameraSpacePosLight;
 
     varying vec3 v_Normal;              // surface normal in camera coordinates
     varying vec2 v_Texcoord;
     varying vec3 v_Position;            // position in camera coordinates
     varying vec3 v_positionMC;          // position in model coordinates
+    varying vec3 waterTurb;
 
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
+    
+		vec3 permute(vec3 x) {
+		  x = ((x*34.0)+1.0)*x;
+		  return x - floor(x * (1.0 / 289.0)) * 289.0;
+		}
+		
+		float snoise(vec2 v)
+		  {
+		  const vec4 C = vec4(0.211324865405187, 0.366025403784439,  -0.577350269189626, 0.024390243902439); 
+		
+		  vec2 i  = floor(v + dot(v, C.yy) );
+		  vec2 x0 = v -   i + dot(i, C.xx);
+		
+		  vec2 i1;
+		  i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+		
+		  vec4 x12 = x0.xyxy + C.xxzz;
+		  x12.xy -= i1;
+		
+		  i = i - floor(i * (1.0 / 289.0)) * 289.0;
+		
+		  vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
+		        + i.x + vec3(0.0, i1.x, 1.0 ));
+		
+		  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+		  m = m*m ;
+		  m = m*m ;
+		
+		  vec3 x = 2.0 * fract(p * C.www) - 1.0;
+		  vec3 h = abs(x) - 0.5;
+		  vec3 ox = floor(x + 0.5);
+		  vec3 a0 = x - ox;
+		
+		  m *= inversesqrt( a0*a0 + h*h );
+		
+		  vec3 g;
+		  g.x  = a0.x  * x0.x  + h.x  * x0.y;
+		  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+		  return 130.0 * dot(m, g);
+		}
+		
+		vec3 getRainbow(float x)
+		{
+			
+			vec3 flags[7];
+			flags[0]=vec3(0.0,0.0,1.0);
+			flags[1]=vec3(0.0,0.99,1.0);
+			flags[2]=vec3(0.0,0.99,1.0);
+			flags[3]=vec3(1.0,1.0,0.0);
+			flags[4]=vec3(1.0,0.51,0.0);
+			flags[5]=vec3(1.0,0.0,0.0);
+			flags[6]=vec3(1.0,1.0,1.0);
+	
+			x=clamp(x,0.0,0.98);
+			int idx=int(floor(x/0.188));
+			//int idx=0;
+			float ofst, ofst2;
+			if(idx==0)
+			{
+				ofst=x-0.0*0.188;
+				ofst2=1.0*0.188-x;
+				return flags[0]*(ofst2/(ofst+ofst2))+flags[1]*(ofst/(ofst+ofst2));
+			}
+			else if(idx==1)
+			{
+				ofst=x-1.0*0.188;
+				ofst2=2.0*0.188-x;
+				return flags[1]*(ofst2/(ofst+ofst2))+flags[2]*(ofst/(ofst+ofst2));
+			}
+			else if(idx==2)
+			{
+				ofst=x-2.0*0.188;
+				ofst2=3.0*0.188-x;
+				return flags[2]*(ofst2/(ofst+ofst2))+flags[3]*(ofst/(ofst+ofst2));
+			}
+			else if(idx==3)
+			{
+				ofst=x-3.0*0.188;
+				ofst2=4.0*0.188-x;
+				return flags[3]*(ofst2/(ofst+ofst2))+flags[4]*(ofst/(ofst+ofst2));
+			}
+			else if(idx==4)
+			{
+				ofst=x-4.0*0.188;
+				ofst2=5.0*0.188-x;
+				return flags[4]*(ofst2/(ofst+ofst2))+flags[5]*(ofst/(ofst+ofst2));
+			}
+			else if(idx==5)
+			{
+				ofst=x-5.0*0.188;
+				ofst2=6.0*0.188-x;
+				return flags[5]*(ofst2/(ofst+ofst2))+flags[6]*(ofst/(ofst+ofst2));
+			}
 
+			return vec3(1.0);
+		}
     void main(void)
     {
         // surface normal - normalized after rasterization
@@ -85,9 +189,26 @@
         
         vec3 turbnormal=normalize(vec3(center-theright, center-theUp,0.2));
         vec3 normal=normalize(eastNorthUpToEyeCoordinates(v_positionMC, v_Normal)*turbnormal);
-        
+                
         float checkDayNightnorm=dot(u_CameraSpaceDirLight, v_Normal); 
         
+        vec3 oceanStatus = texture2D(u_EarthSpec, v_Texcoord).rgb;
+        bool isOcean=length(oceanStatus)>0.5;
+        
+        //ray-trace to check if it is in shadow
+        
+        
+        if(isOcean)
+        {
+//        	  vec2 simplexVec = vec2(v_positionMC.z/v_positionMC.x, v_positionMC.y);
+//						float turb1 = snoise(simplexVec);
+//						float turb2 = snoise(vec2(turb1,1.0));
+//		        normal.x+=turb1*0.5;
+//		        normal.y+=turb2*0.5;
+//		        normal=normalize(normal);		
+
+        // normal=normalize(eastNorthUpToEyeCoordinates(v_positionMC, v_Normal)*waterTurb);	
+        }
         
         //vec3 normal = normalize(v_Normal);
         // normalized eye-to-position vector in camera coordinates
@@ -104,15 +225,14 @@
 
         vec3 dayColor = texture2D(u_DayDiffuse, v_Texcoord).rgb;
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
-        vec3 oceanStatus = texture2D(u_EarthSpec, v_Texcoord).rgb;
+        
         
         vec2 v_Texcoord2=v_Texcoord;
         v_Texcoord2.s-=0.0005*u_time;
         vec3 cloudColor = texture2D(u_Cloud, v_Texcoord2).rgb;
         vec3 cloudTrans = texture2D(u_CloudTrans, v_Texcoord2).rgb;
         
-        
-        bool isOcean=length(oceanStatus)>0.5;
+
         //apply gamma correction to nighttime texture
         nightColor = pow(nightColor,vec3(gammaCorrect));
 
@@ -120,21 +240,31 @@
 				if(checkDayNightnorm>0.0)	//day
 				{
 						cloudColor*=0.6*abs(dotlightnorm)+0.8*specular;
+						if(u_showWhich>0.5)
+							dayColor=getRainbow(center*2.7);
+							
         		color = ((0.6 * abs(dotlightnorm)) + (0.8 * specular*(isOcean?1.0:0.0))) * dayColor;
+        		
         		color = mix(cloudColor, color, cloudTrans.r);
+        		//color=mix(color,getRainbow(center*1.7),1.);
+        		
         }
         else		//night
         {
-        	color = (-dotlightnorm)*nightColor;
+        	nightColor=getRainbow(center*2.7);
+        	color = (-dotlightnorm)*nightColor*0.2;
         	cloudColor*=(1.0-cloudTrans.g)*0.2;
-        	color+=cloudColor;
-        	//color = mix(color, cloudColor,clamp(length(color),0.0,1.0));
+        	
+        	color = mix(color, cloudColor,clamp(length(color),0.0,1.0));
         }
+        
         float rimfactor=dot(v_Normal, v_Position)+1.0;
         if(rimfactor>-0.0)
         {
-        	color+=vec3(rimfactor/40.0, rimfactor/20.0, rimfactor*1.0);
+        	color+=vec3(rimfactor/4.0, rimfactor/2.0, rimfactor*1.0);
         }
+        
+        
         gl_FragColor = vec4(color, 1.0);
     }
 
@@ -153,7 +283,9 @@
             normalEC.x,    normalEC.y,    normalEC.z);
     }
 </script>
-
+</br>
+<button onclick="showSat()">Show Satellite Map</button>
+<button onclick="showHM()">Show Height Map</button>
 <script src ="gl-matrix.js" type ="text/javascript"></script>
 <script src ="webGLUtility.js" type ="text/javascript"></script>
 <script src ="frag_globe.js" type ="text/javascript"></script>

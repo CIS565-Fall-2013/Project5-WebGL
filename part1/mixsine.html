@@ -20,9 +20,9 @@
 
     void main(void)
     {
-		    float s_contrib = sin(position.x*2.0*3.14159 + u_time);
-			float t_contrib = sin(position.y*2.0*3.14159 + u_time*0.5);
-			float height = s_contrib*t_contrib;
+		    float s_contrib = sin(position.x*4.0*3.14159 + u_time*4.0);
+			float t_contrib = cos(position.y*1.0*3.14159 + u_time*0.5*4.0);
+			float height = s_contrib+t_contrib;
 			theheight=height;
 		gl_Position = u_modelViewPerspective * vec4(vec3(position, height), 1.0);
 		

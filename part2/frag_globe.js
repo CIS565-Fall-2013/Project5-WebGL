@@ -1,3 +1,18 @@
+
+  var radius = 5.0;
+  var azimuth = Math.PI;
+  var elevation = 0.0001;
+  
+  var showWhich = 0.0;
+  
+function showSat()
+{
+	showWhich=0.0;
+}
+function showHM()
+{
+	showWhich=1.0;
+}
 (function() {
     "use strict";
     /*global window,document,Float32Array,Uint16Array,mat4,vec3,snoise*/
@@ -30,9 +45,6 @@
     var persp = mat4.create();
     mat4.perspective(45.0, canvas.width/canvas.height, 0.1, 100.0, persp);
 
-    var radius = 5.0;
-    var azimuth = Math.PI;
-    var elevation = 0.0001;
 
     var eye = sphericalToCartesian(radius, azimuth, elevation);
     var center = [0.0, 0.0, 0.0];
@@ -43,11 +55,14 @@
     var positionLocation = 0;
     var normalLocation = 1;
     var texCoordLocation = 2;
+    var heightLocation = 3;
+    
     var u_InvTransLocation;
     var u_ModelLocation;
     var u_ViewLocation;
     var u_PerspLocation;
     var u_CameraSpaceDirLightLocation;
+    var u_CameraSpacePosLightLocation;
     var u_DayDiffuseLocation;
     var u_NightLocation;
     var u_CloudLocation;
@@ -55,6 +70,7 @@
     var u_EarthSpecLocation;
     var u_BumpLocation;
     var u_timeLocation;
+    var u_showWhichLocation;
     
     var curtime=0;
 
@@ -75,8 +91,10 @@
         u_CloudTransLocation = gl.getUniformLocation(program,"u_CloudTrans");
         u_EarthSpecLocation = gl.getUniformLocation(program,"u_EarthSpec");
         u_BumpLocation = gl.getUniformLocation(program,"u_Bump");
+        u_showWhichLocation=gl.getUniformLocation(program,"u_showWhich");
         u_timeLocation = gl.getUniformLocation(program,"u_time");
         u_CameraSpaceDirLightLocation = gl.getUniformLocation(program,"u_CameraSpaceDirLight");
+        u_CameraSpacePosLightLocation = gl.getUniformLocation(program,"u_CameraSpacePosLight");
 
         gl.useProgram(program);
     })();
@@ -124,7 +142,7 @@
     var numberOfIndices;
 
     (function initializeSphere() {
-        function uploadMesh(positions, texCoords, indices) {
+        function uploadMesh(positions, texCoords, randHeight, indices) {
             // Positions
             var positionsName = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, positionsName);
@@ -145,6 +163,13 @@
             gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
             gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(texCoordLocation);
+            
+            var randHeightName = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, randHeightName);
+            gl.bufferData(gl.ARRAY_BUFFER, randHeight, gl.STATIC_DRAW);
+            gl.vertexAttribPointer(heightLocation, 3, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(heightLocation);
+            
 
             // Indices
             var indicesName = gl.createBuffer();
@@ -159,10 +184,12 @@
 
         var positions = new Float32Array(3 * numberOfPositions);
         var texCoords = new Float32Array(2 * numberOfPositions);
+        var randHeight = new Float32Array(3 * numberOfPositions);
         var indices = new Uint16Array(6 * (WIDTH_DIVISIONS * HEIGHT_DIVISIONS));
 
         var positionsIndex = 0;
         var texCoordsIndex = 0;
+        var heightIndex = 0;
         var indicesIndex = 0;
         var length;
 
@@ -177,9 +204,28 @@
                 positions[positionsIndex++] = Math.sin(inclination)*Math.sin(azimuth);
                 texCoords[texCoordsIndex++] = i / WIDTH_DIVISIONS;
                 texCoords[texCoordsIndex++] = j / HEIGHT_DIVISIONS;
+                randHeight[heightIndex+2] = Math.random();
+                var leftindex=(i-1)+j*NUM_WIDTH_PTS;
+                var upindex=i+(j-1)*NUM_WIDTH_PTS;
+                var leftval=0;
+                var upval=0;
+                if(i!=0)  leftval=randHeight[leftindex*3+2];
+                if(j!=0)  upval=randHeight[upindex*3+2];
+                randHeight[heightIndex]=randHeight[heightIndex+2]-leftval;
+                randHeight[heightIndex+1]=randHeight[heightIndex+2]-upval;
+                heightIndex+=3;
             } 
         }
-
+				heightIndex=0;
+				for( var j = 0; j < NUM_HEIGHT_PTS; ++j )
+        {
+            for( var i = 0; i < NUM_WIDTH_PTS; ++i )
+            {
+            	  randHeight[heightIndex+2]=0.2;
+            	  heightIndex+=3;
+            }
+        }
+        
         for( var j = 0; j < HEIGHT_DIVISIONS; ++j )
         {
             var index = j*NUM_WIDTH_PTS;
@@ -194,7 +240,7 @@
             }
         }
 
-        uploadMesh(positions, texCoords, indices);
+        uploadMesh(positions, texCoords,randHeight, indices);
         numberOfIndices = indicesIndex;
     })();
 
@@ -278,6 +324,7 @@
         vec3.normalize(lightdir);
         mat4.multiplyVec4(view, [lightdir[0], lightdir[1], lightdir[2], 0.0], lightdest);
         lightdir = vec3.createFrom(lightdest[0],lightdest[1],lightdest[2]);
+        var lightpos=lightdir;
         vec3.normalize(lightdir);
 
 
@@ -291,6 +338,8 @@
         gl.uniformMatrix4fv(u_PerspLocation, false, persp);
         gl.uniformMatrix4fv(u_InvTransLocation, false, invTrans);
 				gl.uniform1f(u_timeLocation,curtime);
+				gl.uniform1f(u_showWhichLocation,showWhich);
+				gl.uniform3fv(u_CameraSpacePosLightLocation,lightpos);
         gl.uniform3fv(u_CameraSpaceDirLightLocation, lightdir);
 
         gl.activeTexture(gl.TEXTURE0);
