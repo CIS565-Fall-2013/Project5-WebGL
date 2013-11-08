@@ -28,11 +28,11 @@ In Part 1, you are given code for:
 You are required to implement the following:
 
 * A sin-wave based vertex shader:
-[![screen](resources/sinWaveGrid.png)](http://yuqinshao.github.io/Project5-WebGL/part1/index_simplex.html)
+[![screen](resources/sinWaveGrid.png)](http://yuqinshao.github.io/Project5-WebGL/part1/vert_wave.html)
 
 * A simplex noise based vertex shader:
 
-[![screen](resources/oceanWave.png)](http://yuqinshao.github.io/Project5-WebGL/part1/index_wave.html)
+[![screen](resources/oceanWave.png)](http://yuqinshao.github.io/Project5-WebGL/part1/index_simplex.html)
 
 -------------------------------------------------------------------------------
 PART 2 REQUIREMENTS:
