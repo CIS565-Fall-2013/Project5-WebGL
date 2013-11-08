@@ -69,54 +69,56 @@
     var u_BumpLocation;
     var u_timeLocation;
 
+    var globe_program;
+    var iss_program;
+
     (function initializeShader() {
         var program;
         var vs = getShaderSource(document.getElementById("vs"));
         var fs = getShaderSource(document.getElementById("fs"));
 
-        var program = createProgram(gl, vs, fs, message);
-        positionLocation = gl.getAttribLocation(program, "Position");
-        normalLocation = gl.getAttribLocation(program, "Normal");
-        texCoordLocation = gl.getAttribLocation(program, "Texcoord");
-        u_ModelLocation = gl.getUniformLocation(program,"u_Model");
-        u_ViewLocation = gl.getUniformLocation(program,"u_View");
-        u_PerspLocation = gl.getUniformLocation(program,"u_Persp");
-        u_InvTransLocation = gl.getUniformLocation(program,"u_InvTrans");
-        u_DayDiffuseLocation = gl.getUniformLocation(program,"u_DayDiffuse");
-        u_NightLocation = gl.getUniformLocation(program,"u_Night");
-        u_CloudLocation = gl.getUniformLocation(program,"u_Cloud");
-        u_CloudTransLocation = gl.getUniformLocation(program,"u_CloudTrans");
-        u_EarthSpecLocation = gl.getUniformLocation(program,"u_EarthSpec");
-        u_BumpLocation = gl.getUniformLocation(program,"u_Bump");
-        u_timeLocation = gl.getUniformLocation(program,"u_time");
-        u_CameraSpaceDirLightLocation = gl.getUniformLocation(program,"u_CameraSpaceDirLight");
+        globe_program = createProgram(gl, vs, fs, message);
+        positionLocation = gl.getAttribLocation(globe_program, "Position");
+        normalLocation = gl.getAttribLocation(globe_program, "Normal");
+        texCoordLocation = gl.getAttribLocation(globe_program, "Texcoord");
+        u_ModelLocation = gl.getUniformLocation(globe_program,"u_Model");
+        u_ViewLocation = gl.getUniformLocation(globe_program,"u_View");
+        u_PerspLocation = gl.getUniformLocation(globe_program,"u_Persp");
+        u_InvTransLocation = gl.getUniformLocation(globe_program,"u_InvTrans");
+        u_DayDiffuseLocation = gl.getUniformLocation(globe_program,"u_DayDiffuse");
+        u_NightLocation = gl.getUniformLocation(globe_program,"u_Night");
+        u_CloudLocation = gl.getUniformLocation(globe_program,"u_Cloud");
+        u_CloudTransLocation = gl.getUniformLocation(globe_program,"u_CloudTrans");
+        u_EarthSpecLocation = gl.getUniformLocation(globe_program,"u_EarthSpec");
+        u_BumpLocation = gl.getUniformLocation(globe_program,"u_Bump");
+        u_timeLocation = gl.getUniformLocation(globe_program,"u_time");
+        u_CameraSpaceDirLightLocation = gl.getUniformLocation(globe_program,"u_CameraSpaceDirLight");
 
-        gl.useProgram(program);
+        gl.useProgram(globe_program);
     })();
 
     (function initializeShader2() {
-        var program2;
         var vs = getShaderSource(document.getElementById("vs"));
         var fs = getShaderSource(document.getElementById("fs"));
 
-        var program2 = createProgram(gl, vs, fs, message);
-        positionLocation_ISS = gl.getAttribLocation(program2, "Position");
-        normalLocation_ISS = gl.getAttribLocation(program2, "Normal");
-        texCoordLocation_ISS = gl.getAttribLocation(program2, "Texcoord");
-        u_ModelLocation = gl.getUniformLocation(program2,"u_Model");
-        u_ViewLocation = gl.getUniformLocation(program2,"u_View");
-        u_PerspLocation = gl.getUniformLocation(program2,"u_Persp");
-        u_InvTransLocation = gl.getUniformLocation(program2,"u_InvTrans");
-        u_DayDiffuseLocation = gl.getUniformLocation(program2,"u_DayDiffuse");
-        u_NightLocation = gl.getUniformLocation(program2,"u_Night");
-        u_CloudLocation = gl.getUniformLocation(program2,"u_Cloud");
-        u_CloudTransLocation = gl.getUniformLocation(program2,"u_CloudTrans");
-        u_EarthSpecLocation = gl.getUniformLocation(program2,"u_EarthSpec");
-        u_BumpLocation = gl.getUniformLocation(program2,"u_Bump");
-        u_timeLocation = gl.getUniformLocation(program2,"u_time");
-        u_CameraSpaceDirLightLocation = gl.getUniformLocation(program2,"u_CameraSpaceDirLight");
+        iss_program = createProgram(gl, vs, fs, message);
+        positionLocation_ISS = gl.getAttribLocation(iss_program, "Position");
+        normalLocation_ISS = gl.getAttribLocation(iss_program, "Normal");
+        texCoordLocation_ISS = gl.getAttribLocation(iss_program, "Texcoord");
+        u_ModelLocation = gl.getUniformLocation(iss_program,"u_Model");
+        u_ViewLocation = gl.getUniformLocation(iss_program,"u_View");
+        u_PerspLocation = gl.getUniformLocation(iss_program,"u_Persp");
+        u_InvTransLocation = gl.getUniformLocation(iss_program,"u_InvTrans");
+        u_DayDiffuseLocation = gl.getUniformLocation(iss_program,"u_DayDiffuse");
+        u_NightLocation = gl.getUniformLocation(iss_program,"u_Night");
+        u_CloudLocation = gl.getUniformLocation(iss_program,"u_Cloud");
+        u_CloudTransLocation = gl.getUniformLocation(iss_program,"u_CloudTrans");
+        u_EarthSpecLocation = gl.getUniformLocation(iss_program,"u_EarthSpec");
+        u_BumpLocation = gl.getUniformLocation(iss_program,"u_Bump");
+        u_timeLocation = gl.getUniformLocation(iss_program,"u_time");
+        u_CameraSpaceDirLightLocation = gl.getUniformLocation(iss_program,"u_CameraSpaceDirLight");
 
-        gl.useProgram(program2);
+        gl.useProgram(iss_program);
     })();
 
     var dayTex   = gl.createTexture();
@@ -370,8 +372,6 @@
         mat4.multiplyVec4(view, [lightdir[0], lightdir[1], lightdir[2], 0.0], lightdest);
         lightdir = vec3.createFrom(lightdest[0],lightdest[1],lightdest[2]);
         vec3.normalize(lightdir);
-
-
 
         ///////////////////////////////////////////////////////////////////////////
         // Render
