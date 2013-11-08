@@ -56,28 +56,53 @@
     var u_BumpLocation;
     var u_timeLocation;
 
+
+    var u_skyboxLocation = new Array();
+    var u_skyInvTransLocation;
+    var u_skyModelLocation;
+    var u_skyViewLocation;
+    var u_skyPerspLocation;
+    var skypositionLocation;
+    var skytexCoordLocation;
+    var u_skyCameraSpaceDirLightLocation;   
+
+
+    var program = new Array();
     (function initializeShader() {
         var vs = getShaderSource(document.getElementById("vs"));
         var fs = getShaderSource(document.getElementById("fs"));
 
-        var program = createProgram(gl, vs, fs, message);
-        positionLocation = gl.getAttribLocation(program, "Position");
-        normalLocation = gl.getAttribLocation(program, "Normal");
-        texCoordLocation = gl.getAttribLocation(program, "Texcoord");
-        u_ModelLocation = gl.getUniformLocation(program,"u_Model");
-        u_ViewLocation = gl.getUniformLocation(program,"u_View");
-        u_PerspLocation = gl.getUniformLocation(program,"u_Persp");
-        u_InvTransLocation = gl.getUniformLocation(program,"u_InvTrans");
-        u_DayDiffuseLocation = gl.getUniformLocation(program,"u_DayDiffuse");
-        u_NightLocation = gl.getUniformLocation(program,"u_Night");
-        u_CloudLocation = gl.getUniformLocation(program,"u_Cloud");
-        u_CloudTransLocation = gl.getUniformLocation(program,"u_CloudTrans");
-        u_EarthSpecLocation = gl.getUniformLocation(program,"u_EarthSpec");
-        u_BumpLocation = gl.getUniformLocation(program,"u_Bump");
-        u_timeLocation = gl.getUniformLocation(program,"u_time");
-        u_CameraSpaceDirLightLocation = gl.getUniformLocation(program,"u_CameraSpaceDirLight");
+        program[0] = createProgram(gl, vs, fs, message);
+        positionLocation = gl.getAttribLocation(program[0], "Position");
+        normalLocation = gl.getAttribLocation(program[0], "Normal");
+        texCoordLocation = gl.getAttribLocation(program[0], "Texcoord");
+        u_ModelLocation = gl.getUniformLocation(program[0],"u_Model");
+        u_ViewLocation = gl.getUniformLocation(program[0],"u_View");
+        u_PerspLocation = gl.getUniformLocation(program[0],"u_Persp");
+        u_InvTransLocation = gl.getUniformLocation(program[0],"u_InvTrans");
+        u_DayDiffuseLocation = gl.getUniformLocation(program[0],"u_DayDiffuse");
+        u_NightLocation = gl.getUniformLocation(program[0],"u_Night");
+        u_CloudLocation = gl.getUniformLocation(program[0],"u_Cloud");
+        u_CloudTransLocation = gl.getUniformLocation(program[0],"u_CloudTrans");
+        u_EarthSpecLocation = gl.getUniformLocation(program[0],"u_EarthSpec");
+        u_BumpLocation = gl.getUniformLocation(program[0],"u_Bump");
+        u_timeLocation = gl.getUniformLocation(program[0],"u_time");
+        u_CameraSpaceDirLightLocation = gl.getUniformLocation(program[0],"u_CameraSpaceDirLight");
+        //gl.useProgram(program[0]); 
 
-        gl.useProgram(program);
+        //for skybox
+        vs = getShaderSource(document.getElementById("skyboxvs"));
+        fs = getShaderSource(document.getElementById("skyboxfs"));
+
+        program[1] = createProgram(gl, vs, fs, message);
+        skypositionLocation = gl.getAttribLocation(program[1], "Position");
+        //skytexCoordLocation = gl.getAttribLocation(program[1], "Texcoord");
+        u_skyModelLocation = gl.getUniformLocation(program[1],"u_Model");
+        u_skyViewLocation = gl.getUniformLocation(program[1],"u_View");
+        u_skyPerspLocation = gl.getUniformLocation(program[1],"u_Persp");
+        u_skyInvTransLocation = gl.getUniformLocation(program[1],"u_InvTrans");
+        u_skyboxLocation[0] = gl.getUniformLocation(program[1], "u_Skybox");        
+        //gl.useProgram(program[1]);        
     })();
 
     var dayTex   = gl.createTexture();
@@ -86,6 +111,11 @@
     var transTex = gl.createTexture();
     var lightTex = gl.createTexture();
     var specTex  = gl.createTexture();
+
+    var skyboxTex = gl.createTexture();
+
+    var skyboxfaces = new Array();   
+
 
     function initLoadedTexture(texture){
         gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -98,33 +128,115 @@
         gl.bindTexture(gl.TEXTURE_2D, null);
     }
 
+    function initLoadedCubeMapTexture(texture, face, image)
+    {
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+    }
+
+    //get drawing cube vectices and index matrix from http://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_06
+    var cubePositionBuffer;  
+    var cubeIndexBuffer;
+    (function initailzeCube(){
+        cubePositionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, cubePositionBuffer);
+        var vertices = [
+            // Front face
+            -1.0, -1.0,  1.0,
+             1.0, -1.0,  1.0,
+             1.0,  1.0,  1.0,
+            -1.0,  1.0,  1.0,
+
+            // Back face
+            -1.0, -1.0, -1.0,
+            -1.0,  1.0, -1.0,
+             1.0,  1.0, -1.0,
+             1.0, -1.0, -1.0,
+
+            // Top face
+            -1.0,  1.0, -1.0,
+            -1.0,  1.0,  1.0,
+             1.0,  1.0,  1.0,
+             1.0,  1.0, -1.0,
+
+            // Bottom face
+            -1.0, -1.0, -1.0,
+             1.0, -1.0, -1.0,
+             1.0, -1.0,  1.0,
+            -1.0, -1.0,  1.0,
+
+            // Right face
+             1.0, -1.0, -1.0,
+             1.0,  1.0, -1.0,
+             1.0,  1.0,  1.0,
+             1.0, -1.0,  1.0,
+
+            // Left face
+            -1.0, -1.0, -1.0,
+            -1.0, -1.0,  1.0,
+            -1.0,  1.0,  1.0,
+            -1.0,  1.0, -1.0
+        ];
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+        cubePositionBuffer.itemSize = 3;
+        cubePositionBuffer.numItems = 24;   
+     
+
+        cubeIndexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeIndexBuffer);
+        var cubeVertexIndices = [
+            0, 1, 2,      0, 2, 3,    // Front face
+            4, 5, 6,      4, 6, 7,    // Back face
+            8, 9, 10,     8, 10, 11,  // Top face
+            12, 13, 14,   12, 14, 15, // Bottom face
+            16, 17, 18,   16, 18, 19, // Right face
+            20, 21, 22,   20, 22, 23  // Left face
+        ];
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
+        cubeIndexBuffer.itemSize = 1;
+        cubeIndexBuffer.numItems = 36;
+    }
+    )();
+
+
     var numberOfIndices;
+    var positionsName;
+    var normalsName;
+    var texCoordsName;
+    var indicesName;
 
     (function initializeSphere() {
         function uploadMesh(positions, texCoords, indices) {
             // Positions
-            var positionsName = gl.createBuffer();
+            positionsName = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, positionsName);
             gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-            gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(positionLocation);
+            //gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+            //gl.enableVertexAttribArray(positionLocation);
             
             // Normals
-            var normalsName = gl.createBuffer();
+            normalsName = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, normalsName);
             gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-            gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(normalLocation);
+            //gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+            //gl.enableVertexAttribArray(normalLocation);
             
             // TextureCoords
-            var texCoordsName = gl.createBuffer();
+            texCoordsName = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, texCoordsName);
             gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
-            gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(texCoordLocation);
+            //gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
+            //gl.enableVertexAttribArray(texCoordLocation);
 
             // Indices
-            var indicesName = gl.createBuffer();
+            indicesName = gl.createBuffer();
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesName);
             gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
         }
@@ -231,13 +343,12 @@
     canvas.onmousedown = handleMouseDown;
     canvas.oncontextmenu = function(ev) {return false;};
     document.onmouseup = handleMouseUp;
-    document.onmousemove = handleMouseMove;
-
+    document.onmousemove = handleMouseMove;  
 
     function animate() {
         ///////////////////////////////////////////////////////////////////////////
         // Update
-
+        
         var model = mat4.create();
         mat4.identity(model);
         mat4.rotate(model, 23.4/180*Math.PI, [0.0, 0.0, 1.0]);
@@ -257,9 +368,31 @@
         lightdir = vec3.createFrom(lightdest[0],lightdest[1],lightdest[2]);
         vec3.normalize(lightdir);
 
+        
         ///////////////////////////////////////////////////////////////////////////
         // Render
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        //Render the Earth
+        gl.useProgram(program[0]);
+        gl.enableVertexAttribArray(positionLocation);
+        gl.enableVertexAttribArray(normalLocation);
+        gl.enableVertexAttribArray(texCoordLocation);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionsName);
+        gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+            
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, normalsName);
+        gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+        
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, texCoordsName);
+        gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
+        
+
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesName);       
+
 
         gl.uniformMatrix4fv(u_ModelLocation, false, model);
         gl.uniformMatrix4fv(u_ViewLocation, false, view);
@@ -267,7 +400,6 @@
         gl.uniformMatrix4fv(u_InvTransLocation, false, invTrans);
 
         gl.uniform3fv(u_CameraSpaceDirLightLocation, lightdir);
-
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, dayTex);
@@ -288,8 +420,43 @@
         gl.bindTexture(gl.TEXTURE_2D, specTex);
         gl.uniform1i(u_EarthSpecLocation, 5);
         gl.uniform1f(u_timeLocation, time);
-
+        
         gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
+
+        gl.disableVertexAttribArray(positionLocation);
+        gl.disableVertexAttribArray(normalLocation);
+        gl.disableVertexAttribArray(texCoordLocation);
+
+        //Render skybox
+        //scale the box first
+        mat4.scale(model, vec3.create([50.0,50.0,50.0]));
+        mat4.multiply(view, model, mv);
+        
+        invTrans = mat4.create();
+        mat4.inverse(mv, invTrans);
+        mat4.transpose(invTrans);
+
+        gl.useProgram(program[1]);
+        gl.enableVertexAttribArray(skypositionLocation);        
+       
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, cubePositionBuffer);
+        gl.vertexAttribPointer(skypositionLocation, cubePositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+      
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeIndexBuffer);    
+
+        gl.uniformMatrix4fv(u_skyModelLocation, false, model);
+        gl.uniformMatrix4fv(u_skyViewLocation, false, view);
+        gl.uniformMatrix4fv(u_skyPerspLocation, false, persp);
+        gl.uniformMatrix4fv(u_skyInvTransLocation, false, invTrans);
+       
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTex);
+        gl.uniform1i(u_skyboxLocation[0], 0);
+
+        gl.drawElements(gl.TRIANGLES, cubeIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+
+        gl.disableVertexAttribArray(skypositionLocation);       
 
         time += 0.001;
         window.requestAnimFrame(animate);
@@ -316,4 +483,38 @@
     initializeTexture(transTex, "earthtrans1024.png");
     initializeTexture(lightTex, "earthlight1024.png");
     initializeTexture(specTex, "earthspec1024.png");
+    
+    function loadCubeTextrue(texture, faces)
+    {
+        for (var i = 0; i < faces.length; i++) {
+            var face = faces[i][0];
+            var image = new Image();            
+            image.onload =  function(texture, face, image) {
+                return function() {
+                    //connect the cube map and return as one texture
+                    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+                    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.REPEAT);
+                    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.REPEAT);
+                    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+                    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+                    gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+                    gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+                }                
+            } (texture, face, image);
+            image.src = faces[i][1];
+        }        
+    }
+
+    //front back up down right left
+    skyboxfaces[0] = [gl.TEXTURE_CUBE_MAP_POSITIVE_X, "space_ft.JPG"];
+    skyboxfaces[1] = [gl.TEXTURE_CUBE_MAP_NEGATIVE_X, "space_bk.JPG"];
+    skyboxfaces[2] = [gl.TEXTURE_CUBE_MAP_POSITIVE_Y, "space_up.JPG"];
+    skyboxfaces[3] = [gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, "space_dn.JPG"];
+    skyboxfaces[4] = [gl.TEXTURE_CUBE_MAP_POSITIVE_Z, "space_dn.JPG"];
+    skyboxfaces[5] = [gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, "space_dn.JPG"];
+
+    loadCubeTextrue(skyboxTex, skyboxfaces);
+
 }());
