@@ -55,6 +55,7 @@
     var u_EarthSpecLocation;
     var u_BumpLocation;
     var u_timeLocation;
+    var u_time;
 
     (function initializeShader() {
         var vs = getShaderSource(document.getElementById("vs"));
@@ -108,7 +109,10 @@
             gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
             gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(positionLocation);
-            
+           
+            // Time 
+            gl.uniform1f( u_timeLocation, time );
+
             // Normals
             var normalsName = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, normalsName);
@@ -250,12 +254,13 @@
         mat4.inverse(mv, invTrans);
         mat4.transpose(invTrans);
 
-        var lightdir = vec3.create([1.0, 0.0, 1.0]);
+        var lightdir = vec3.create([0.0, 0.0, 1.0]);
         var lightdest = vec4.create();
         vec3.normalize(lightdir);
         mat4.multiplyVec4(view, [lightdir[0], lightdir[1], lightdir[2], 0.0], lightdest);
         lightdir = vec3.createFrom(lightdest[0],lightdest[1],lightdest[2]);
         vec3.normalize(lightdir);
+    
 
         ///////////////////////////////////////////////////////////////////////////
         // Render
@@ -288,7 +293,9 @@
         gl.uniform1i(u_EarthSpecLocation, 5);
         gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
 
+        // Update time
         time += 0.001;
+
         window.requestAnimFrame(animate);
     }
 
