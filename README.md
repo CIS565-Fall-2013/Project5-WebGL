@@ -37,18 +37,11 @@ A globe render. Link: http://josephto.github.io/Project5-WebGL/part2/frag_globe.
 <center>PERFORMANCE REPORT:
 -------------------------------------------------------------------------------
 
-Here's a table with some performance analysis that I conducted on my code. I tested how many secs it took for each frame to rasterize depending on if backface culling was turned on or off. I used the the full stanford dragon model for all these tests.
+It was hard for me to figure out how exactly to do a good performance evaluation for this project so I just printed out the FPS for each of the programs. The table is as follows:
 
-Number of Faces | With Backface Culling | Without Backface Culling
-------------------|------------------------|---------------------
-100,000    |  0.017 sec/frame | 0.021 sec/frame
-200,000    |  0.024 sec/frame | 0.033 sec/frame
-300,000    |  0.033 sec/frame | 0.043 sec/frame
-400,000    |  0.041 sec/frame | 0.055 sec/frame
-500,000    |  0.052 sec/frame | 0.068 sec/frame
-600,000    |  0.064 sec/frame | 0.083 sec/frame
-700,000    |  0.074 sec/frame | 0.095 sec/frame
-800,000    |  0.087 sec/frame | 0.111 sec/frame
-871,000    |  0.095 sec/frame | 0.126 sec/frame
-
-Despite the fact that my backface culling was a naive implementation, it still succeeded in speeding up my code. With the ability to ignore faces that weren't facing the camera, my rasterizer was able to show a rather decent speed up in the amount of time it took to compute and rasterize each frame.
+Program | Frames per second 
+------------------|------------------------
+Sin/Cos Wave | around 36 fps
+Simplex Wave | around 38 fps
+Wave Wave | around 37 fps
+Globe | around 33 fps
