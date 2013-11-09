@@ -7,6 +7,8 @@
 </head>
 
 <body>
+	<p style="font-size:30px">This is the simplex wave</p>
+<a href="index.html">Go Back to Main Page</a></br>
 <div id="message" style="position:absolute;top:100px"></div> <!-- Pixel offset to avoid FPS counter -->
 <canvas id="canvas" style="border: none;" width="1024" height="768" tabindex="1"></canvas>
 
@@ -63,7 +65,7 @@
 			float s_contrib = snoise(simplexVec);
 			float t_contrib = snoise(vec2(s_contrib,u_time));
 			
-			float height = s_contrib+t_contrib;
+			float height = s_contrib*t_contrib;
 			theheight=height;
 		gl_Position = u_modelViewPerspective * vec4(vec3(position, height), 1.0);
     }

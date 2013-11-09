@@ -7,6 +7,9 @@
 </head>
 
 <body>
+<p style="font-size:30px">This is the customized wave, the function is sin(t)+cos(t/2)</p>
+<a href="index.html">Go Back to Main Page</a></br>
+	
 <div id="message" style="position:absolute;top:100px"></div> <!-- Pixel offset to avoid FPS counter -->
 <canvas id="canvas" style="border: none;" width="1024" height="768" tabindex="1"></canvas>
 
@@ -20,8 +23,8 @@
 
     void main(void)
     {
-		    float s_contrib = sin(position.x*4.0*3.14159 + u_time*2.0);
-			float t_contrib = cos(position.y*1.0*3.14159 + u_time*0.5*2.0);
+		  float s_contrib = sin(position.x*4.0*3.14159 + u_time*4.0);
+			float t_contrib = cos(position.y*1.0*3.14159 + u_time*0.5*4.0);
 			float height = s_contrib+t_contrib;
 			theheight=height;
 		gl_Position = u_modelViewPerspective * vec4(vec3(position, height), 1.0);

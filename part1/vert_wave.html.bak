@@ -1,12 +1,15 @@
 <html>
 
 <head>
-<title>Vertex Wave</title>
+<title>BASIC SIN WAVE</title>
 <meta charset ="utf-8">
 <meta http-equiv="X-UA-Compatible" content="chrome=1">  <!-- Use Chrome Frame in IE --> 
 </head>
 
 <body>
+	
+<p style="font-size:30px">This is the sine wave, the function is sin(t)*cos(t)</p>
+<a href="index.html">Go Back to Main Page</a></br>
 <div id="message" style="position:absolute;top:100px"></div> <!-- Pixel offset to avoid FPS counter -->
 <canvas id="canvas" style="border: none;" width="1024" height="768" tabindex="1"></canvas>
 
