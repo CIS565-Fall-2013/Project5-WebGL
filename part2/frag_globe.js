@@ -246,6 +246,17 @@
 
     document.onkeydown = handleKeyPress;
 
+    //performance stuff
+    var stats = new Stats();
+    stats.setMode(1); // 0: fps, 1: ms
+
+    // Align top-left
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.left = '0px';
+    stats.domElement.style.top = '0px';
+
+    document.body.appendChild(stats.domElement);
+
     function animate() {
         ///////////////////////////////////////////////////////////////////////////
         // Update
@@ -309,7 +320,11 @@
         gl.bindTexture(gl.TEXTURE_2D, heightTex);
         gl.uniform1i(u_HeightLocation, 6);
 
-        gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT, 0);
+        //for performace eval
+
+            stats.begin();
+            gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT, 0);
+            stats.end();
 
         time += 0.0002;
         window.requestAnimFrame(animate);

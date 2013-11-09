@@ -63,14 +63,10 @@ to see your beautiful globe from anywhere.
 -------------------------------------------------------------------------------
 PERFORMANCE EVALUATION
 -------------------------------------------------------------------------------
-The performance evaluation is where you will investigate how to make your 
-program more efficient using the skills you've learned in class. You must have
-performed at least one experiment on your code to investigate the positive or
-negative effects on performance. 
-
-We encourage you to get creative with your tweaks. Consider places in your code
-that could be considered bottlenecks and try to improve them. 
-
-Each student should provide no more than a one page summary of their
-optimizations along with tables and or graphs to visually explain any
-performance differences.
+I used stats.js from https://github.com/mrdoob/stats.js/ to benchmark my WebGL 
+application. Both the wave and globe ran at 60 fps. 
+The elevation map ran slightly faster than the full render since there is no
+specular calculation and no cloud animations. 
+For the wave, performace stayed steady at 60fps for small and medium sized grids. 
+Performance dropped to to about 55 fps when the grid is 1024*1024, and to 45 fps 
+at a grid size of 2048*2048. 

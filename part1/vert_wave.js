@@ -135,6 +135,16 @@
         numberOfIndices = indices.length;
     })();
 
+    var stats = new Stats();
+    stats.setMode(1); // 0: fps, 1: ms
+
+    // Align top-left
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.left = '0px';
+    stats.domElement.style.top = '0px';
+
+    document.body.appendChild(stats.domElement);
+
     (function animate(){
         ///////////////////////////////////////////////////////////////////////////
         // Update
@@ -155,7 +165,10 @@
         context.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp);
         context.uniform1f(u_timeLocation, u_time);
         context.uniform2f(u_gridCenterLocation, u_gridCenter[0], u_gridCenter[1]);
+
+        stats.begin();
         context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
+        stats.end();
 
         window.requestAnimFrame(animate);
 
