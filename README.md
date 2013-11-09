@@ -67,11 +67,11 @@ height = 0.5/u_time*sin(freq*radius - u_time);
 ```
 I referred http://www.gamasutra.com/view/feature/131530/refractive_texture_mapping_part_.php?page=3 for the math.
 
-[![ScreenShot](https://raw.github.com/vimanyu/Project5-WebGL/master/resources/ripple.png)](http://vimanyu.github.io/Project5-WebGL/vert_wave_custom.html)
+[![ScreenShot](https://raw.github.com/vimanyu/Project5-WebGL/master/resources/ripple.png)](http://vimanyu.github.io/Project5-WebGL/vert_wave_ custom.html)
 
 With env cube textures,
 
-[![ScreenShot](https://raw.github.com/vimanyu/Project5-WebGL/master/resources/ripple_textured.png)](http://vimanyu.github.io/Project5-WebGL/vert_wave_custom_textured.html)
+[![ScreenShot](https://raw.github.com/vimanyu/Project5-WebGL/master/resources/ripple_textured.png)](http://vimanyu.github.io/Project5-WebGL/vert_wave_ custom_textured.html)
 
 
 -------------------------------------------------------------------------------
