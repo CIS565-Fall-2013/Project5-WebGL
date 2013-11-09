@@ -145,6 +145,8 @@
             final_color = final_color + vec3(rim_factor/4.0, rim_factor/2.0, rim_factor/2.0);
         }
         gl_FragColor = vec4(final_color, 1.0);
+        
+        //gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
     }
 
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC)

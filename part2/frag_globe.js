@@ -299,7 +299,10 @@
         gl.uniform1i(u_EarthSpecLocation, 5);
         gl.uniform1f(u_timeLocation, time);
 
-        gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
+        function draw1(){
+            gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
+        }
+        draw1();
 
         time += 0.001;
 		window.requestAnimFrame(animate);
