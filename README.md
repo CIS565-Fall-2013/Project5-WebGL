@@ -26,7 +26,7 @@ The first part of this project is a WebGL terrain renderer. [Click HERE to see i
 -------------------------------------------------------------------------------
 ISS Tracker
 -------------------------------------------------------------------------------
-Part 3 of this project is an app that tracks the ISS, which I bolted on to Part 2, which is a virtual globe. [Click HERE to see it](http://nmarshak1337.github.io/WebGL_Terrain_ISS/part3/frag_globe.html). [Click HERE to see a video](http://youtu.be/e8fi5EmaTbo).
+Part 3 of this project is an app that tracks the ISS, which I bolted on to Part 2, which is a virtual globe. [Click HERE to see it](http://nmarshak1337.github.io/WebGL_Terrain_ISS/part3/frag_globe.html). You may need to rotate the globe (click and drag) to see where the ISS actually is. [Click HERE to see a video](http://youtu.be/e8fi5EmaTbo).
 
 * I use the [ISS Now API](http://open-notify.org/Open-Notify-API/ISS-Location-Now/) to get the latitude and longitude of the ISS. I poll once every five seconds.
 * The API does not provide previous ISS positions, so I draw a trail starting from when the app is opened.
