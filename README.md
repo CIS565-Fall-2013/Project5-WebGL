@@ -10,6 +10,12 @@ Click any image to see a live demo.
 <img src="/resources/water.gif" alt="Click to See Live Demo" width="400" height="400"> 
 </a>
 
+<dl>
+<a href="http://youtu.be/ZDPF2lz9Sww" target="_blank"><img src="http://img.youtube.com/vi/ZDPF2lz9Sww/0.jpg" 
+alt="Youtube Video of Globe Rendering" width="640" height="480" border="10" /></a>
+</dl>
+
+
 
 -------------------------------------------------------------------------------
 NOTE:
@@ -60,52 +66,24 @@ Three different waveforms can be animated:
 * This simulates in a very simple way how particles move in the surface of ocean waves.
 
 -------------------------------------------------------------------------------
-PART 2 REQUIREMENTS:
+Globe Rendering
 -------------------------------------------------------------------------------
-In Part 2, you are given code for:
-
-* Reading and loading textures
-* Rendering a sphere with textures mapped on
-* Basic passthrough fragment and vertex shaders 
-* A basic globe with Earth terrain color mapping
-* Gamma correcting textures
-* javascript to interact with the mouse
+Globe Renderer
   * left-click and drag moves the camera around
   * right-click and drag moves the camera in and out
 
-You are required to implement:
-
+Features:
 * Bump mapped terrain
-* Rim lighting to simulate atmosphere
+![No Bump Map](resources/globe_nobumpmap.PNG) ![With Bump Map](resources/globe_bumpmap.PNG)
+
+* Sunrise-based rim lighting to simulate atmosphere
+  * Rather than drawing uniform rim lighting, I only shade the sunward side. This leads to cool sunrise effects:
+![Sunrise](resources/globe_sunrise.PNG)
 * Night-time lights on the dark side of the globe
-* Specular mapping
-* Moving clouds
 
-You are also required to pick one open-ended effect to implement:
+* Specular mapping (only water is specularly reflective)
+* Moving clouds with procedurally generated shadows.
 
-* Procedural water rendering and animation using noise 
-* Shade based on altitude using the height map
-* Cloud shadows via ray-tracing through the cloud map in the fragment shader
-* Orbiting Moon with texture mapping and shadow casting onto Earth
-* Draw a skybox around the entire scene for the stars.
-* Your choice! Email Liam and Patrick to get approval first
-
-Finally in addition to your readme, you must also set up a gh-pages branch 
-(explained below) to expose your beautiful WebGL globe to the world.
-
-Some examples of what your completed globe renderer will look like:
-
-![Completed globe, day side](resources/globe_day.png)
-
-Figure 0. Completed globe renderer, daylight side.
-
-![Completed globe, twilight](resources/globe_twilight.png)
-
-Figure 1. Completed globe renderer, twilight border.
-
-![Completed globe, night side](resources/globe_night.png)
-
-Figure 2. Completed globe renderer, night side.
 
 -------------------------------------------------------------------------------
 PART 2 WALKTHROUGH:
