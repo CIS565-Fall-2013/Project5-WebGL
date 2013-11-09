@@ -125,7 +125,6 @@
     //trail_array[11] = -1.2;
 
     function initializeShader() {
-        var program;
         var vs = getShaderSource(document.getElementById("vs"));
         var fs = getShaderSource(document.getElementById("fs"));
 
@@ -492,6 +491,7 @@
     
     var elapsedTime = 5000;
 
+    initializeShader();
     initializeShader2();
     initializeShader3();
     (function animate(){
@@ -504,7 +504,8 @@
         // Update
 
         //gl.useProgram(globe_program);
-        initializeShader();
+        //initializeShader();
+        gl.useProgram(globe_program);
         initializeSphere();
         var model = mat4.create();
         mat4.identity(model);
