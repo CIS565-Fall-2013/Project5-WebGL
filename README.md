@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
-Nathan's Terrain Renderer Plus ISS Orbit Visualizer
+Terrain Renderer Plus ISS Orbit Visualizer
 --------------------------------------------------------------------------------
 DISCLAIMER 1: Right now this project is ONLY compatible with Firefox! Fixes for Chrome coming soon!
 DISCLAIMER 2: You might have to wait a little bit for texture data to load, since the globe and terrain renderers use high-res textures!
