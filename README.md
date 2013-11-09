@@ -8,16 +8,15 @@ Fall 2013
 DEMO1: Wire Frame Waves
 -------------------------------------------------------------------------------
 * A sin-wave based vertex shader:
-
-![sin wave grid](images/Sine_Wave.png)
+[![screen](images/Sine_Wave.png)](http://wuhao1117.github.io/Project5-WebGL/vert_wave.html)
 
 * A simplex noise based vertex shader:
+[![screen](images/Simplex_Wave.png)](http://wuhao1117.github.io/Project5-WebGL/simplex_wave.html)
 
-![simplex noise wave grid](images/Simplex_Wave.png)
 
 * Pseudo height field water
+[![screen](images/heightFieldWater.png)](http://wuhao1117.github.io/Project5-WebGL/custom_wave.html)
 
-![height field water](images/heightFieldWater.png)
 
 -------------------------------------------------------------------------------
 About Height Field Water:
@@ -45,7 +44,8 @@ As for the "Height Field Water" I actually implemented, it is just superimposing
 -------------------------------------------------------------------------------
 DEMO2: Virtual Globe
 -------------------------------------------------------------------------------
-![globe](images/globe.png)
+[![screen](images/globe.png)](http://wuhao1117.github.io/Project5-WebGL/frag_globe.html)
+
 
 Basic features of this virtual globe demo are:
 
@@ -72,11 +72,11 @@ To enhance realism, I also Implemented:
 
 The following image demonstrating the region on earth at dawn, where raytraced shadow is more obvious:
 
-![globe](images/globe_shadow.png)
+[![screen](images/globe_shadow.png)](http://wuhao1117.github.io/Project5-WebGL/frag_globe.html)
 
 At noon, the ray-traced shadow is directly underneath the cloud, making it less visible from camera:
 
-![globe](images/globe_lit.png)
+[![screen](images/globe_lit.png)](http://wuhao1117.github.io/Project5-WebGL/frag_globe.html)
 
 -------------------------------------------------------------------------------
 PERFORMANCE EVALUATION
