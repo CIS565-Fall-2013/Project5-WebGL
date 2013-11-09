@@ -26,4 +26,21 @@ The first part of this project is a WebGL terrain renderer. [Click HERE to see i
 -------------------------------------------------------------------------------
 ISS Tracker
 -------------------------------------------------------------------------------
-Part 3 of this project is an app that tracks the ISS, which I bolted on to Part 2, which is a virtual globe. [Click HERE to see it.](http://nmarshak1337.github.io/Project5-WebGL/part1/terrain_render.html).
+Part 3 of this project is an app that tracks the ISS, which I bolted on to Part 2, which is a virtual globe. [Click HERE to see it.](http://nmarshak1337.github.io/Project5-WebGL/part3/frag_globe.html).
+
+* I use the ISS Now API to get the latitude and longitude of the ISS. I poll once every five seconds.
+* The API does not provide previous ISS positions, so I draw a trail starting from when the app is opened.
+* The day/night on the globe approximates day/night in real time (I do not account for the Earth's tilt). I do
+this by getting UTC time, then offsetting so that day/night is correct in the UTC time zone (and therefore for everywhere else): 
+
+```javascript
+    var myDate = new Date();
+    var hour = myDate.getUTCHours();
+    var minutes = myDate.getUTCMinutes() / 60.0;
+    var seconds = myDate.getUTCSeconds() / 3600.0;
+    hour = hour + minutes + seconds;
+    //Math.PI is used to offset because we are using GMT time. 
+    var lightAngle = ((12.0 - hour)/24.0) * 2.0 * Math.PI + -Math.PI/2.0;
+    var lightdir = vec3.create([Math.sin(lightAngle), 0.0, Math.cos(lightAngle)]);
+```
+
