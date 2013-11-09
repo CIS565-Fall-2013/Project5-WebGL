@@ -55,6 +55,8 @@
     var u_EarthSpecLocation;
     var u_BumpLocation;
     var u_timeLocation;
+	var skyboxPositionLocation;
+	var skyboxTexCoordLocation;
 
     (function initializeShader() {
         var vs = getShaderSource(document.getElementById("vs"));
@@ -76,7 +78,9 @@
         u_BumpLocation = gl.getUniformLocation(program,"u_Bump");
         u_timeLocation = gl.getUniformLocation(program,"u_time");
         u_CameraSpaceDirLightLocation = gl.getUniformLocation(program,"u_CameraSpaceDirLight");
-
+		skyboxPositionLocation = gl.getAttribLocation(program, "skyboxPosition");
+		skyboxTexCoordLocation = gl.getAttribLocation(program, "skyboxTexCoord");
+		
         gl.useProgram(program);
     })();
 
@@ -180,7 +184,132 @@
         uploadMesh(positions, texCoords, indices);
         numberOfIndices = indicesIndex;
     })();
+	
+    (function initializeSkybox() {
+		/*
+		// 8 corners in a cube.
+		var numberOfPositions = 8;
+		var d = 2;
+		
+        var positions = new Float32Array([
+			d, d, d,	d, d, -d,	d, -d, -d,	// right
+			d, d, d,	d, -d, -d,	d, -d, d,
+			-d, d, d,	d, d, d,	d, -d, d,	// front
+			-d, d, d,	d, -d, d,	-d, -d, d,
+			-d, d, -d,	-d, d, d,	-d, -d, d,	// left
+			-d, d, -d,	-d, -d, d,	-d, -d, -d,
+			d, d, -d,	-d, d, -d,	-d, -d, -d,	// back
+			d, d, -d,	-d, -d, -d,	d, -d, -d,
+			d, d, d,	-d, d, d,	-d, d, -d,	// top
+			d, d, d,	-d, d, -d,	d, d, -d,
+			d, -d, d,	-d, -d, -d,	-d, -d, d,	// bottom
+			d, -d, d,	d, -d, -d,	-d, -d, -d
+		]);
+        var texCoords = new Float32Array([
+			1, 1,
+		]);
+        var indices = new Uint16Array(3 * 2 * 6);
+		
+		// -------------
+		var cubeVerticesBuffer;
+		var cubeVerticesTextureCoordBuffer;
+		var cubeVerticesIndexBuffer;
+		
+		cubeVerticesBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, cubeVerticesBuffer);
+		var vertices = [
+			// Front face
+			-1.0, -1.0,  1.0,
+			1.0, -1.0,  1.0,
+			1.0,  1.0,  1.0,
+			-1.0,  1.0,  1.0,
 
+			// Back face
+			-1.0, -1.0, -1.0,
+			-1.0,  1.0, -1.0,
+			1.0,  1.0, -1.0,
+			1.0, -1.0, -1.0,
+
+			// Top face
+			-1.0,  1.0, -1.0,
+			-1.0,  1.0,  1.0,
+			1.0,  1.0,  1.0,
+			1.0,  1.0, -1.0,
+
+			// Bottom face
+			-1.0, -1.0, -1.0,
+			1.0, -1.0, -1.0,
+			1.0, -1.0,  1.0,
+			-1.0, -1.0,  1.0,
+
+			// Right face
+			1.0, -1.0, -1.0,
+			1.0,  1.0, -1.0,
+			1.0,  1.0,  1.0,
+			1.0, -1.0,  1.0,
+
+			// Left face
+			-1.0, -1.0, -1.0,
+			-1.0, -1.0,  1.0,
+			-1.0,  1.0,  1.0,
+			-1.0,  1.0, -1.0
+		];
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+		gl.vertexAttribPointer(skyboxPositionLocation, 3, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(skyboxPositionLocation);
+		
+		cubeVerticesTextureCoordBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, cubeVerticesTextureCoordBuffer);
+		var textureCoordinates = [
+			// Front
+			0.0,  0.0,
+			1.0,  0.0,
+			1.0,  1.0,
+			0.0,  1.0,
+			// Back
+			0.0,  0.0,
+			1.0,  0.0,
+			1.0,  1.0,
+			0.0,  1.0,
+			// Top
+			0.0,  0.0,
+			1.0,  0.0,
+			1.0,  1.0,
+			0.0,  1.0,
+			// Bottom
+			0.0,  0.0,
+			1.0,  0.0,
+			1.0,  1.0,
+			0.0,  1.0,
+			// Right
+			0.0,  0.0,
+			1.0,  0.0,
+			1.0,  1.0,
+			0.0,  1.0,
+			// Left
+			0.0,  0.0,
+			1.0,  0.0,
+			1.0,  1.0,
+			0.0,  1.0
+		];
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW);
+		gl.vertexAttribPointer(skyboxTexCoordLocation, 2, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(skyboxTexCoordLocation);
+		
+		cubeVerticesIndexBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVerticesIndexBuffer);
+		var cubeVertexIndices = [
+			0,  1,  2,      0,  2,  3,    // front
+			4,  5,  6,      4,  6,  7,    // back
+			8,  9,  10,     8,  10, 11,   // top
+			12, 13, 14,     12, 14, 15,   // bottom
+			16, 17, 18,     16, 18, 19,   // right
+			20, 21, 22,     20, 22, 23    // left
+		];
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
+*/
+    })();
+	
     var time = 0;
     var mouseLeftDown = false;
     var mouseRightDown = false;
@@ -293,6 +422,9 @@
         gl.bindTexture(gl.TEXTURE_2D, specTex);
         gl.uniform1i(u_EarthSpecLocation, 5);
 		gl.uniform1f(u_timeLocation, time);
+		//gl.activeTexture(gl.TEXTURE6);
+        //gl.bindTexture(gl.TEXTURE_2D, skyboxTex);
+        //gl.uniform1i(u_skyboxTex, 6);
         gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
 
         time += 0.001;
