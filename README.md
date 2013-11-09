@@ -58,7 +58,7 @@ As can be seen, I'm stepping through in the view space, finding the intersection
 offset. The height value is being read from the bump map texture, and I'm also building the normal from this bump 
 map texture. However, the globe looks exactly the same regardless of whether I'm using parallax occlusion 
 mapping or bump mapping. And, as can be seen from the blooper shot above, parallax occlusion mapping 
-(as implemented here), is indeed working. Why is that? Please help me figure out!
+(as implemented here), is indeed working. Why is that? [Please help me figure out](mailto:rohith.chandran@outlook.com)!
 
 ##Input/Interactive features  
   
