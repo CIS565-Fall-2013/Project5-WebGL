@@ -269,16 +269,16 @@
         positions[1] = 0.0;
         positions[2] = 0.0;
         //lower right corner
-        positions[3] = 1.0;
+        positions[3] = 0.2;
         positions[4] = 0.0;
         positions[5] = 0.0;
         //upper left corner
         positions[6] = 0.0;
-        positions[7] = 1.0;
+        positions[7] = 0.2;
         positions[8] = 0.0;
         //upper right corner
-        positions[9] = 1.0;
-        positions[10] = 1.0;
+        positions[9] = 0.2;
+        positions[10] = 0.2;
         positions[11] = 0.0;
 
         //lower left texCoords[0] = 0.0;
