@@ -3,8 +3,8 @@
     /*global window,document,Float32Array,Uint16Array,mat4,vec3,snoise*/
     /*global getShaderSource,createWebGLContext,createProgram*/
 
-    var NUM_WIDTH_PTS = 32;
-    var NUM_HEIGHT_PTS = 32;
+    var NUM_WIDTH_PTS = 100;
+    var NUM_HEIGHT_PTS = 100;
 
     var message = document.getElementById("message");
     var canvas = document.getElementById("canvas");
@@ -133,13 +133,19 @@
         numberOfIndices = indices.length;
     })();
    
+    // Initialize angle incremental
+    var theta = 0.0;
+
     (function animate(){
         ///////////////////////////////////////////////////////////////////////////
         // Update
 
         var model = mat4.create();
         mat4.identity(model);
-        mat4.translate(model, [-0.5, -0.5, 0.0]);
+        // Add rotation and new translation
+        theta += 1.0 / 180.0;
+        mat4.translate(model, [-0.5, -0.5, 2.0 *  Math.cos(Math.PI * theta) - 1.0]);
+        mat4.rotate(model, Math.PI * theta, [0.0, 0.0, 1.0]);
         var mv = mat4.create();
         mat4.multiply(view, model, mv);
         var mvp = mat4.create();
