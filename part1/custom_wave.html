@@ -1,7 +1,7 @@
 <html>
 
 <head>
-<title>Vertex Wave</title>
+<title>Custom Wave</title>
 <meta charset ="utf-8">
 <meta http-equiv="X-UA-Compatible" content="chrome=1">  <!-- Use Chrome Frame in IE --> 
 </head>
@@ -20,14 +20,15 @@
 	
     void main(void)
     {
-		float s_contrib = sin(position.x*2.0*3.14159 + 2.0*u_time) / 1.2;
-		float t_contrib = cos(position.y*2.0*3.14159 + 2.0*u_time) / 1.2;
-		float height = s_contrib * t_contrib;
+		// fun function 1
+        //float height = sin(5.0*(position.x * position.x +  position.y * position.y + u_time)) / 2.0;
+        // fun function 2
+        float height = sin(1.8 * (position.x * position.x * position.x + position.y * position.y * position.y - 3.0 * position.y) + 5.0 * u_time) / 2.0;
 		gl_Position = u_modelViewPerspective * vec4(vec3(position, height), 1.0);
 		
 		float offsetHeight = height + 1.0;
 		float alpha = offsetHeight / 2.0;
-		color = mix(vec4(0.5, 1.0, 0.3, 1.0), vec4(0.5, 0.8, 1.0, 1.0), alpha);
+		color = mix(vec4(1.0, 1.0, 0.2, 1.0), vec4(0.0, 0.2, 1.0, 1.0), alpha);
     }
 </script>
 
