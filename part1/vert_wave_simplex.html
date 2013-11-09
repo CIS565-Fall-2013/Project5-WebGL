@@ -62,9 +62,10 @@
 
     void main(void)
     {
-        vec2 simplexVec = vec2(u_time, position.x);
+        float timeScale = 0.04;
+        vec2 simplexVec = vec2(u_time * timeScale, position.x);
         float s_contrib = simplexNoise(simplexVec);
-        float t_contrib = simplexNoise(vec2(s_contrib,u_time));
+        float t_contrib = simplexNoise(vec2(s_contrib,u_time * timeScale));
         float height = s_contrib*t_contrib;
 		
         vec3 highColor = vec3(1.0, 2.0, 0.0);

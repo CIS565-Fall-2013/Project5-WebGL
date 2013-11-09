@@ -21,8 +21,8 @@
 
     void main(void)
     {
-        float s_contrib = sin(position.x*2.0*3.14159 + u_time);
-        float t_contrib = cos(position.y*2.0*3.14159 + u_time);
+        float s_contrib = sin(position.x*2.0*3.14159 + u_time * 0.3);
+        float t_contrib = cos(position.y*2.0*3.14159 + u_time * 0.3);
         float height = s_contrib*t_contrib;
 		
         vec3 highColor = vec3(1.0, 2.0, 0.0);
