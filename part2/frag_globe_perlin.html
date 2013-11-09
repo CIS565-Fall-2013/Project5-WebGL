@@ -137,6 +137,18 @@
         float seaCenter = perlin(seaPosition);
         float seaRight = perlin(seaPosition + vec2(dx, 0.0));
         float seaTop = perlin(seaPosition + vec2(0.0, dx));
+
+        // float r = sqrt(v_Position.x * v_Position.x + v_Position.y * v_Position.y + v_Position.z * v_Position.z);
+        // float theta = asin(v_Position.y/r);
+        // float phi = atan(v_Position.z/v_Position.x);
+        // float seaCenter = perlin(vec2(phi, theta));
+
+        // float rightPhi = phi + 0.01;
+        // float seaRight = perlin(vec2(rightPhi, theta));
+
+        // float topTheta = theta + 0.01;
+        // float seaTop = perlin(vec2(phi, topTheta));        
+
         vec3 seaNormal = normalize(vec3(seaCenter - seaRight, seaCenter - seaTop, 1.0));
         //seaNormal = normalize(transform * seaNormal);
 

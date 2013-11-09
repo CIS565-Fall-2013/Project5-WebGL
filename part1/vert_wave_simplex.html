@@ -60,11 +60,11 @@
     
     void main(void)
     {
-		vec2 simplexVec = vec2(0.5*u_time, position);
+		vec2 simplexVec = vec2(0.1*u_time, position);
         float s_contrib = simplexNoise(simplexVec);
-        float t_contrib = simplexNoise(vec2(s_contrib,0.5*u_time));
+        float t_contrib = simplexNoise(vec2(s_contrib,0.1*u_time));
         height = s_contrib*t_contrib;
-		gl_Position = u_modelViewPerspective * vec4(vec3(position, height), 1.0);
+    gl_Position = u_modelViewPerspective * vec4(vec3(position, height), 1.0);
     }
 </script>
 
