@@ -44,6 +44,7 @@ The following one open-ended effect is implemented:
 * Also keyboard interativity and a timer has been added. Press "B" key to see shade based on altitude
 
 
+
 -------------------------------------------------------------------------------
 VIDEO
 -------------------------------------------------------------------------------
@@ -98,21 +99,12 @@ Diffuse rendering       - Elapsed Time - 0.4970
 With Complete rendering - Elapsed Time - 0.5010
 
 
+-------------------------------------------------------------------------------
+Referred the following links
+-------------------------------------------------------------------------------
 
+The following link was referred to implement keyboard interactivity : 
+http://learningwebgl.com/blog/?p=571
 
----
-SUBMISSION
----
-As with the previous project, you should fork this project and work inside of
-your fork. Upon completion, commit your finished project back to your fork, and
-make a pull request to the master repository.  You should include a README.md
-file in the root directory detailing the following
-
-* A brief description of the project and specific features you implemented
-* At least one screenshot of your project running.
-* A link to a video of your project running.
-* Instructions for building and running your project if they differ from the
-  base code.
-* A performance writeup as detailed above.
-* A list of all third-party code used.
-* This Readme file edited as described above in the README section.
+The following link was referred to implement elapsed time in Javascript  :
+http://stackoverflow.com/questions/16432804/recording-fps-in-webgl
