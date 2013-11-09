@@ -430,8 +430,11 @@
 
         //the offsets PI and PI/2 on the azimuth and inclination are used to get my spherical
         //coordinates to match the standard (lat, lon) coordinate system.
-        var azimuth = 0.0 * (Math.PI / 180.0) + Math.PI;
-        var inclination = 0.0 * (Math.PI / 180.0)  + Math.PI/2.0;
+
+        var degN = -46.59929004639757; //degrees north
+        var degE = -64.76256280430778; //degrees east
+        var azimuth = -degE * (Math.PI / 180.0) + Math.PI;
+        var inclination = -degN * (Math.PI / 180.0)  + Math.PI/2.0;
         var curr_rad = 1.5;
         var currX = curr_rad*Math.sin(inclination)*Math.cos(azimuth);
         var currY = curr_rad*Math.cos(inclination);
