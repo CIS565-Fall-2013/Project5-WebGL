@@ -31,7 +31,7 @@
     mat4.perspective(45.0, canvas.width/canvas.height, 0.1, 100.0, persp);
 
     var radius = 5.0;
-    var azimuth = Math.PI;
+    var azimuth = 0;
     var elevation = 0.0001;
 
     var eye = sphericalToCartesian(radius, azimuth, elevation);
@@ -48,6 +48,7 @@
     var u_ViewLocation;
     var u_PerspLocation;
     var u_CameraSpaceDirLightLocation;
+	var u_ModelSpaceDirLightLocation;
     var u_DayDiffuseLocation;
     var u_NightLocation;
     var u_CloudLocation;
@@ -76,6 +77,7 @@
         u_BumpLocation = gl.getUniformLocation(program,"u_Bump");
         u_timeLocation = gl.getUniformLocation(program,"u_time");
         u_CameraSpaceDirLightLocation = gl.getUniformLocation(program,"u_CameraSpaceDirLight");
+		u_ModelSpaceDirLightLocation = gl.getUniformLocation(program, "u_ModelSpaceDirLight");
 
         gl.useProgram(program);
     })();
@@ -250,13 +252,18 @@
         mat4.inverse(mv, invTrans);
         mat4.transpose(invTrans);
 
-        var lightdir = vec3.create([1.0, 0.0, 1.0]);
+        var lightdir = vec3.create([1.0, 0.0, 1.0]);//Direction of the light in world space
         var lightdest = vec4.create();
         vec3.normalize(lightdir);
         mat4.multiplyVec4(view, [lightdir[0], lightdir[1], lightdir[2], 0.0], lightdest);
-        lightdir = vec3.createFrom(lightdest[0],lightdest[1],lightdest[2]);
-        vec3.normalize(lightdir);
+        var lightdirCam = vec3.createFrom(lightdest[0],lightdest[1],lightdest[2]);//View Space
+        vec3.normalize(lightdirCam);
 
+		
+        var modelInv = mat4.create();
+        mat4.inverse(model, modelInv);
+        mat4.multiplyVec4(modelInv, [lightdir[0], lightdir[1], lightdir[2], 0.0], lightdir);
+		
         ///////////////////////////////////////////////////////////////////////////
         // Render
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -267,7 +274,9 @@
         gl.uniformMatrix4fv(u_InvTransLocation, false, invTrans);
 		gl.uniform1f(u_timeLocation, -time*0.1);
 		
-        gl.uniform3fv(u_CameraSpaceDirLightLocation, lightdir);
+		
+        gl.uniform3fv(u_ModelSpaceDirLightLocation, lightdir);
+        gl.uniform3fv(u_CameraSpaceDirLightLocation, lightdirCam);
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, dayTex);

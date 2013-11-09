@@ -24,7 +24,6 @@
 
     varying vec3 v_Normal;
     varying vec2 v_Texcoord;
-	varying vec2 v_CloudShadowTexcoord;
     varying vec3 v_Position;
     varying vec3 v_positionMC;
 
@@ -32,7 +31,6 @@
     {
         v_Normal = (u_InvTrans*vec4(Normal,0.0)).xyz;
         v_Texcoord = Texcoord;
-		v_CloudShadowTexcoord = Texcoord;
         vec4 world = u_Model * vec4(Position, 1.0);
         vec4 camera = u_View * world;
         v_Position = camera.xyz;
@@ -47,7 +45,9 @@
     //View-Space directional light
     //A unit vector
     uniform vec3 u_CameraSpaceDirLight;
-
+	uniform vec3 u_ModelSpaceDirLight;//Model space version for ray cast convenience 
+	
+	
     //Diffuse texture map for the day
     uniform sampler2D u_DayDiffuse;
     //Ambient texture map for the night side
@@ -68,12 +68,12 @@
 
     varying vec3 v_Normal;              // surface normal in camera coordinates
     varying vec2 v_Texcoord;
-	varying vec2 v_CloudShadowTexcoord;
     varying vec3 v_Position;            // position in camera coordinates
     varying vec3 v_positionMC;          // position in model coordinates
 
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
-
+	vec3 raySphereIntersect(vec3 ro, vec3 rd, float r);
+	vec2 dirInSphereToTexcoords(vec3 dir);
     void main(void)
     {
         // surface normal - normalized after rasterization
@@ -91,6 +91,7 @@
 		normal = eastNorthUpToEyeCoordinates(v_positionMC, v_Normal)*bump;
 		
 		
+		
         // normalized eye-to-position vector in camera coordinates
         vec3 eyeToPosition = normalize(v_Position);
         
@@ -104,9 +105,19 @@
         float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
         specular = pow(specular, 20.0)*texture2D(u_EarthSpec, v_Texcoord).x;//Choice is arbitrary, map is white/black
 
-        float gammaCorrect = 1.6/1.2; //gamma correct by 1/1.2
+        float gammaCorrect = 1.6/1.2; //gamma correct by 1.6/1.2
 		
-		float cloudShadowRayTrans = texture2D(u_CloudTrans, v_CloudShadowTexcoord+vec2(u_time, 0.0)).x;
+		
+		//======Calculate cloud shadows======
+		float cloudAltitude = 0.075;//Term is relative to globe radius == 1.0
+		vec3 rayOrigin = v_positionMC*(1.0+bumpCenter*cloudAltitude);//Mountains could be as tall as clouds but no taller
+		vec3 rayDir = normalize(u_ModelSpaceDirLight);
+		
+		
+		vec3 shadowRayIntersectDir = raySphereIntersect(rayOrigin, rayDir, 1.0+cloudAltitude);
+		
+		vec2 v_CloudShadowTexcoord = dirInSphereToTexcoords(shadowRayIntersectDir) + vec2(u_time, 0.0);
+		float cloudShadowRayTrans = texture2D(u_CloudTrans, v_CloudShadowTexcoord).x;
 		
         vec3 dayColor = cloudShadowRayTrans*((0.6 * bumpdiffuse) + (0.4 * specular))*texture2D(u_DayDiffuse, v_Texcoord).rgb;
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
@@ -147,6 +158,46 @@
             bitangentEC.x, bitangentEC.y, bitangentEC.z,
             normalEC.x,    normalEC.y,    normalEC.z);
     }
+	
+	
+	vec3 raySphereIntersect(vec3 ro, vec3 rd, float r)
+	{
+		//Solver parameters
+		float b = dot(rd, ro);
+		
+		float radicand  = b * b - (dot(ro,ro) - r*r);
+		
+		if(radicand < 0.0){
+			return normalize(ro);//If no intersection (should never happen) Assume no deviation from vert
+		}
+		
+		float root = sqrt(radicand);
+		float s1 = (-b + root);
+		float s2 = (-b - root);
+		
+		
+		float s = 0.0;
+		if (s1 < 0.0 && s2 < 0.0) {
+			return normalize(ro);//If no intersection (should never happen) Assume no deviation from vert
+		} else if (s1 > 0.0 && s2 > 0.0) {
+			s = min(s1, s2);
+		} else {
+			s = max(s1, s2);
+		}
+		
+		return normalize(ro+s*rd);
+		
+	}
+	
+	vec2 dirInSphereToTexcoords(vec3 dir)
+	{
+		float th = atan(dir.z, dir.x);
+		float phi = acos(dir.y);
+		float u = (th) / (2.0 * 3.14159265);
+		float v = phi/3.14159265;
+	
+		return vec2(u,v);
+	}
 	
 </script>
 
