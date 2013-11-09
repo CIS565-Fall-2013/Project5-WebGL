@@ -56,6 +56,7 @@
         if (typeof(Float32Array) != 'undefined') {
             var y = new Float32Array(1);
             var i = new Int32Array(y.buffer);
+
             /**
              * Fast way to calculate the inverse square root,
              * see http://jsperf.com/inverse-square-root/5

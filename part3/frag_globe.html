@@ -1,13 +1,14 @@
 <html>
 
 <head>
-<title>Fragment Globe</title>
+<title>ISS Tracker</title>
 <meta charset ="utf-8">
 <meta http-equiv="X-UA-Compatible" content="chrome=1">  <!-- Use Chrome Frame in IE --> 
 <script type="text/javascript" src="jquery.js"></script>
 </head>
 
-<body>
+<body style="background-color:#000000">
+<center>
 
 
 <div id="msgid">
@@ -134,7 +135,6 @@
         vec3 final_color;
         if(diffuse < NIGHT_EPSILON){
             final_color = blended_color;
-            //final_color = nightColor;
         }
         else{
             final_color = color;
@@ -145,8 +145,121 @@
             final_color = final_color + vec3(rim_factor/4.0, rim_factor/2.0, rim_factor/2.0);
         }
         gl_FragColor = vec4(final_color, 1.0);
-        
-        //gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+    }
+
+    mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC)
+    {
+        // normalized surface tangent in model coordinates
+        vec3 tangentMC = normalize(vec3(-positionMC.z, positionMC.x, 0.0)); 
+        // normalized surface tangent in eye coordiantes 
+        vec3 tangentEC = normalize(mat3(u_InvTrans) * tangentMC);
+        // normalized surface bitangent in eye coordinates
+        vec3 bitangentEC = normalize(cross(normalEC, tangentEC));
+
+        return mat3(
+            tangentEC.x,   tangentEC.y,   tangentEC.z,
+            bitangentEC.x, bitangentEC.y, bitangentEC.z,
+            normalEC.x,    normalEC.y,    normalEC.z);
+    }
+</script>
+
+<script id="iss-fs" type="x-shader/x-fragment">
+    precision highp float;
+
+    //View-Space directional light
+    //A unit vector
+    uniform vec3 u_CameraSpaceDirLight;
+
+    //Diffuse texture map for the day
+    uniform sampler2D u_DayDiffuse;
+    //Ambient texture map for the night side
+    uniform sampler2D u_Night;
+    //Color map for the clouds
+    uniform sampler2D u_Cloud;
+    //Transparency map for the clouds.  Note that light areas are where clouds are NOT
+    //Dark areas are where clouds are present
+    uniform sampler2D u_CloudTrans;
+    //Mask of which areas of the earth have specularity
+    //Oceans are specular, landmasses are not
+    uniform sampler2D u_EarthSpec;
+    //Bump map
+    uniform sampler2D u_Bump;
+
+    uniform float u_time;
+    uniform mat4 u_InvTrans;
+
+    varying vec3 v_Normal;              // surface normal in camera coordinates
+    varying vec2 v_Texcoord;
+    varying vec3 v_Position;            // position in camera coordinates
+    varying vec3 v_positionMC;          // position in model coordinates
+
+    mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
+
+    float NIGHT_EPSILON = 0.1;
+    float bumpMapWidth = 1024.0;
+    float bumpMapHeight = 512.0;
+
+    void main(void)
+    {
+        vec4 dayColor = texture2D(u_DayDiffuse, v_Texcoord).rgba;
+        gl_FragColor = dayColor; 
+    }
+
+    mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC)
+    {
+        // normalized surface tangent in model coordinates
+        vec3 tangentMC = normalize(vec3(-positionMC.z, positionMC.x, 0.0)); 
+        // normalized surface tangent in eye coordiantes 
+        vec3 tangentEC = normalize(mat3(u_InvTrans) * tangentMC);
+        // normalized surface bitangent in eye coordinates
+        vec3 bitangentEC = normalize(cross(normalEC, tangentEC));
+
+        return mat3(
+            tangentEC.x,   tangentEC.y,   tangentEC.z,
+            bitangentEC.x, bitangentEC.y, bitangentEC.z,
+            normalEC.x,    normalEC.y,    normalEC.z);
+    }
+</script>
+
+<script id="trail-fs" type="x-shader/x-fragment">
+    precision highp float;
+
+    //View-Space directional light
+    //A unit vector
+    uniform vec3 u_CameraSpaceDirLight;
+
+    //Diffuse texture map for the day
+    uniform sampler2D u_DayDiffuse;
+    //Ambient texture map for the night side
+    uniform sampler2D u_Night;
+    //Color map for the clouds
+    uniform sampler2D u_Cloud;
+    //Transparency map for the clouds.  Note that light areas are where clouds are NOT
+    //Dark areas are where clouds are present
+    uniform sampler2D u_CloudTrans;
+    //Mask of which areas of the earth have specularity
+    //Oceans are specular, landmasses are not
+    uniform sampler2D u_EarthSpec;
+    //Bump map
+    uniform sampler2D u_Bump;
+
+    uniform float u_time;
+    uniform mat4 u_InvTrans;
+
+    varying vec3 v_Normal;              // surface normal in camera coordinates
+    varying vec2 v_Texcoord;
+    varying vec3 v_Position;            // position in camera coordinates
+    varying vec3 v_positionMC;          // position in model coordinates
+
+    mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
+
+    float NIGHT_EPSILON = 0.1;
+    float bumpMapWidth = 1024.0;
+    float bumpMapHeight = 512.0;
+
+    void main(void)
+    {
+        gl_FragColor = vec4(1.0,0.0,0.0,1.0); 
     }
 
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC)
@@ -169,6 +282,7 @@
 <script src ="webGLUtility.js" type ="text/javascript"></script>
 <script src ="iss.js" type ="text/javascript"></script>
 <script src ="frag_globe.js" type ="text/javascript"></script>
+</center>
 </body>
 
 </html>

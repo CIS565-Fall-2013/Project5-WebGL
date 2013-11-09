@@ -1,10 +1,12 @@
+var blendDir = -1.0;
+
 (function() {
     "use strict";
     /*global window,document,Float32Array,Uint16Array,mat4,vec3,snoise*/
     /*global getShaderSource,createWebGLContext,createProgram*/
 
-    var NUM_WIDTH_PTS = 64;
-    var NUM_HEIGHT_PTS = 64;
+    var NUM_WIDTH_PTS = 128;
+    var NUM_HEIGHT_PTS = 128;
 
     var message = document.getElementById("message");
     var canvas = document.getElementById("canvas");
@@ -16,7 +18,7 @@
     ///////////////////////////////////////////////////////////////////////////
 
     context.viewport(0, 0, canvas.width, canvas.height);
-    context.clearColor(1.0, 1.0, 1.0, 1.0);
+    context.clearColor(0.0, 0.0, 0.0, 1.0);
     context.enable(context.DEPTH_TEST);
 
     var persp = mat4.create();
@@ -31,9 +33,39 @@
     var positionLocation = 0;
     var heightLocation = 1;
     var u_modelViewPerspectiveLocation;
-    var u_timeLocation;
+    var u_heightLocation;
+    var u_heightLocation2;
+    var u_heightBlendLocation;
+
+    var terrainTex1;
+    var terrainIm1;
+    var terrainTex2;
+    var terrainIm2;
+
+    //from https://developer.mozilla.org/en-US/docs/Web/WebGL/Using_textures_in_WebGL
+    function initTextures() {
+        terrainTex1 = context.createTexture();
+        terrainIm1 = new Image();
+        terrainIm1.onload = function() { handleTextureLoaded(terrainIm1, terrainTex1); };
+        terrainIm1.src = "FUJI_cropped.png";
+
+        terrainTex2 = context.createTexture();
+        terrainIm2 = new Image();
+        terrainIm2.onload = function() { handleTextureLoaded(terrainIm2, terrainTex2); };
+        terrainIm2.src = "RAINIER_cropped.png";
+    }
+
+    function handleTextureLoaded(image, texture) {
+        context.bindTexture(context.TEXTURE_2D, texture);
+        context.texImage2D(context.TEXTURE_2D, 0, context.RGBA, context.RGBA, context.UNSIGNED_BYTE, image);
+        context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MAG_FILTER, context.LINEAR);
+        context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.LINEAR_MIPMAP_NEAREST);
+        context.generateMipmap(context.TEXTURE_2D);
+        context.bindTexture(context.TEXTURE_2D, null);
+    }
 
     (function initializeShader() {
+        initTextures();
         var program;
         var vs = getShaderSource(document.getElementById("vs"));
         var fs = getShaderSource(document.getElementById("fs"));
@@ -41,7 +73,9 @@
 		var program = createProgram(context, vs, fs, message);
 		context.bindAttribLocation(program, positionLocation, "position");
 		u_modelViewPerspectiveLocation = context.getUniformLocation(program,"u_modelViewPerspective");
-		u_timeLocation = context.getUniformLocation(program,"u_time");
+        u_heightLocation = context.getUniformLocation(program, "u_Height");
+        u_heightLocation2 = context.getUniformLocation(program, "u_Height2");
+        u_heightBlendLocation = context.getUniformLocation(program, "u_heightBlend");
 
         context.useProgram(program);
     })();
@@ -128,15 +162,25 @@
         numberOfIndices = indices.length;
     })();
 
-    var time = 0;
     var dt = 0.01;
+    var angle = 0.0;
+    var heightBlend = 0.0;
 
     (function animate(){
+
+        heightBlend += blendDir*dt;
+        if(heightBlend < 0.0){
+            heightBlend = 0.0;
+        } else if(heightBlend > 1.0){
+            heightBlend = 1.0;
+        }
         ///////////////////////////////////////////////////////////////////////////
         // Update
+        angle = angle + 0.01;
 
         var model = mat4.create();
         mat4.identity(model);
+        mat4.rotate(model, angle, [0, 0, 1]);
         mat4.translate(model, [-0.5, -0.5, 0.0]);
         var mv = mat4.create();
         mat4.multiply(view, model, mv);
@@ -148,13 +192,18 @@
         context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
 
         context.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp);
-        context.uniform1f(u_timeLocation, time);
-        function draw(){
-            context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
-        }
-        draw();
+        context.uniform1f(u_heightBlendLocation, heightBlend);
 
-        time += dt;
+        context.activeTexture(context.TEXTURE0);
+        context.bindTexture(context.TEXTURE_2D, terrainTex1);
+        context.uniform1i(u_heightLocation, 0); 
+
+        context.activeTexture(context.TEXTURE1);
+        context.bindTexture(context.TEXTURE_2D, terrainTex2);
+        context.uniform1i(u_heightLocation2, 1); 
+
+        //context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
+        context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
 
 		window.requestAnimFrame(animate);
     })();

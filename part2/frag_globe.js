@@ -21,6 +21,13 @@
         return;
     }
 
+    console.log("trololo");
+    $.getJSON('http://api.open-notify.org/iss-now.json?callback=?', function(data) {
+            var lat = data['iss_position']['latitude'];
+            var lon = data['iss_position']['longitude'];
+            console.log(lat);
+        });
+
     ///////////////////////////////////////////////////////////////////////////
 
     gl.viewport(0, 0, canvas.width, canvas.height);
@@ -57,6 +64,7 @@
     var u_timeLocation;
 
     (function initializeShader() {
+        var program;
         var vs = getShaderSource(document.getElementById("vs"));
         var fs = getShaderSource(document.getElementById("fs"));
 
@@ -234,12 +242,13 @@
     document.onmousemove = handleMouseMove;
 
 
-    function animate() {
+    (function animate(){
         ///////////////////////////////////////////////////////////////////////////
         // Update
 
         var model = mat4.create();
         mat4.identity(model);
+        //mat4.translate(model, [1.0, 0.0, 0.0]);
         mat4.rotate(model, 23.4/180*Math.PI, [0.0, 0.0, 1.0]);
         mat4.rotate(model, Math.PI, [1.0, 0.0, 0.0]);
         mat4.rotate(model, -time, [0.0, 1.0, 0.0]);
@@ -256,6 +265,8 @@
         mat4.multiplyVec4(view, [lightdir[0], lightdir[1], lightdir[2], 0.0], lightdest);
         lightdir = vec3.createFrom(lightdest[0],lightdest[1],lightdest[2]);
         vec3.normalize(lightdir);
+
+
 
         ///////////////////////////////////////////////////////////////////////////
         // Render
@@ -286,11 +297,16 @@
         gl.activeTexture(gl.TEXTURE5);
         gl.bindTexture(gl.TEXTURE_2D, specTex);
         gl.uniform1i(u_EarthSpecLocation, 5);
-        gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
+        gl.uniform1f(u_timeLocation, time);
+
+        function draw1(){
+            gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
+        }
+        draw1();
 
         time += 0.001;
-        window.requestAnimFrame(animate);
-    }
+		window.requestAnimFrame(animate);
+    })();
 
     var textureCount = 0;
         
