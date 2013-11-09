@@ -89,6 +89,15 @@
     trail_array[3] = 1.5;
     trail_array[4] = 1.5;
     trail_array[5] = 1.5;
+    trail_array[6] = 1.5;
+    trail_array[7] = 3.0;
+    trail_array[8] = 1.5;
+    trail_array[9] = 0.0;
+    trail_array[10] = 0.0;
+    trail_array[11] = 0.0;
+    trail_array[9] = -1.2;
+    trail_array[10] = -1.2;
+    trail_array[11] = -1.2;
 
     function initializeShader() {
         var program;
