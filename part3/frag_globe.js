@@ -82,6 +82,14 @@
     var iss_program;
     var trail_program;
 
+    var trail_array = new Array();
+    trail_array[0] = 0.0;
+    trail_array[1] = 0.0;
+    trail_array[2] = 0.0;
+    trail_array[3] = 1.5;
+    trail_array[4] = 1.5;
+    trail_array[5] = 1.5;
+
     function initializeShader() {
         var program;
         var vs = getShaderSource(document.getElementById("vs"));
@@ -344,21 +352,21 @@
             gl.bindBuffer(gl.ARRAY_BUFFER, positionsNameISS);
             gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
             gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(positionLocation_ISS);
+            gl.enableVertexAttribArray(positionLocation_trail);
             
             // Normals
             var normalsNameISS = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, normalsNameISS);
             gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
             gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(normalLocation_ISS);
+            gl.enableVertexAttribArray(normalLocation_trail);
             
             // TextureCoords
             var texCoordsNameISS = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, texCoordsNameISS);
             gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
             gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(texCoordLocation_ISS);
+            gl.enableVertexAttribArray(texCoordLocation_trail);
 
             // Indices
             var indicesNameISS = gl.createBuffer();
@@ -370,32 +378,27 @@
         //var HEIGHT_DIVISIONS = NUM_HEIGHT_PTS - 1;
 
         //var numberOfPositions = NUM_WIDTH_PTS * NUM_HEIGHT_PT;
-        var numVerts = 2;
+        var numVerts = trail_array.length/3;
 
         var positions = new Float32Array(3 * numVerts);
         var texCoords = new Float32Array(2 * numVerts);
-        var indices = new Uint16Array(2);
+        var indices = new Uint16Array(2*numVerts);
+        var i;
+        for(i=0; i < numVerts; i++){
+            positions[3*i] = trail_array[3*i];
+            positions[3*i+1] = trail_array[3*i+1];
+            positions[3*i+2] = trail_array[3*i+2];
+            indices[2*i] = i;
+            indices[2*i + 1] = i + 1;
+        }
 
-        //lower left corner
-        positions[0] = 0.0;
-        positions[1] = 0.0;
-        positions[2] = 0.0;
-        //lower right corner
-        positions[3] = 1.5;
-        positions[4] = 1.5;
-        positions[5] = 1.5;
-
-        //lower left texCoords[0] = 0.0;
         texCoords[0] = 0.0;
         texCoords[1] = 1.0;
         texCoords[2] = 1.0;
         texCoords[3] = 1.0;
-
-        indices[0] = 0;
-        indices[1] = 1;
         
         uploadMesh(positions, texCoords, indices);
-        numberOfIndices3 = 2;
+        numberOfIndices3 = numVerts;
     }
 
     var time = 0;
