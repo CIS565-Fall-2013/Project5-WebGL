@@ -125,6 +125,7 @@
     }
 
     var dayTex   = gl.createTexture();
+    var logoTex   = gl.createTexture();
     var bumpTex  = gl.createTexture();
     var cloudTex = gl.createTexture();
     var transTex = gl.createTexture();
@@ -517,7 +518,7 @@
         gl.uniform3fv(u_CameraSpaceDirLightLocation, lightdir);
 
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, dayTex);
+        gl.bindTexture(gl.TEXTURE_2D, logoTex);
         gl.uniform1i(u_DayDiffuseLocation, 0);
         gl.activeTexture(gl.TEXTURE1);
         gl.bindTexture(gl.TEXTURE_2D, bumpTex);
@@ -558,6 +559,7 @@
     }
 
     initializeTexture(dayTex, "earthmap1024.png");
+    initializeTexture(logoTex, "iss_icon.png");
     initializeTexture(bumpTex, "earthbump1024.png");
     initializeTexture(cloudTex, "earthcloud1024.png");
     initializeTexture(transTex, "earthtrans1024.png");
