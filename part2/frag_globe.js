@@ -257,7 +257,8 @@
         mat4.identity(model);
         mat4.rotate(model, 23.4/180*Math.PI, [0.0, 0.0, 1.0]);
         mat4.rotate(model, Math.PI, [1.0, 0.0, 0.0]);
-        mat4.rotate(model, -time, [0.0, 1.0, 0.0]);
+		mat4.rotate(model, -time, [0.0, 1.0, 0.0]);
+
         var mv = mat4.create();
         mat4.multiply(view, model, mv);
         
@@ -317,7 +318,8 @@
 		gl.uniform1f(u_heightFieldColourLocation, h_pressed);
 		gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
 
-        time += 0.001;
+        if (paused == 0)
+        	time += 0.001;
         window.requestAnimFrame(animate);
     }
 
