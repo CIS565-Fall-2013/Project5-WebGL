@@ -28,6 +28,7 @@
     gl.enable (gl.DEPTH_TEST);
     gl.depthFunc (gl.LESS);
     gl.enable (gl.BLEND);
+    gl.enable (gl.CULL_FACE);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 
     var persp = mat4.create();
