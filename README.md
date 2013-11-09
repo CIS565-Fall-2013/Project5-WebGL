@@ -1,9 +1,12 @@
 #CIS565: Project 5: WebGL Globe  
 ##a.k.a. WebGLobe
-
+  
 An introductory project in GLSL for the CIS 565 course. Since it uses WebGL, it 
-was only possible to write vertex and fragment shaders for this project. There were 
-two parts: 
+was only possible to write vertex and fragment shaders for this project. 
+  
+>> [LIVE DEMO!](http://rohith10.github.io/WebGLobe/)  
+  
+There were two parts: 
 
 In the first part of this project, I wrote simple vertex shaders to implement 
 functions that would displace vertices in a wave-like pattern. Waves implemented were 
