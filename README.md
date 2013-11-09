@@ -40,6 +40,8 @@ It looks like this:
 Also, I add a noise texture and using it to fulfill the water shader. To implement this, I distort the origin normal according to the color value of the noise map. And to make the ocean floating, 
 I move the texture coordination randomly. It is not a procedural water shader, and not that real.
 
+![Water](https://github.com/heguanyu/WebGL-Globe/blob/master/results/water.jpg?raw=true)
+
 For the future work, I would still like to try skybox at the background.
 
 -------------------------------------------------------------------------------
@@ -47,6 +49,7 @@ LINK
 -------------------------------------------------------------------------------
 
 Part1: http://guanyuhe.com/WebGL-Wave/index.html
+
 Part2: http://guanyuhe.com/WebGL-Globe/index.html
 
 -------------------------------------------------------------------------------
