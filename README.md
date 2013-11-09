@@ -25,6 +25,7 @@ Simplex wave 2D:
 [![Simplex wave2](screenshots/simplexwave2.PNG)](http://yingtingxiao.github.io/Project5-WebGL/vert_wave_custom.html)
 
 Instead of passing vec2(0.1*u_time, position) to simplexNoise, I pass vec2(position.x+0.25*u_time, position.y+0.25*u_time) to it. As a result, I get a nice 2D simplex wave.
+
 ---
 
 Perlin wave 2D:
