@@ -3,8 +3,8 @@
     /*global window,document,Float32Array,Uint16Array,mat4,vec3,snoise*/
     /*global getShaderSource,createWebGLContext,createProgram*/
 
-    var NUM_WIDTH_PTS = 100;
-    var NUM_HEIGHT_PTS = 100;
+    var NUM_WIDTH_PTS = 50;
+    var NUM_HEIGHT_PTS = 50;
 
     var message = document.getElementById("message");
     var canvas = document.getElementById("canvas");
@@ -40,9 +40,9 @@
         var vs = getShaderSource(document.getElementById("vs"));
         var fs = getShaderSource(document.getElementById("fs"));
 
-		var program = createProgram(context, vs, fs, message);
-		context.bindAttribLocation(program, positionLocation, "position");
-		u_modelViewPerspectiveLocation = context.getUniformLocation(program,"u_modelViewPerspective");
+        var program = createProgram(context, vs, fs, message);
+        context.bindAttribLocation(program, positionLocation, "position");
+        u_modelViewPerspectiveLocation = context.getUniformLocation(program,"u_modelViewPerspective");
         u_time = context.getUniformLocation(program,"u_time");
 
         context.useProgram(program);
@@ -152,7 +152,7 @@
         context.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp);
         context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
 
-		window.requestAnimFrame(animate);
+        window.requestAnimFrame(animate);
     })();
 
 }());

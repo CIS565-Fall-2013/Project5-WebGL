@@ -19,8 +19,8 @@
     
     void main(void)
     {
-        float s_contrib = sin(position.x*2.0*3.14159 + u_time);
-        float t_contrib = cos(position.y*2.0*3.14159 + u_time);
+        float s_contrib = 1.0*sin(position.x*10.0*3.14159 + u_time);
+        float t_contrib = 1.0*cos(position.y*10.0*3.14159 + u_time);
         float height = s_contrib*t_contrib;
         color = mix(vec3(1.0,0.2,0.0), vec3(0.0,0.8,1.0), (height+1.0)/1.0);
 		gl_Position = u_modelViewPerspective * vec4(vec3(position, height), 1.0);

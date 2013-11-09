@@ -55,6 +55,7 @@
     var u_EarthSpecLocation;
     var u_BumpLocation;
     var u_timeLocation;
+    var u_waterLocation;
 
     (function initializeShader() {
         var vs = getShaderSource(document.getElementById("vs"));
@@ -75,6 +76,7 @@
         u_EarthSpecLocation = gl.getUniformLocation(program,"u_EarthSpec");
         u_BumpLocation = gl.getUniformLocation(program,"u_Bump");
         u_timeLocation = gl.getUniformLocation(program,"u_time");
+        u_waterLocation = gl.getUniformLocation(program,"u_water");
         u_CameraSpaceDirLightLocation = gl.getUniformLocation(program,"u_CameraSpaceDirLight");
 
         gl.useProgram(program);
@@ -176,6 +178,7 @@
     })();
 
     var time = 0;
+    var water = 0;
     var mouseLeftDown = false;
     var mouseRightDown = false;
     var lastMouseX = null;
@@ -287,8 +290,11 @@
         gl.bindTexture(gl.TEXTURE_2D, specTex);
         gl.uniform1i(u_EarthSpecLocation, 5);
         gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
+        gl.uniform1f(u_timeLocation, time);
+        gl.uniform1f(u_waterLocation, water);
 
         time += 0.001;
+        water += 0.001;//*Math.Random();
         window.requestAnimFrame(animate);
     }
 
