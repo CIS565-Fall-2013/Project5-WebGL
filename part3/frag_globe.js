@@ -249,50 +249,59 @@
             gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
         }
 
-        var WIDTH_DIVISIONS = NUM_WIDTH_PTS - 1;
-        var HEIGHT_DIVISIONS = NUM_HEIGHT_PTS - 1;
+        //var WIDTH_DIVISIONS = NUM_WIDTH_PTS - 1;
+        //var HEIGHT_DIVISIONS = NUM_HEIGHT_PTS - 1;
 
-        var numberOfPositions = NUM_WIDTH_PTS * NUM_HEIGHT_PTS;
+        //var numberOfPositions = NUM_WIDTH_PTS * NUM_HEIGHT_PT;
+        var numVerts = 4;
 
-        var positions = new Float32Array(3 * numberOfPositions);
-        var texCoords = new Float32Array(2 * numberOfPositions);
-        var indices = new Uint16Array(6 * (WIDTH_DIVISIONS * HEIGHT_DIVISIONS));
+        var positions = new Float32Array(3 * numVerts);
+        var texCoords = new Float32Array(2 * numVerts);
+        var indices = new Uint16Array(6);
 
         var positionsIndex = 0;
         var texCoordsIndex = 0;
         var indicesIndex = 0;
         var length;
 
-        for( var j = 0; j < NUM_HEIGHT_PTS; ++j )
-        {
-            var inclination = Math.PI * (j / HEIGHT_DIVISIONS);
-            for( var i = 0; i < NUM_WIDTH_PTS; ++i )
-            {
-                var azimuth = 2 * Math.PI * (i / WIDTH_DIVISIONS);
-                positions[positionsIndex++] = 0.1*Math.sin(inclination)*Math.cos(azimuth);
-                positions[positionsIndex++] = 0.1*Math.cos(inclination);
-                positions[positionsIndex++] = 0.1*Math.sin(inclination)*Math.sin(azimuth);
-                texCoords[texCoordsIndex++] = i / WIDTH_DIVISIONS;
-                texCoords[texCoordsIndex++] = j / HEIGHT_DIVISIONS;
-            } 
-        }
+        //lower left corner
+        positions[0] = 0.0;
+        positions[1] = 0.0;
+        positions[2] = 0.0;
+        //lower right corner
+        positions[3] = 1.0;
+        positions[4] = 0.0;
+        positions[5] = 0.0;
+        //upper left corner
+        positions[6] = 0.0;
+        positions[7] = 1.0;
+        positions[8] = 0.0;
+        //upper right corner
+        positions[9] = 1.0;
+        positions[10] = 1.0;
+        positions[11] = 0.0;
 
-        for( var j = 0; j < HEIGHT_DIVISIONS; ++j )
-        {
-            var index = j*NUM_WIDTH_PTS;
-            for( var i = 0; i < WIDTH_DIVISIONS; ++i )
-            {
-                    indices[indicesIndex++] = index + i;
-                    indices[indicesIndex++] = index + i+1;
-                    indices[indicesIndex++] = index + i+NUM_WIDTH_PTS;
-                    indices[indicesIndex++] = index + i+NUM_WIDTH_PTS;
-                    indices[indicesIndex++] = index + i+1;
-                    indices[indicesIndex++] = index + i+NUM_WIDTH_PTS+1;
-            }
-        }
+        //lower left texCoords[0] = 0.0;
+        texCoords[1] = 0.0;
+        //lower right
+        texCoords[2] = 1.0;
+        texCoords[3] = 0.0;
+        //upper left
+        texCoords[4] = 0.0;
+        texCoords[5] = 1.0;
+        //upper right
+        texCoords[6] = 1.0;
+        texCoords[7] = 1.0;
 
+        indices[0] = 0;
+        indices[1] = 1;
+        indices[2] = 2;
+        indices[3] = 1;
+        indices[4] = 3;
+        indices[5] = 2;
+        
         uploadMesh(positions, texCoords, indices);
-        numberOfIndices2 = indicesIndex;
+        numberOfIndices2 = 6;
     }
 
     var time = 0;
