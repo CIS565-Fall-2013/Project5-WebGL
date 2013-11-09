@@ -13,11 +13,13 @@ PART 1 FEATURES:
 Sine wave:
 
 [![Sine wave](screenshots/sinewave.PNG)](http://yingtingxiao.github.io/Project5-WebGL/vert_wave.html)
+
 ---
 
 Simplex wave 1D:
 
 [![Simplex wave1](screenshots/simplexwave1.PNG)](http://yingtingxiao.github.io/Project5-WebGL/vert_wave_simplex.html)
+
 ---
 
 Simplex wave 2D:
