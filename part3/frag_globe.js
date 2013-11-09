@@ -34,7 +34,8 @@
     ///////////////////////////////////////////////////////////////////////////
 
     gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    //gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clearColor(1.0, 1.0, 1.0, 1.0);
     gl.enable(gl.DEPTH_TEST);
     //gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
@@ -147,6 +148,7 @@
 
     var numberOfIndices;
     var numberOfIndices2;
+    var numberOfIndices3;
 
     function initializeSphere() {
         function uploadMesh(positions, texCoords, indices) {
@@ -305,6 +307,67 @@
         
         uploadMesh(positions, texCoords, indices);
         numberOfIndices2 = 6;
+    }
+
+    function initializeSphere3() {
+        function uploadMesh(positions, texCoords, indices) {
+            // Positions
+            var positionsNameISS = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionsNameISS);
+            gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+            gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(positionLocation_ISS);
+            
+            // Normals
+            var normalsNameISS = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, normalsNameISS);
+            gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+            gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(normalLocation_ISS);
+            
+            // TextureCoords
+            var texCoordsNameISS = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, texCoordsNameISS);
+            gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
+            gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(texCoordLocation_ISS);
+
+            // Indices
+            var indicesNameISS = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesNameISS);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+        }
+
+        //var WIDTH_DIVISIONS = NUM_WIDTH_PTS - 1;
+        //var HEIGHT_DIVISIONS = NUM_HEIGHT_PTS - 1;
+
+        //var numberOfPositions = NUM_WIDTH_PTS * NUM_HEIGHT_PT;
+        var numVerts = 2;
+
+        var positions = new Float32Array(3 * numVerts);
+        var texCoords = new Float32Array(2 * numVerts);
+        var indices = new Uint16Array(2);
+
+        //lower left corner
+        positions[0] = 0.0;
+        positions[1] = 0.0;
+        positions[2] = 0.0;
+        //lower right corner
+        positions[3] = 1.5;
+        positions[4] = 1.5;
+        positions[5] = 1.5;
+
+        //lower left texCoords[0] = 0.0;
+        texCoords[0] = 0.0;
+        texCoords[1] = 1.0;
+        texCoords[2] = 1.0;
+        texCoords[3] = 1.0;
+
+        indices[0] = 0;
+        indices[1] = 1;
+        
+        uploadMesh(positions, texCoords, indices);
+        numberOfIndices3 = 2;
     }
 
     var time = 0;
@@ -552,6 +615,67 @@
         gl.drawElements(gl.TRIANGLES, numberOfIndices2, gl.UNSIGNED_SHORT,0);
         //gl.enable(gl.DEPTH_TEST);
         gl.disable(gl.BLEND);
+
+        initializeShader2();
+        initializeSphere3();
+
+        model = mat4.create();
+        mat4.identity(model);
+        //mat4.translate(model, [currX, currY, currZ]);
+
+        mv = mat4.create();
+        mat4.multiply(view, model, mv);
+
+        invTrans = mat4.create();
+        mat4.inverse(mv, invTrans);
+        mat4.transpose(invTrans);
+
+        lightdir = vec3.create([1.0, 0.0, 1.0]);
+        lightdest = vec4.create();
+        vec3.normalize(lightdir);
+        mat4.multiplyVec4(view, [lightdir[0], lightdir[1], lightdir[2], 0.0], lightdest);
+        lightdir = vec3.createFrom(lightdest[0],lightdest[1],lightdest[2]);
+        vec3.normalize(lightdir);
+
+        ///////////////////////////////////////////////////////////////////////////
+        // Render
+
+        //initializeSphere2();
+
+        //gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        gl.uniformMatrix4fv(u_ModelLocation, false, model);
+        gl.uniformMatrix4fv(u_ViewLocation, false, view);
+        gl.uniformMatrix4fv(u_PerspLocation, false, persp);
+        gl.uniformMatrix4fv(u_InvTransLocation, false, invTrans);
+
+        gl.uniform3fv(u_CameraSpaceDirLightLocation, lightdir);
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, logoTex);
+        gl.uniform1i(u_DayDiffuseLocation, 0);
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, bumpTex);
+        gl.uniform1i(u_BumpLocation, 1);
+        gl.activeTexture(gl.TEXTURE2);
+        gl.bindTexture(gl.TEXTURE_2D, cloudTex);
+        gl.uniform1i(u_CloudLocation, 2);
+        gl.activeTexture(gl.TEXTURE3);
+        gl.bindTexture(gl.TEXTURE_2D, transTex);
+        gl.uniform1i(u_CloudTransLocation, 3);
+        gl.activeTexture(gl.TEXTURE4);
+        gl.bindTexture(gl.TEXTURE_2D, lightTex);
+        gl.uniform1i(u_NightLocation, 4);
+        gl.activeTexture(gl.TEXTURE5);
+        gl.bindTexture(gl.TEXTURE_2D, specTex);
+        gl.uniform1i(u_EarthSpecLocation, 5);
+        gl.uniform1f(u_timeLocation, time);
+
+        //gl.enable(gl.BLEND);
+        //gl.disable(gl.DEPTH_TEST);
+        gl.drawElements(gl.LINES, numberOfIndices3, gl.UNSIGNED_SHORT,0);
+        //gl.enable(gl.DEPTH_TEST);
+        //gl.disable(gl.BLEND);
 
         time += 0.001;
 		window.requestAnimFrame(animate);
