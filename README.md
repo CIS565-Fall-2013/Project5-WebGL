@@ -19,5 +19,4 @@ The first part of this project is a WebGL terrain renderer. [Click here to see i
     float height2 = texture2D(u_Height2, texCoord).r; 
     float height = mix(height1, height2, u_heightBlend); 
     gl_Position = u_modelViewPerspective * vec4(vec3(position, 0.5*height), 1.0);
-    curr_color = mix(low_color, high_color, height); 
 ```
