@@ -395,6 +395,9 @@
 
         var myDate = new Date();
         var hour = myDate.getUTCHours();
+        var minutes = myDate.getUTCMinutes() / 60.0;
+        var seconds = myDate.getUTCSeconds() / 3600.0;
+        hour = hour + minutes + seconds;
         //var hour = 16;
         //Math.PI is used to offset because we are using GMT time. 
         var lightAngle = ((12.0 - hour)/24.0) * 2.0 * Math.PI + -Math.PI/2.0;
