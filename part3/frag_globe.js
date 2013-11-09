@@ -393,7 +393,13 @@
         mat4.inverse(mv, invTrans);
         mat4.transpose(invTrans);
 
-        var lightdir = vec3.create([1.0, 0.0, 1.0]);
+        var myDate = new Date();
+        var hour = myDate.getUTCHours();
+        //var hour = 16;
+        //Math.PI is used to offset because we are using GMT time. 
+        var lightAngle = ((12.0 - hour)/24.0) * 2.0 * Math.PI + -Math.PI/2.0;
+        //var lightdir = vec3.create([-1.0, 0.0, 0.0]);
+        var lightdir = vec3.create([Math.sin(lightAngle), 0.0, Math.cos(lightAngle)]);
         var lightdest = vec4.create();
         vec3.normalize(lightdir);
         mat4.multiplyVec4(view, [lightdir[0], lightdir[1], lightdir[2], 0.0], lightdest);
@@ -472,7 +478,6 @@
         initializeSphere2();
 
         var modelForward = vec3.create([0.0, 0.0, 1.0]);
-        console.log(eye);
         var desiredDir = vec3.subtract(eye, center);
         vec3.normalize(desiredDir);
         var rotAngle = Math.acos(vec3.dot(modelForward, desiredDir));
