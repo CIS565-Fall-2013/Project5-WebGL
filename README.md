@@ -58,3 +58,10 @@ Performance Analysis
 * The problem above is that I'm now setting up the sphere in each animation frame. Further optimizations could be done by moving the setup to a precompute step. In general it seems that the draw call is not very time consuming - rather packaging the data and sending to the GPU is the bottleneck. Below is another example from the simplex wave demo, which has a modestly complex vertex vertex shader. Again, the shaders aren't the performance bottleneck. Rather, it's the animate() call that sets up the shader, and other logic done in JavaScript: 
 
 ![Pie chart 3](screenshots/simplex_pie_chart.png)
+
+-------------------------------------------------------------------------------
+Credits
+-------------------------------------------------------------------------------
+* Base code from CIS565 (Liam Boone, Patrick Cozzi)
+* Code snippets from the [ISS Now site](http://open-notify.org/Open-Notify-API/ISS-Location-Now/). 
+* ISS logo based on SVG from [ClipartsFree](http://www.clipartsfree.net/svg/4994-international-space-station-vector.html)
