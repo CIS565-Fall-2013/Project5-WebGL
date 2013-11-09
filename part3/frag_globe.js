@@ -83,21 +83,21 @@
     var trail_program;
 
     var trail_array = new Array();
-    trail_array[0] = 0.0;
-    trail_array[1] = 0.0;
-    trail_array[2] = 0.0;
-    trail_array[3] = 1.5;
-    trail_array[4] = 1.5;
-    trail_array[5] = 1.5;
-    trail_array[6] = 1.5;
-    trail_array[7] = 3.0;
-    trail_array[8] = 1.5;
-    trail_array[9] = 0.0;
-    trail_array[10] = 0.0;
-    trail_array[11] = 0.0;
-    trail_array[9] = -1.2;
-    trail_array[10] = -1.2;
-    trail_array[11] = -1.2;
+    //trail_array[0] = 0.0;
+    //trail_array[1] = 0.0;
+    //trail_array[2] = 0.0;
+    //trail_array[3] = 1.5;
+    //trail_array[4] = 1.5;
+    //trail_array[5] = 1.5;
+    //trail_array[6] = 1.5;
+    //trail_array[7] = 3.0;
+    //trail_array[8] = 1.5;
+    //trail_array[9] = 0.0;
+    //trail_array[10] = 0.0;
+    //trail_array[11] = 0.0;
+    //trail_array[9] = -1.2;
+    //trail_array[10] = -1.2;
+    //trail_array[11] = -1.2;
 
     function initializeShader() {
         var program;
@@ -543,6 +543,15 @@
 
         gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
 
+        var degN = iss_lat;
+        var degE = iss_lon;
+        var azimuth = -degE * (Math.PI / 180.0) + Math.PI;
+        var inclination = -degN * (Math.PI / 180.0)  + Math.PI/2.0;
+        var curr_rad = 1.5;
+        var currX = curr_rad*Math.sin(inclination)*Math.cos(azimuth);
+        var currY = curr_rad*Math.cos(inclination);
+        var currZ = curr_rad*Math.sin(inclination)*Math.sin(azimuth);
+
         function set_lat_lon( lat, lon ){
             iss_lat = lat;
             iss_lon = lon;
@@ -557,6 +566,9 @@
                     set_lat_lon( lat, lon );
                 });
             elapsedTime = 0;
+            trail_array.push(currX);
+            trail_array.push(currY);
+            trail_array.push(currZ);
         }
 
 
@@ -566,14 +578,6 @@
         //var degN = -46.59929004639757; //degrees north
         //var degE = -64.76256280430778; //degrees east
 
-        var degN = iss_lat;
-        var degE = iss_lon;
-        var azimuth = -degE * (Math.PI / 180.0) + Math.PI;
-        var inclination = -degN * (Math.PI / 180.0)  + Math.PI/2.0;
-        var curr_rad = 1.5;
-        var currX = curr_rad*Math.sin(inclination)*Math.cos(azimuth);
-        var currY = curr_rad*Math.cos(inclination);
-        var currZ = curr_rad*Math.sin(inclination)*Math.sin(azimuth);
     
         initializeShader2();
         initializeSphere2();
