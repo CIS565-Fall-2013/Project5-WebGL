@@ -149,7 +149,10 @@
 
         context.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp);
         context.uniform1f(u_timeLocation, time);
-        context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
+        function draw(){
+            context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
+        }
+        draw();
 
         time += dt;
 

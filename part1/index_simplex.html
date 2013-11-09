@@ -11,6 +11,7 @@
 <canvas id="canvas" style="border: none;" width="1024" height="768" tabindex="1"></canvas>
 
 <script id="vs" type="x-shader/x-vertex">
+    #extension GL_EXT_gpu_shader4 : enable 
     attribute vec2 position;
     
     uniform mat4 u_modelViewPerspective;
