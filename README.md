@@ -21,7 +21,7 @@ The first part of this project is a WebGL terrain renderer. [Click HERE to see i
     gl_Position = u_modelViewPerspective * vec4(vec3(position, 0.5*height), 1.0);
 ```
 
-* In addition to rendering terrain, I can render simple waves, using the vertex shader to perturb the normals: [Simplex Wave Demo](http://nmarshak1337.github.io/Project5-WebGL/part1/index_simplex.html), [Sine/Cosine Wave Demo](http://nmarshak1337.github.io/Project5-WebGL/part1/vert_wave.html).
+* In addition to rendering terrain, I can render simple waves, using the vertex shader to perturb the normals: [Simplex Wave Demo](http://nmarshak1337.github.io/WebGL_Terrain_ISS/part1/index_simplex.html), [Sine/Cosine Wave Demo](http://nmarshak1337.github.io/WebGL_Terrain_ISS/part1/vert_wave.html).
 
 -------------------------------------------------------------------------------
 ISS Tracker
