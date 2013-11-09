@@ -528,12 +528,12 @@
     }
 
     //front back up down right left
-    skyboxfaces[0] = [gl.TEXTURE_CUBE_MAP_POSITIVE_X, "space_ft.JPG"];
-    skyboxfaces[1] = [gl.TEXTURE_CUBE_MAP_NEGATIVE_X, "space_bk.JPG"];
-    skyboxfaces[2] = [gl.TEXTURE_CUBE_MAP_POSITIVE_Y, "space_up.JPG"];
-    skyboxfaces[3] = [gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, "space_dn.JPG"];
-    skyboxfaces[4] = [gl.TEXTURE_CUBE_MAP_POSITIVE_Z, "space_dn.JPG"];
-    skyboxfaces[5] = [gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, "space_dn.JPG"];
+    skyboxfaces[0] = [gl.TEXTURE_CUBE_MAP_POSITIVE_X, "space_ft.jpg"];
+    skyboxfaces[1] = [gl.TEXTURE_CUBE_MAP_NEGATIVE_X, "space_bk.jpg"];
+    skyboxfaces[2] = [gl.TEXTURE_CUBE_MAP_POSITIVE_Y, "space_up.jpg"];
+    skyboxfaces[3] = [gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, "space_dn.jpg"];
+    skyboxfaces[4] = [gl.TEXTURE_CUBE_MAP_POSITIVE_Z, "space_dn.jpg"];
+    skyboxfaces[5] = [gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, "space_dn.jpg"];
 
     loadCubeTextrue(skyboxTex, skyboxfaces);
 

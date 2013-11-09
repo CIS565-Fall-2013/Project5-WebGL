@@ -19,9 +19,12 @@ Also, I implemented a water ripple like wave based on vertex shader
 
 **Part 2 Globe**
 
-![Alt text](screenshot2.png "procedural water")
+[![Alt text](screenshot2.png "procedural water")](http://tiansijie.github.io/Project5-WebGL/ "![Alt text](screenshot2.png "procedural water")
 
-![Alt text](screenshot1.png "skybox")
+
+[![Alt text](screenshot1.png "skybox")](http://tiansijie.github.io/Project5-WebGL/ "![Alt text](screenshot1.png "skybox")")
+
+click image to view online
 
 For the second part, I implemented:
 
