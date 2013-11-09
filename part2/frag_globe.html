@@ -107,7 +107,7 @@
     {
     	// Acknowledgement for Parallax Occlusion Mapping:
     	// "A Closer Look at Parallax Occlusion Mapping", Jason Zink, Advanced Game Programming, Chap. 12
-    	// and LIAM. :P 
+    	// and Liam. :P 
         vec3 normal; 
         vec3 eyeToPosition;
         vec2 TexCoord = v_Texcoord;
@@ -120,9 +120,9 @@
         	eyeToPosition = normalize (v_ViewModel);
         	
 	        // Compute the number of samples required:
-	        const int maxSamples = 10;
+	        const int maxSamples = 20;
 	        const int minSamples = 0;
-	        int nSamples = maxSamples;/*int_lerp (minSamples, maxSamples, dot (eyeToPosition, normal))*/;
+	        int nSamples = int_lerp (minSamples, maxSamples, dot (eyeToPosition, normal));
 	        
 	        float curHeight = 1.0, curSample = 1.0, lastSample = 1.0;
 	        vec3 currSamplePos = v_positionMC;		// Current sample point along view vector.
