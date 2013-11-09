@@ -1,4 +1,7 @@
+
+
 (function() {
+    var Time = 0;
     "use strict";
     /*global window,document,Float32Array,Uint16Array,mat4,vec3,snoise*/
     /*global getShaderSource,createWebGLContext,createProgram*/
@@ -65,6 +68,9 @@
     var skypositionLocation;
     var skytexCoordLocation;
     var u_skyCameraSpaceDirLightLocation;   
+
+
+
 
 
     var program = new Array();
@@ -344,11 +350,15 @@
     canvas.oncontextmenu = function(ev) {return false;};
     document.onmouseup = handleMouseUp;
     document.onmousemove = handleMouseMove;  
+   
+ 
 
     function animate() {
         ///////////////////////////////////////////////////////////////////////////
-        // Update
-        
+        // Update       
+        var d1 = new Date();
+        var startTime = d1.getTime();
+
         var model = mat4.create();
         mat4.identity(model);
         mat4.rotate(model, 23.4/180*Math.PI, [0.0, 0.0, 1.0]);
@@ -458,9 +468,19 @@
 
         gl.disableVertexAttribArray(skypositionLocation);       
 
+        var d2 = new Date();
+        var endTime = d2.getTime();
+        var TimeDelta = endTime/1000.0 - startTime/1000.0;
+        //var fps = 1 / TimeDelta;
+        console.debug(TimeDelta); 
+       
+
         time += 0.001;
-        window.requestAnimFrame(animate);
+        window.requestAnimFrame(animate);   
+
+            
     }
+ 
 
     var textureCount = 0;
         
@@ -517,4 +537,9 @@
 
     loadCubeTextrue(skyboxTex, skyboxfaces);
 
+
+   
+
 }());
+
+
