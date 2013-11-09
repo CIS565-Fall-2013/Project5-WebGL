@@ -54,7 +54,9 @@
     var u_CloudTransLocation;
     var u_EarthSpecLocation;
     var u_BumpLocation;
-    var u_timeLocation;
+    var u_HeightLocation;
+    var u_TimeLocation;
+    var u_RenderModeLocation;
 
     (function initializeShader() {
         var vs = getShaderSource(document.getElementById("vs"));
@@ -73,9 +75,11 @@
         u_CloudLocation = gl.getUniformLocation(program,"u_Cloud");
         u_CloudTransLocation = gl.getUniformLocation(program,"u_CloudTrans");
         u_EarthSpecLocation = gl.getUniformLocation(program,"u_EarthSpec");
-        u_BumpLocation = gl.getUniformLocation(program,"u_Bump");
-        u_timeLocation = gl.getUniformLocation(program,"u_time");
-        u_CameraSpaceDirLightLocation = gl.getUniformLocation(program,"u_CameraSpaceDirLight");
+        u_BumpLocation = gl.getUniformLocation(program, "u_Bump");
+        u_HeightLocation = gl.getUniformLocation(program, "u_Height");
+        u_TimeLocation = gl.getUniformLocation(program,"u_time");
+        u_CameraSpaceDirLightLocation = gl.getUniformLocation(program, "u_CameraSpaceDirLight");
+        u_RenderModeLocation = gl.getUniformLocation(program, "u_RenderMode");
 
         gl.useProgram(program);
     })();
@@ -85,7 +89,8 @@
     var cloudTex = gl.createTexture();
     var transTex = gl.createTexture();
     var lightTex = gl.createTexture();
-    var specTex  = gl.createTexture();
+    var specTex = gl.createTexture();
+    var heightTex = gl.createTexture();
 
     function initLoadedTexture(texture){
         gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -176,6 +181,8 @@
     })();
 
     var time = 0;
+    var renderMode = 1;     //default tutorial mode
+
     var mouseLeftDown = false;
     var mouseRightDown = false;
     var lastMouseX = null;
@@ -228,11 +235,27 @@
         lastMouseY = newY;
     }
 
+    function handleKeyPress(event) {
+        renderMode = event.keyCode;
+    }
+
     canvas.onmousedown = handleMouseDown;
     canvas.oncontextmenu = function(ev) {return false;};
     document.onmouseup = handleMouseUp;
     document.onmousemove = handleMouseMove;
 
+    document.onkeydown = handleKeyPress;
+
+    //performance stuff
+    var stats = new Stats();
+    stats.setMode(1); // 0: fps, 1: ms
+
+    // Align top-left
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.left = '0px';
+    stats.domElement.style.top = '0px';
+
+    document.body.appendChild(stats.domElement);
 
     function animate() {
         ///////////////////////////////////////////////////////////////////////////
@@ -267,6 +290,12 @@
         gl.uniformMatrix4fv(u_InvTransLocation, false, invTrans);
 
         gl.uniform3fv(u_CameraSpaceDirLightLocation, lightdir);
+        
+        //pass in time
+        gl.uniform1f(u_TimeLocation, time);
+
+        //pass in key presses
+        gl.uniform1i(u_RenderModeLocation, renderMode);
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, dayTex);
@@ -286,9 +315,18 @@
         gl.activeTexture(gl.TEXTURE5);
         gl.bindTexture(gl.TEXTURE_2D, specTex);
         gl.uniform1i(u_EarthSpecLocation, 5);
-        gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
 
-        time += 0.001;
+        gl.activeTexture(gl.TEXTURE6);
+        gl.bindTexture(gl.TEXTURE_2D, heightTex);
+        gl.uniform1i(u_HeightLocation, 6);
+
+        //for performace eval
+
+            stats.begin();
+            gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT, 0);
+            stats.end();
+
+        time += 0.0002;
         window.requestAnimFrame(animate);
     }
 
@@ -300,7 +338,7 @@
             initLoadedTexture(texture);
 
             // Animate once textures load.
-            if (++textureCount === 6) {
+            if (++textureCount === 7) {
                 animate();
             }
         }
@@ -313,4 +351,5 @@
     initializeTexture(transTex, "earthtrans1024.png");
     initializeTexture(lightTex, "earthlight1024.png");
     initializeTexture(specTex, "earthspec1024.png");
+    initializeTexture(heightTex, "earthheight1024.png");
 }());

@@ -10,6 +10,7 @@
 <div id="message" style="position:absolute;top:100px"></div> <!-- Pixel offset to avoid FPS counter -->
 <canvas id="canvas" style="border: none;" width="1024" height="768" tabindex="1"></canvas>
 
+
 <script id="vs" type="x-shader/x-vertex">
     precision highp float;
 
@@ -61,8 +62,13 @@
     //Bump map
     uniform sampler2D u_Bump;
 
+    //height map
+    uniform sampler2D u_Height;
+
     uniform float u_time;
     uniform mat4 u_InvTrans;
+
+    uniform int u_RenderMode;
 
     varying vec3 v_Normal;              // surface normal in camera coordinates
     varying vec2 v_Texcoord;
@@ -70,29 +76,58 @@
     varying vec3 v_positionMC;          // position in model coordinates
 
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
+    vec3 calcBump(vec3 normal);
+    void renderBase();              //for rendering base globe
+    void renderHeightMap();
+    vec3 renderWater();
 
-    void main(void)
-    {
-        // surface normal - normalized after rasterization
-        vec3 normal = normalize(v_Normal);
-        // normalized eye-to-position vector in camera coordinates
-        vec3 eyeToPosition = normalize(v_Position);
-        
-        float diffuse = clamp(dot(u_CameraSpaceDirLight, normal), 0.0, 1.0);
+    vec3 permute(vec3 x) {
+        x = ((x*34.0)+1.0)*x;
+        return x - floor(x * (1.0 / 289.0)) * 289.0;
+    }
 
-        vec3 toReflectedLight = reflect(-u_CameraSpaceDirLight, normal);
-        float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
-        specular = pow(specular, 20.0);
+    float simplexNoise(vec2 v){
+      const vec4 C = vec4(0.211324865405187, 0.366025403784439,  -0.577350269189626, 0.024390243902439); 
 
-        float gammaCorrect = 1.0/1.2; //gamma correct by 1/1.2
+      vec2 i  = floor(v + dot(v, C.yy) );
+      vec2 x0 = v -   i + dot(i, C.xx);
 
-        vec3 dayColor = texture2D(u_DayDiffuse, v_Texcoord).rgb;
-        vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
-        //apply gamma correction to nighttime texture
-        nightColor = pow(nightColor,vec3(gammaCorrect));
+      vec2 i1;
+      i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
 
-        vec3 color = ((0.6 * diffuse) + (0.4 * specular)) * dayColor;
-        gl_FragColor = vec4(color, 1.0);
+      vec4 x12 = x0.xyxy + C.xxzz;
+      x12.xy -= i1;
+
+      i = i - floor(i * (1.0 / 289.0)) * 289.0;
+
+      vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
+            + i.x + vec3(0.0, i1.x, 1.0 ));
+
+      vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+      m = m*m ;
+      m = m*m ;
+
+      vec3 x = 2.0 * fract(p * C.www) - 1.0;
+      vec3 h = abs(x) - 0.5;
+      vec3 ox = floor(x + 0.5);
+      vec3 a0 = x - ox;
+
+      m *= inversesqrt( a0*a0 + h*h );
+
+      vec3 g;
+      g.x  = a0.x  * x0.x  + h.x  * x0.y;
+      g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+      return 130.0 * dot(m, g);
+    }
+
+    void main(){
+        if (u_RenderMode == 49){
+            renderHeightMap();
+        }
+        else{
+            renderBase();
+        }
+    
     }
 
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC)
@@ -109,8 +144,112 @@
             bitangentEC.x, bitangentEC.y, bitangentEC.z,
             normalEC.x,    normalEC.y,    normalEC.z);
     }
+
+    vec3 calcBump(vec3 normal){
+        
+        //read 3 texels for bump values
+        float center = texture2D(u_Bump, v_Texcoord).r; 
+        float top = texture2D(u_Bump, vec2(v_Texcoord.s, v_Texcoord.t+(1.0/512.0))).r;
+        float right = texture2D(u_Bump, vec2(v_Texcoord.s+(1.0/1024.0), v_Texcoord.t)).r; 
+
+        float specContrib = texture2D(u_EarthSpec, v_Texcoord).r;
+
+        // find noise parameters based on time
+        float noise = abs(fract(u_time) - 0.5);
+        float s_contrib = sin(v_positionMC.x*2.0*3.14159 + u_time);
+        float t_contrib = cos(v_positionMC.y*2.0*3.14159 + u_time);
+		float height = s_contrib*t_contrib;
+
+        top += 0.02*sin(v_positionMC.x * 150.0 *height) * cos(v_positionMC.y * noise* 300.0)*specContrib;
+        right += 0.02*sin(v_positionMC.y * noise* 200.0) * cos(v_positionMC.x * 100.0 * height)*specContrib;
+
+        vec3 bumpNormal = normalize(vec3(center - right, center - top, 0.2));
+        
+        //transform to eye space and return
+        return eastNorthUpToEyeCoordinates(normalize(v_positionMC), normal) * bumpNormal;
+    }
+
+    void renderBase(void)
+    {
+        // surface normal - normalized after rasterization
+        vec3 normal = normalize(v_Normal);
+        // normalized eye-to-position vector in camera coordinates
+        vec3 eyeToPosition = normalize(v_Position);
+
+        //bump mapping to find new normal
+        vec3 bumpNormal = calcBump(normal);
+        
+        float signedDiffuse = dot(u_CameraSpaceDirLight, bumpNormal);
+        float diffuse = clamp(signedDiffuse, 0.0, 1.0);
+
+        vec3 toReflectedLight = reflect(-u_CameraSpaceDirLight, normal);
+        
+        //only apply specular to ocean, use red channel for transparency
+        float specContrib = texture2D(u_EarthSpec, v_Texcoord).r;
+        float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
+        specular = pow(specular, 20.0) * specContrib;
+        
+        float gammaCorrect = 1.0/1.3; //gamma correct by 1/1.2
+
+        vec3 dayColor = texture2D(u_DayDiffuse, v_Texcoord).rgb;
+        vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
+        //apply gamma correction to nighttime texture
+        nightColor = pow(nightColor,vec3(gammaCorrect));
+        
+        //color the globe
+        vec3 color = ((0.6 * diffuse) + (0.4 * specular)) * dayColor;
+        
+        //color the cloud
+        vec2 cloudAnim = v_Texcoord;
+        cloudAnim.s += u_time; 
+        float cloudContrib = texture2D(u_CloudTrans, cloudAnim).r;
+        vec3 cloudColor = texture2D(u_Cloud, cloudAnim).rgb;
+        cloudColor = ((0.6 * diffuse) + (0.4 * specular)) * cloudColor;
+        color = mix(cloudColor, color, cloudContrib);
+        
+        //if fragment not facing sun, smooth transition to night color
+        if (diffuse == 0.0){
+            //blend to solid black if covered by cloud
+            nightColor = mix(vec3(0.0, 0.0, 0.0), nightColor, cloudContrib);
+            color = 2.0*mix(color, nightColor, abs(signedDiffuse));
+        }
+
+        //rim lighting
+        float rim = max(0.0, dot(v_Normal, v_Position)+1.0);
+        color += vec3(rim/4.0, rim/2.0, rim/2.0); 
+
+        gl_FragColor = vec4(color, 1.0);
+    }
+
+    vec3 renderWater(){
+
+       float isWater = texture2D(u_EarthSpec, v_Texcoord).r;
+       vec3 newPos = v_Position;
+       newPos.y = 0.0 ;       
+       return newPos;
+    }
+
+    void renderHeightMap(){
+        vec3 normal = calcBump(normalize(v_Normal));
+        float diffuse = dot(u_CameraSpaceDirLight, normal);
+
+        float height = texture2D(u_Height, v_Texcoord).r;
+       
+        //interpolate color based on height 
+        vec3 color;
+        
+        if(height < 0.5)
+            color = mix(vec3(0, 0, 1), vec3(0, 1, 0), height);
+        else
+            color = mix(vec3(0, 1, 0), vec3(1, 0, 0), height);
+
+        color = (0.4*diffuse + 1.0)*color;
+        gl_FragColor = vec4(color, 1.0);
+    }
+
 </script>
 
+<script src ="stats.min.js" type ="text/javascript"></script>
 <script src ="gl-matrix.js" type ="text/javascript"></script>
 <script src ="webGLUtility.js" type ="text/javascript"></script>
 <script src ="frag_globe.js" type ="text/javascript"></script>
