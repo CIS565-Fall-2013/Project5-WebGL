@@ -26,9 +26,9 @@ The first part of this project is a WebGL terrain renderer. [Click HERE to see i
 -------------------------------------------------------------------------------
 ISS Tracker
 -------------------------------------------------------------------------------
-Part 3 of this project is an app that tracks the ISS, which I bolted on to Part 2, which is a virtual globe. [Click HERE to see it.](http://nmarshak1337.github.io/Project5-WebGL/part3/frag_globe.html).
+Part 3 of this project is an app that tracks the ISS, which I bolted on to Part 2, which is a virtual globe. [Click HERE to see it.](http://nmarshak1337.github.io/Project5-WebGL/part3/frag_globe.html). [Click HERE to see a video](http://youtu.be/e8fi5EmaTbo).
 
-* I use the ISS Now API to get the latitude and longitude of the ISS. I poll once every five seconds.
+* I use the [ISS Now API](http://open-notify.org/Open-Notify-API/ISS-Location-Now/) to get the latitude and longitude of the ISS. I poll once every five seconds.
 * The API does not provide previous ISS positions, so I draw a trail starting from when the app is opened.
 * The day/night on the globe approximates day/night in real time (I do not account for the Earth's tilt). I do
 this by getting UTC time, then offsetting so that day/night is correct in the UTC time zone (and therefore for everywhere else): 
@@ -51,10 +51,10 @@ Performance Analysis
 
 ![Pie chart 1](screenshots/naive_shader_setup.png)
 
-* Why were initializing the shaders so time consuming? It turned out that I was compiling the shaders at every animation frame! Clearly very inefficient. After compiling the shaders ONCE, then using gl.useProgram() to switch between shaders, the pie chart looks like this:
+* Why were initializing the shaders so time consuming? It turned out that I was compiling the shaders at every animation frame! Clearly very inefficient. After compiling the shaders ONCE, then using gl.useProgram() to switch between shaders, the pie chart looks like the image below. The InitializeShader() calls are considered by the profiler to take up 0% of the execution time:
 
 ![Pie chart 2](screenshots/improved_shader_setup.png)
 
-* The problem above is now that I'm setting up the sphere in each animation frame. Further optimizations could be done by moving the setup to a precompute step. In general it seems that the draw call is not very time consuming - rather packaging the data and sending to the GPU is the bottleneck. Below is another example from the simplex wave demo, which has a modestly complex vertex vertex shader. Again, the shaders aren't the performance bottleneck. Rather, it's the animate() call that sets up the shader, and other logic done in JavaScript: 
+* The problem above is that I'm now setting up the sphere in each animation frame. Further optimizations could be done by moving the setup to a precompute step. In general it seems that the draw call is not very time consuming - rather packaging the data and sending to the GPU is the bottleneck. Below is another example from the simplex wave demo, which has a modestly complex vertex vertex shader. Again, the shaders aren't the performance bottleneck. Rather, it's the animate() call that sets up the shader, and other logic done in JavaScript: 
 
 ![Pie chart 3](screenshots/simplex_pie_chart.png)
