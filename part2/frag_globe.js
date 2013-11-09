@@ -566,18 +566,30 @@
     function animate() {
 
         // Earth
+        var start = new Date().getMilliseconds();
         initializeEarthShader();
         initializeSphere();
         drawEarth();
+        var end = new Date().getMilliseconds();
+        var totaltime = end - start;
+        console.log('Earth Rendering Execution time: ' + totaltime);
 
         // Moon
+        var start = new Date().getMilliseconds();
         initializeMoonShader();
         initializeSphere();
         drawMoon();
+        var end = new Date().getMilliseconds();
+        var totaltime = end - start;
+        console.log('Moon Rendering Execution time: ' + totaltime);
 
         // Skybox
+        var start = new Date().getMilliseconds();
         initializeSkyboxShader();
         drawSkybox();
+        var end = new Date().getMilliseconds();
+        var totaltime = end - start;
+        console.log('Skybox Rendering Execution time: ' + totaltime);
 
         time += 0.001;
         

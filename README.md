@@ -16,12 +16,18 @@ For this part, I have implemented shaders for the following using glsl:
 * A custom vertex shader that behaves like waves
 
 Below are the links to the live demos:
+
 [Sin/Cos](http://mikeychen.net/WebGL/MathFunctionsVisualization/vert_wave.html)
+
 [Simplex Noise](http://mikeychen.net/WebGL/MathFunctionsVisualization/simplex_wave.html)
+
 [Waves](http://mikeychen.net/WebGL/MathFunctionsVisualization/custom_wave.html)
+
 
 PART 2 - GLOBE
 -------------------------------------------------------------------------------
+For this part, I have implemented the following features:
+
 * Bump mapped terrain
 * Rim lighting to simulate atmosphere
 * Night-time lights on the dark side of the globe
@@ -30,11 +36,18 @@ PART 2 - GLOBE
 * Orbiting Moon with texture mapping and bump mapping
 * Skybox around the entire scene
 
+Below is the links to the live demo:
+
 [Globe](http://mikeychen.net/WebGL/Globe/frag_globe.html)
 
 PERFORMANCE EVALUATION
 -------------------------------------------------------------------------------
+I used a simple timing mechanism to time the execution duration (rendering) of each feature in part 2.
+Below are the results.
 
+| Earth | Moon | Skybox |
+| ----- | ---- | ------ |
+| 23ms  | 8ms  | 4ms |
 
 REFERENCES
 -------------------------------------------------------------------------------

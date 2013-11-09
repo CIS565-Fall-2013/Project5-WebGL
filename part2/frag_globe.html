@@ -100,7 +100,7 @@
 
 
         // retrieving cloud colors
-        vec2 cloudTexcoord = v_Texcoord + vec2(u_time * 0.05, 0.0);
+        vec2 cloudTexcoord = v_Texcoord + vec2(u_time * 0.35, 0.0);
         vec3 cloudColor = texture2D(u_Cloud, cloudTexcoord).rgb;
         vec3 cloudTrans = texture2D(u_CloudTrans, cloudTexcoord).rgb;
 
