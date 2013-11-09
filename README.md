@@ -15,12 +15,6 @@ The first part of this project is a WebGL terrain renderer. [Click here to see i
 * I perform morphing in the vertex shader by reading two height fields as textures, blending, then using the blended result to perturb the vertices:
 
 ```glsl
-vec2 simplexVec = vec2(u_time, position);
-float s_contrib = snoise(simplexVec);
-float t_contrib = snoise(vec2(s_contrib,u_time));
-```
-
-```glsl
     float height1 = texture2D(u_Height, texCoord).r; 
     float height2 = texture2D(u_Height2, texCoord).r; 
     float height = mix(height1, height2, u_heightBlend); 
