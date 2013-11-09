@@ -15,7 +15,7 @@ For this part, I have implemented shaders for the following using glsl:
 * A simplex noise based vertex shader
 * A custom vertex shader that behaves like waves
 
-Below are the links to the live demos:
+Click the links below for live demos:
 
 * [Sin/Cos](http://mikeychen.net/WebGL/MathFunctionsVisualization/vert_wave.html)
 
@@ -36,7 +36,7 @@ For this part, I have implemented the following features:
 * Orbiting Moon with texture mapping and bump mapping
 * Skybox around the entire scene
 
-Below is the links to the live demo:
+Click the link below for a live demo:
 
 * [Globe](http://mikeychen.net/WebGL/Globe/frag_globe.html)
 
