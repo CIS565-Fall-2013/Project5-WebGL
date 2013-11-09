@@ -101,26 +101,27 @@
           bnormal = normalize(eastNorthUpToEyeCoordinates( v_positionMC, -eyeToPosition)*bnormal);
         } else {
   
-          // Bump mapping
-          float xfreq = 1500.0;
+          // Ocean waves and such
+          float xfreq =200.0;
           float yfreq = 400.0;
-          float wave_scl = 0.3;
+          float wave_scl = 0.4;
           float scl = 0.5; 
 
-          float pnoise = 25.0*simplexNoise( vec2( 0.1*sin(0.0001*u_time), v_Texcoord.x) );
+          float pnoise = 100.0*simplexNoise( vec2( 0.05*u_time, v_Texcoord.y*v_Texcoord.x) );
           
-          float cnoise = scl*simplexNoise( vec2(v_Texcoord.x*xfreq, v_Texcoord.y*yfreq) ); 
-          float rnoise = scl*simplexNoise( vec2((v_Texcoord.x+1.0/1024.0)*xfreq, v_Texcoord.y*yfreq) );
-          float tnoise = scl*simplexNoise( vec2(v_Texcoord.x*xfreq, (v_Texcoord.y+1.0/512.0)*yfreq) );
+          float cnoise = scl*simplexNoise( vec2(u_time + v_Texcoord.x*xfreq, v_Texcoord.y*yfreq) ); 
+          float rnoise = scl*simplexNoise( vec2(u_time + (v_Texcoord.x+1.0/1024.0)*xfreq, v_Texcoord.y*yfreq) );
+          float tnoise = scl*simplexNoise( vec2(u_time + v_Texcoord.x*xfreq, (v_Texcoord.y+1.0/512.0)*yfreq) );
           // Primary waves
           /*
           float center = sin( min(xfreq*v_Texcoord.x + 50.0*u_time + cnoise );
           float right =  sin( xfreq*(v_Texcoord.x + 1.0/1024.0) + 50.0*u_time + rnoise);
           float top  =  sin( xfreq*v_Texcoord.x + 50.0*u_time + tnoise);
           */
-          float center = wave_scl*sin( xfreq*v_Texcoord.y + 50.0*(u_time+pnoise) + cnoise );
-          float right =  wave_scl*sin( xfreq*(v_Texcoord.y + 1.0/1024.0) + 50.0*(u_time+pnoise) + rnoise);
-          float top  =  wave_scl*sin( xfreq*v_Texcoord.y + 50.0*(u_time+pnoise) + tnoise);
+          float tscl = 10.0;
+          float center = cnoise + wave_scl*sin( xfreq*v_Texcoord.y + tscl*(u_time+pnoise) + cnoise );
+          float right =  rnoise + wave_scl*sin( xfreq*(v_Texcoord.y + 1.0/1024.0) + tscl*(u_time+pnoise) + rnoise);
+          float top  =  tnoise + wave_scl*sin( xfreq*v_Texcoord.y + tscl*(u_time+pnoise) + tnoise);
 
           // Secondary waves
           
@@ -173,27 +174,6 @@
             tangentEC.x,   tangentEC.y,   tangentEC.z,
             bitangentEC.x, bitangentEC.y, bitangentEC.z,
             normalEC.x,    normalEC.y,    normalEC.z);
-    }
-
-
-    float genwave( vec2 pos, float time ) {
-      return sin( time );
-      /*
-      float freq = 1000.0;
-      float scl = 10.0;
-      vec2 simplexVec = vec2(pos);
-      //float wave_noise = simplexNoise( simplexVec );
-      //float subwave_noise = simplexNoise( simplexVec );
-      //float subtranswave_noise = time + simplexNoise( simplexVec );
-      float wave_noise = 1.0;
-      float subwave_noise = 1.0;
-      float subtranswave_noise = 1.0;
-      float phase = time;// + simplexNoise( simplexVec );
-      float mag = scl*sin( freq*phase ) + wave_noise*0.1;
-      //mag *= scl*sin( freq*3.13131313*subwave_noise + wave_noise/2.0);
-      //mag *= scl*cos( freq*5.5757575*subtranswave_noise + wave_noise/3.0);
-      return mag;
-      */
     }
 
     vec3 permute(vec3 x) {

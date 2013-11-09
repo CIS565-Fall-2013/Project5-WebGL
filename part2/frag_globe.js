@@ -297,7 +297,6 @@
 
         // Update time
         time += 0.001;
-
         window.requestAnimFrame(animate);
     }
 
