@@ -2,7 +2,7 @@
 Terrain Morphing Plus ISS Tracker
 --------------------------------------------------------------------------------
 ![Pair of screenshots](screenshots/big_screenshot.png)
-* DISCLAIMER 1: On my Windows install, this project works with Firefox and Chrome. On my Ubuntu install, it works in Firefox, but somehow the textures don't load in Chrome.
+* DISCLAIMER 1: This project works in Firefox and the latest version of Chrome. On my Ubuntu 12.04 install, it did not work in the Chromium browser from the official repositories.
 * DISCLAIMER 2: You might have to wait a little bit for texture data to load. In other words, the globe might appear blank and the terrain might appear flat for a few seconds, since the globe and terrain renderers use high-res textures!
 
 -------------------------------------------------------------------------------
