@@ -31,6 +31,7 @@
     var positionLocation = 0;
     var heightLocation = 1;
     var u_modelViewPerspectiveLocation;
+	var u_timeLocation ;
 
     (function initializeShader() {
         var program;
@@ -40,7 +41,7 @@
 		var program = createProgram(context, vs, fs, message);
 		context.bindAttribLocation(program, positionLocation, "position");
 		u_modelViewPerspectiveLocation = context.getUniformLocation(program,"u_modelViewPerspective");
-
+        u_timeLocation = context.getUniformLocation(program,"u_time");
         context.useProgram(program);
     })();
 
@@ -83,6 +84,7 @@
         var positionsIndex = 0;
         var indicesIndex = 0;
         var length;
+		
 
         for (var j = 0; j < NUM_WIDTH_PTS; ++j)
         {
@@ -125,7 +127,7 @@
         uploadMesh(positions, heights, indices);
         numberOfIndices = indices.length;
     })();
-
+    var time = 0;
     (function animate(){
         ///////////////////////////////////////////////////////////////////////////
         // Update
@@ -140,8 +142,9 @@
 
         ///////////////////////////////////////////////////////////////////////////
         // Render
+		time += 0.001;
         context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
-
+        context.uniform1f(u_timeLocation,time);
         context.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp);
         context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
 

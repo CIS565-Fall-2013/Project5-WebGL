@@ -55,6 +55,7 @@
     var u_EarthSpecLocation;
     var u_BumpLocation;
     var u_timeLocation;
+	var u_buttonLocation;
 
     (function initializeShader() {
         var vs = getShaderSource(document.getElementById("vs"));
@@ -75,6 +76,7 @@
         u_EarthSpecLocation = gl.getUniformLocation(program,"u_EarthSpec");
         u_BumpLocation = gl.getUniformLocation(program,"u_Bump");
         u_timeLocation = gl.getUniformLocation(program,"u_time");
+		u_buttonLocation = gl.getUniformLocation(program,"u_button");
         u_CameraSpaceDirLightLocation = gl.getUniformLocation(program,"u_CameraSpaceDirLight");
 
         gl.useProgram(program);
@@ -176,6 +178,8 @@
     })();
 
     var time = 0;
+	var frameCount = 0 ;
+	var displayBump = 0.0 ;
     var mouseLeftDown = false;
     var mouseRightDown = false;
     var lastMouseX = null;
@@ -227,13 +231,34 @@
         lastMouseX = newX;
         lastMouseY = newY;
     }
+	  var currentlyPressedKeys = {};
+	  
+	  function handleKeyDown(event) {
+        currentlyPressedKeys[event.keyCode] = true;
+
+        if (String.fromCharCode(event.keyCode) == "B") {
+          displayBump = 1.0;
+        }
+    }
+
+
+    function handleKeyUp(event) {
+        currentlyPressedKeys[event.keyCode] = false;
+		
+		if (String.fromCharCode(event.keyCode) == "B") {
+          displayBump = 0.0;
+        }
+    }
 
     canvas.onmousedown = handleMouseDown;
     canvas.oncontextmenu = function(ev) {return false;};
     document.onmouseup = handleMouseUp;
     document.onmousemove = handleMouseMove;
+	document.onkeydown = handleKeyDown;
+    document.onkeyup = handleKeyUp;
+	
 
-
+    var then = Date.now()/1000 ;
     function animate() {
         ///////////////////////////////////////////////////////////////////////////
         // Update
@@ -259,6 +284,7 @@
 
         ///////////////////////////////////////////////////////////////////////////
         // Render
+		
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         gl.uniformMatrix4fv(u_ModelLocation, false, model);
@@ -286,9 +312,23 @@
         gl.activeTexture(gl.TEXTURE5);
         gl.bindTexture(gl.TEXTURE_2D, specTex);
         gl.uniform1i(u_EarthSpecLocation, 5);
+		gl.uniform1f(u_timeLocation, time);
+		gl.uniform1f(u_buttonLocation, displayBump);
         gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
-
-        time += 0.001;
+		time += 0.001;
+		frameCount++ ;
+		if(frameCount == 30)
+		{
+		frameCount = 0;
+		var fpsElement = document.getElementById("fps");
+		var now = Date.now()/1000 ;
+		var elapsedTime = now - then;
+        then = now;
+		// compute fps
+        var fps = 1 / elapsedTime;
+        fpsElement.textContent = elapsedTime.toFixed(4);  
+		}	
+        
         window.requestAnimFrame(animate);
     }
 

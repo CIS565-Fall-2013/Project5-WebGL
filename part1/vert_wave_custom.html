@@ -19,11 +19,10 @@
     
     void main(void)
     {
-		float s_contrib = sin(position.x*2.0*3.14159 + u_time);
-		float t_contrib = cos(position.y*2.0*3.14159 + u_time);
-		float height = s_contrib*t_contrib;
+	    // Standing wave http://en.wikipedia.org/wiki/Standing_wave
+		float height = 2.0 * 0.1 * sin(position.x*(2.0*3.14159/0.5)) * cos(2.0*2.0*3.14159*u_time) * sin(position.y*(2.0*3.14159/0.5));
 		gl_Position = u_modelViewPerspective * vec4(vec3(position, height), 1.0);
-		ocolor = mix(vec3(1.0, 0.2, 0.0) ,vec3(0.0, 0.8, 1.0),height);
+		ocolor = mix(vec3(height*2.0, 0.2, 0.5) ,vec3(0.0, 0.8, height*2.0),height*5.0);
     }
 </script>
 
