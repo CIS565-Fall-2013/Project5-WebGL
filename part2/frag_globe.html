@@ -200,7 +200,7 @@
         
         //color the cloud
         vec2 cloudAnim = v_Texcoord;
-        //cloudAnim.s += u_time; 
+        cloudAnim.s += u_time; 
         float cloudContrib = texture2D(u_CloudTrans, cloudAnim).r;
         vec3 cloudColor = texture2D(u_Cloud, cloudAnim).rgb;
         cloudColor = ((0.6 * diffuse) + (0.4 * specular)) * cloudColor;
