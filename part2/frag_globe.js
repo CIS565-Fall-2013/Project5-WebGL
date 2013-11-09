@@ -477,19 +477,33 @@
         gl.uniform1i(u_BumpMoonLocation, 7);
         gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
 
-        window.requestAnimFrame(animate);
+           window.requestAnimFrame(animate);
     }
-
+    
     var textureCount = 0;
         
     function initializeTexture(texture, src) {
         texture.image = new Image();
         texture.image.onload = function() {
-            initLoadedTexture(texture);
+        initLoadedTexture(texture);
 
-            // Animate once textures load.
-            if (++textureCount === 9) {
-                animate();
+        // Animate once textures load.
+        if (++textureCount === 9) {
+            /*
+            var stats = new Stats();
+            stats.setMode(0); // 0: fps, 1: ms
+
+            // Align top-left
+            stats.domElement.style.position = 'absolute';
+            stats.domElement.style.left = '0px';
+            stats.domElement.style.top = '0px';
+    
+            document.body.appendChild( stats.domElement );
+            setInterval( function () {
+                sats.begin();*/
+                animate();           
+               /* stats.end();
+                }, 100 );*/   
             }
         }
         texture.image.src = src;
