@@ -1,3 +1,46 @@
+Fully Featured Globe:
+
+![Globe fully featured](resources/globe_best_water.png)
+
+Animated Butterfly Function:
+
+![Butterfly](resources/butterfly0.png)
+
+-------------------------------------------------------------------------------
+CIS565: Project 5: WebGL
+-------------------------------------------------------------------------------
+
+Part1:
+Implemented:
+* Sine and Simplex waves
+* Animated butterfly function. 
+  * A description of the butterfly function can be found here: http://mathworld.wolfram.com/ButterflyFunction.html
+  * Video can be found here: http://youtu.be/lUHQKqqMGtc
+   
+Part2:
+Implemented:
+* Bump mapped terrain
+* Rim lighting to simulate atmosphere
+* Night-time lights on the dark side of the globe
+* Specular mapping
+* Moving clouds
+Additionally:
+* Procedural water rendering and animation using noise 
+  * This was a pretty good attempt but it could definitely be more physically motivated. 
+    It leads to some interesting artifacts but also some great looking bits. 
+
+Video of my globe can be found here: http://youtu.be/C0MUYax2qEw
+
+Images showing water effect:
+
+![water0](resources/water0.png)
+![water1](resources/water1.png)
+![water2](resources/water2.png)
+
+
+
+
+
 -------------------------------------------------------------------------------
 CIS565: Project 5: WebGL
 -------------------------------------------------------------------------------

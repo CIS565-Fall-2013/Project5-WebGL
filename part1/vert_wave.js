@@ -3,8 +3,8 @@
     /*global window,document,Float32Array,Uint16Array,mat4,vec3,snoise*/
     /*global getShaderSource,createWebGLContext,createProgram*/
 
-    var NUM_WIDTH_PTS = 32;
-    var NUM_HEIGHT_PTS = 32;
+    var NUM_WIDTH_PTS = 200;
+    var NUM_HEIGHT_PTS = 200;
 
     var message = document.getElementById("message");
     var canvas = document.getElementById("canvas");
@@ -31,6 +31,9 @@
     var positionLocation = 0;
     var heightLocation = 1;
     var u_modelViewPerspectiveLocation;
+    var u_timeLocation;
+    //var u_color = vec3(0.0, 0.0, 0.0);
+    var u_time = 0.0;
 
     (function initializeShader() {
         var program;
@@ -40,6 +43,8 @@
 		var program = createProgram(context, vs, fs, message);
 		context.bindAttribLocation(program, positionLocation, "position");
 		u_modelViewPerspectiveLocation = context.getUniformLocation(program,"u_modelViewPerspective");
+                u_timeLocation = context.getUniformLocation(program, "u_time");
+                //u_color = context.getUniformLocation(program, "u_color");
 
         context.useProgram(program);
     })();
@@ -138,11 +143,14 @@
         var mvp = mat4.create();
         mat4.multiply(persp, mv, mvp);
 
+        u_time += 0.01;
+
         ///////////////////////////////////////////////////////////////////////////
         // Render
         context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
-
+          
         context.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp);
+        context.uniform1f( u_timeLocation, u_time );
         context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
 
 		window.requestAnimFrame(animate);
