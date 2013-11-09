@@ -50,10 +50,10 @@ specular masking and a cloud layer based off a texture. Below are some screensho
 
 ##An unanswered question
 ###Parallax Occlusion Mapping
-My original implementation of parallax occlusion mapping was based on the chapter A Closer Look at 
-Parallax Occlusion Mapping from the book Advanced Game Programming, which itself follows the sample 
+My original implementation of parallax occlusion mapping was based on the chapter *A Closer Look at 
+Parallax Occlusion Mapping* from the book *Advanced Game Programming*, which itself follows the sample 
 from the DirectX SDK quite faithfully. This method involves stepping through samples in the tangent 
-space. A chat with our TA, William Boone convinced me that this approach was not quite suited for 
+space. A chat with our TA, William Boone, convinced me that this approach was not quite suited for 
 spherical surfaces. As a result, I used an alternative implementation as depicted below:  
   
 ![Parallax Occlusion Mapping: My implementation](resources/pom-my-impl.png)  
