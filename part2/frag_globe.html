@@ -1,4 +1,4 @@
-<html>
+﻿<html>
 
 <head>
 <title>Fragment Globe</title>
@@ -14,10 +14,15 @@
     precision highp float;
 
     uniform mat4 u_Model;
+    uniform mat4 u_InvModel;
     uniform mat4 u_View;
+    uniform mat4 u_InvView;
     uniform mat4 u_Persp;
     uniform mat4 u_InvTrans;
-
+	uniform mat4 u_InvTransModel;
+	uniform float u_BumpOrPOM;
+    uniform float u_heightFieldColour;
+	
     attribute vec3 Position;
     attribute vec3 Normal;
     attribute vec2 Texcoord;
@@ -26,6 +31,14 @@
     varying vec2 v_Texcoord;
     varying vec3 v_Position;
     varying vec3 v_positionMC;
+    
+    varying vec3 v_ViewModel;			// View Vector (Eye to Position) in Model Space. 
+    varying vec3 v_NormalModel;			// Normal in Mode Space. 
+    
+    varying float isBump;
+    varying float isHMap;
+
+	mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
 
     void main(void)
     {
@@ -36,7 +49,17 @@
         v_Position = camera.xyz;
         v_positionMC = Position;
         gl_Position = u_Persp * camera;
-    }
+        
+        vec3 eyeWorld = vec4 (u_InvView * vec4 (0.0, 0.0, 0.0, 1.0)).xyz;
+        
+        isBump = u_BumpOrPOM;
+        isHMap = u_heightFieldColour;
+        // Parallax Occlusion Mapping:
+        // Compute view vector and normal in Model Space:
+        v_ViewModel = world.xyz - eyeWorld.xyz;		
+        v_ViewModel = vec4 (u_InvModel * vec4 (v_ViewModel, 1.0)).xyz;  // View Vector (Eye to Position) in Model Space. 
+     	v_NormalModel = Position;								// Normal in Model Space. 
+     }
 </script>
 
 <script id="fs" type="x-shader/x-fragment">
@@ -62,37 +85,147 @@
     uniform sampler2D u_Bump;
 
     uniform float u_time;
-    uniform mat4 u_InvTrans;
+    uniform mat4 u_InvTrans;			// Transpose of the inverse of the modelview.
 
+    varying float isBump;
+    varying float isHMap;
     varying vec3 v_Normal;              // surface normal in camera coordinates
     varying vec2 v_Texcoord;
     varying vec3 v_Position;            // position in camera coordinates
     varying vec3 v_positionMC;          // position in model coordinates
-
-    mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
-
+    
+    varying vec3 v_ViewModel;			// View Vector (Eye to Position) in Model Space. 
+    varying vec3 v_NormalModel;			// Normal in Model Space. 
+    
+    mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);	// Matrix to transform tangent space to view space.
+    int int_lerp (int a, int b, float mixFactor);
+    float simplexNoise (vec2 inputVec);
+    
+    const float PI = 3.1415926;
+    
     void main(void)
     {
-        // surface normal - normalized after rasterization
-        vec3 normal = normalize(v_Normal);
-        // normalized eye-to-position vector in camera coordinates
-        vec3 eyeToPosition = normalize(v_Position);
+    	// Acknowledgement for Parallax Occlusion Mapping:
+    	// "A Closer Look at Parallax Occlusion Mapping", Jason Zink, Advanced Game Programming, Chap. 12
+    	// and Liam. :P 
+        vec3 normal; 
+        vec3 eyeToPosition;
+        vec2 TexCoord = v_Texcoord;
         
-        float diffuse = clamp(dot(u_CameraSpaceDirLight, normal), 0.0, 1.0);
+        if (isBump == 0.0)
+        {
+	        // Normalized Normal in Model Space
+        	normal = normalize (v_NormalModel);
+	        // Normalized eye-to-position vector in Model Space
+        	eyeToPosition = normalize (v_ViewModel);
+        	
+	        // Compute the number of samples required:
+	        const int maxSamples = 20;
+	        const int minSamples = 0;
+	        int nSamples = int_lerp (minSamples, maxSamples, dot (eyeToPosition, normal));
+	        
+	        float curHeight = 1.0, curSample = 1.0, lastSample = 1.0;
+	        vec3 currSamplePos = v_positionMC;		// Current sample point along view vector.
+	        vec3 lastSamplePos = v_positionMC;		// Last sample point along view vector.
+	        int sampleNo = 0;
+	        float stepSize = 1.0/float(nSamples);
+	        
+	        for (int loopVar = 0; loopVar < maxSamples; loopVar ++)		// Hack to get for loop working.
+	        {
+	        	if (sampleNo < nSamples)
+	        		break;
+	        		
+	        	curSample = texture2D (u_Bump, TexCoord).r;
+	        	
+	        	if (curSample > curHeight)	// We have marched past the heightfield. Step back to find the
+	        	{							// actual intersection point.
+	        	// TODO: Use Binary search based implementation instead of this.
+	        		float delta1 = curSample - curHeight;				// Difference between current sample and current height.
+	        		float delta2 = curHeight + stepSize - lastSample;	// Difference between last sample and last height.
+	        		float ratio = delta1 / (delta1+delta2);
+	
+	        		currSamplePos = ratio * lastSamplePos + (1.0-ratio)*currSamplePos;		// Lerp between current Offset and last Offset.
+	        		sampleNo = nSamples + 1;
+	        	}
+	        	else		// Otherwise, step through to the next step and compute the height from the heightfield.
+	        	{
+	        		++ sampleNo;
+	        		curHeight -= stepSize;
+	        		lastSamplePos = currSamplePos;
+	        		currSamplePos += stepSize * eyeToPosition;
+	        		lastSample = curSample;
+	        	}
+	        	
+	        	// Calculate next Tex coord:
+	        	float r = length (currSamplePos);
+	        	if (r > 1.0)
+	        		break;
+	        	vec3 curSamplePosOnSphere = currSamplePos / r;
+	        	float azimuth = atan (curSamplePosOnSphere.x, curSamplePosOnSphere.z);
+	        	TexCoord.x = azimuth / (2.0 * PI);
+	        	TexCoord.y = atan (curSamplePosOnSphere.y, curSamplePosOnSphere.z/sin (azimuth)) / PI;
+	        }
+	        
+	    }
+        
+        vec2 finalTexCoords = TexCoord;
+        // Now, transform eyeToPosition and normal in camera space.
+        eyeToPosition = normalize (v_Position);		
+        normal = normalize (v_Normal);
+        
+		// Load the different colours from each of the textures.
+        vec3 dayColor = texture2D(u_DayDiffuse, finalTexCoords/*v_Texcoord*/).rgb;
+        vec3 nightColor = texture2D(u_Night, finalTexCoords/*v_Texcoord*/).rgb;
+        vec3 specularMap = texture2D (u_EarthSpec, v_Texcoord).rgb;
+        vec3 cloudMap = texture2D (u_CloudTrans, vec2(fract(v_Texcoord.x+(u_time*0.4)), v_Texcoord.y)).rgb;	// Cloud transmittence map.
+        vec3 cloudColourMap = texture2D (u_Cloud, vec2(fract(v_Texcoord.x+(u_time*0.4)), v_Texcoord.y)).rgb;
+           	 
+        // Now find normal from the bump map using finalTexCoords
+        float bumpMap_center = texture2D (u_Bump, finalTexCoords).r;
+        float bumpMap_right = texture2D (u_Bump, vec2 (finalTexCoords.x+(1.0/1024.0), finalTexCoords.y)).r;
+        float bumpMap_up = texture2D (u_Bump, vec2 (finalTexCoords.x, finalTexCoords.y+(1.0/512.0))).r;        
+        vec3  bump_NormalEyeSpace = eastNorthUpToEyeCoordinates (v_positionMC, v_Normal) * 
+        							normalize (vec3 (bumpMap_center - bumpMap_right, bumpMap_center - bumpMap_up, 0.2));
+        bump_NormalEyeSpace = normalize (bump_NormalEyeSpace);        
 
-        vec3 toReflectedLight = reflect(-u_CameraSpaceDirLight, normal);
-        float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
-        specular = pow(specular, 20.0);
-
-        float gammaCorrect = 1.0/1.2; //gamma correct by 1/1.2
-
-        vec3 dayColor = texture2D(u_DayDiffuse, v_Texcoord).rgb;
-        vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
-        //apply gamma correction to nighttime texture
-        nightColor = pow(nightColor,vec3(gammaCorrect));
-
-        vec3 color = ((0.6 * diffuse) + (0.4 * specular)) * dayColor;
-        gl_FragColor = vec4(color, 1.0);
+		vec4 finalColour;
+		if (isHMap == 0.0)
+		{
+			// Lambertian shading:
+	        float diffuse = clamp(dot(u_CameraSpaceDirLight, bump_NormalEyeSpace), 0.0, 1.0);
+			// Specular shading:
+	        vec3 toReflectedLight = reflect(-u_CameraSpaceDirLight, bump_NormalEyeSpace);
+	        float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
+	        specular = pow(specular, 30.0);
+	
+	        float gammaCorrect = 1.0/1.2; //gamma correct by 1/1.2
+	
+	        //apply gamma correction to nighttime texture
+	        nightColor = pow(nightColor,vec3(gammaCorrect));
+	
+	        vec3 color1, color2;
+	        	color2 = (1.0-diffuse) * nightColor;
+	        	color2 = color2 * cloudMap;//mix (color2, vec3 (0.0, 0.0, 0.0), cloudMap);
+	        	
+	        	cloudMap = vec3 (1.0, 1.0, 1.0) - cloudMap;
+				
+				color1 = 0.6 * diffuse * dayColor + 0.4 * specular * specularMap * dayColor;
+				color1 = mix (color1, cloudColourMap, cloudMap);
+			
+			float rimCoeff = dot (normal, -eyeToPosition);
+			if (rimCoeff < 0.18)
+				finalColour = vec4 (0.5273, 0.8046, 0.9765, clamp (exp(rimCoeff/0.25)-1.0, 0.0, 1.0));
+			else
+				finalColour = vec4 (mix (color2, color1, diffuse), 1.0);
+		}
+		else
+		{
+			if (specularMap.r == 0.0)
+				finalColour = mix (vec4 (0.0,1.0,0.0,1.0), vec4 (1.0, 0.0, 0.0, 1.0), bumpMap_center);
+			else
+				finalColour = vec4 (dayColor, 1.0);
+		}
+        gl_FragColor = finalColour;
     }
 
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC)
@@ -109,8 +242,86 @@
             bitangentEC.x, bitangentEC.y, bitangentEC.z,
             normalEC.x,    normalEC.y,    normalEC.z);
     }
-</script>
+ 
+    int int_lerp (int a, int b, float mixFactor)
+    {
+    	return int (floor (mixFactor*float(b) + (1.0-mixFactor)*float(a)));
+    }
 
+   
+    vec3 permute(vec3 x) 
+    {
+	  	x = ((x*34.0)+1.0)*x;
+	  	return x - floor(x * (1.0 / 289.0)) * 289.0;
+	}
+
+    
+    float simplexNoise(vec2 v)
+	{
+		  const vec4 C = vec4(0.211324865405187, 0.366025403784439,  -0.577350269189626, 0.024390243902439); 
+		
+		  vec2 i  = floor(v + dot(v, C.yy) );
+		  vec2 x0 = v -   i + dot(i, C.xx);
+		
+		  vec2 i1;
+		  i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+		
+		  vec4 x12 = x0.xyxy + C.xxzz;
+		  x12.xy -= i1;
+		
+		  i = i - floor(i * (1.0 / 289.0)) * 289.0;
+		
+		  vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
+		        + i.x + vec3(0.0, i1.x, 1.0 ));
+		
+		  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+		  m = m*m ;
+		  m = m*m ;
+		
+		  vec3 x = 2.0 * fract(p * C.www) - 1.0;
+		  vec3 h = abs(x) - 0.5;
+		  vec3 ox = floor(x + 0.5);
+		  vec3 a0 = x - ox;
+		
+		  m *= inversesqrt( a0*a0 + h*h );
+		
+		  vec3 g;
+		  g.x  = a0.x  * x0.x  + h.x  * x0.y;
+		  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+		  return 130.0 * dot(m, g);
+	}
+</script>
+<script type ="text/javascript">
+var b_pressed = 0;
+var h_pressed = 0;
+var paused = 0;
+function onKeyUp (e)
+{
+	if ((e.keyCode == 98) || (e.keyCode == 66))
+	{  
+		if (b_pressed>0)
+		  b_pressed = 0;
+		else
+		  b_pressed = 1;
+	}
+	else if ((e.keyCode == 104) || (e.keyCode == 72))
+	{  
+		if (h_pressed>0)
+		  h_pressed = 0;
+		else
+		  h_pressed = 1;
+	}
+	else if ((e.keyCode == 112) || (e.keyCode == 80))
+	{  
+		if (paused>0)
+		  paused = 0;
+		else
+		  paused = 1;
+	}
+}
+
+document.addEventListener ("keydown", onKeyUp, false);
+</script>
 <script src ="gl-matrix.js" type ="text/javascript"></script>
 <script src ="webGLUtility.js" type ="text/javascript"></script>
 <script src ="frag_globe.js" type ="text/javascript"></script>
