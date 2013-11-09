@@ -9,11 +9,11 @@ DEMO1: Wire Frame Waves
 -------------------------------------------------------------------------------
 * A sin-wave based vertex shader:
 
-![sin wave grid](images/sine_wave.png)
+![sin wave grid](images/Sine_Wave.png)
 
 * A simplex noise based vertex shader:
 
-![simplex noise wave grid](images/simplex_wave.png)
+![simplex noise wave grid](images/Simplex_Wave.png)
 
 * Pseudo height field water
 
