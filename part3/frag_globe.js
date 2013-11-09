@@ -36,6 +36,8 @@
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(gl.DEPTH_TEST);
+    //gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 
     var persp = mat4.create();
     mat4.perspective(45.0, canvas.width/canvas.height, 0.1, 100.0, persp);
@@ -537,7 +539,11 @@
         gl.uniform1i(u_EarthSpecLocation, 5);
         gl.uniform1f(u_timeLocation, time);
 
+        gl.enable(gl.BLEND);
+        //gl.disable(gl.DEPTH_TEST);
         gl.drawElements(gl.TRIANGLES, numberOfIndices2, gl.UNSIGNED_SHORT,0);
+        //gl.enable(gl.DEPTH_TEST);
+        gl.disable(gl.BLEND);
 
         time += 0.001;
 		window.requestAnimFrame(animate);

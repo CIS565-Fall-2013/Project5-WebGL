@@ -200,8 +200,8 @@
 
     void main(void)
     {
-        vec3 dayColor = texture2D(u_DayDiffuse, v_Texcoord).rgb;
-        gl_FragColor = vec4(dayColor, 1.0);
+        vec4 dayColor = texture2D(u_DayDiffuse, v_Texcoord).rgba;
+        gl_FragColor = dayColor; 
     }
 
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC)
