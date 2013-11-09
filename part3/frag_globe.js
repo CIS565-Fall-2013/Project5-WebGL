@@ -90,6 +90,19 @@
     var u_BumpLocation2;
     var u_timeLocation2;
 
+    var u_InvTransLocation3;
+    var u_ModelLocation3;
+    var u_ViewLocation3;
+    var u_PerspLocation3;
+    var u_CameraSpaceDirLightLocation3;
+    var u_DayDiffuseLocation3;
+    var u_NightLocation3;
+    var u_CloudLocation3;
+    var u_CloudTransLocation3;
+    var u_EarthSpecLocation3;
+    var u_BumpLocation3;
+    var u_timeLocation3;
+
     var globe_program;
     var iss_program;
     var trail_program;
@@ -168,18 +181,18 @@
         positionLocation_trail = gl.getAttribLocation(trail_program, "Position");
         normalLocation_trail = gl.getAttribLocation(trail_program, "Normal");
         texCoordLocation_trail = gl.getAttribLocation(trail_program, "Texcoord");
-        u_ModelLocation = gl.getUniformLocation(trail_program,"u_Model");
-        u_ViewLocation = gl.getUniformLocation(trail_program,"u_View");
-        u_PerspLocation = gl.getUniformLocation(trail_program,"u_Persp");
-        u_InvTransLocation = gl.getUniformLocation(trail_program,"u_InvTrans");
-        u_DayDiffuseLocation = gl.getUniformLocation(trail_program,"u_DayDiffuse");
-        u_NightLocation = gl.getUniformLocation(trail_program,"u_Night");
-        u_CloudLocation = gl.getUniformLocation(trail_program,"u_Cloud");
-        u_CloudTransLocation = gl.getUniformLocation(trail_program,"u_CloudTrans");
-        u_EarthSpecLocation = gl.getUniformLocation(trail_program,"u_EarthSpec");
-        u_BumpLocation = gl.getUniformLocation(trail_program,"u_Bump");
-        u_timeLocation = gl.getUniformLocation(trail_program,"u_time");
-        u_CameraSpaceDirLightLocation = gl.getUniformLocation(trail_program,"u_CameraSpaceDirLight");
+        u_ModelLocation3 = gl.getUniformLocation(trail_program,"u_Model");
+        u_ViewLocation3 = gl.getUniformLocation(trail_program,"u_View");
+        u_PerspLocation3 = gl.getUniformLocation(trail_program,"u_Persp");
+        u_InvTransLocation3 = gl.getUniformLocation(trail_program,"u_InvTrans");
+        u_DayDiffuseLocation3 = gl.getUniformLocation(trail_program,"u_DayDiffuse");
+        u_NightLocation3 = gl.getUniformLocation(trail_program,"u_Night");
+        u_CloudLocation3 = gl.getUniformLocation(trail_program,"u_Cloud");
+        u_CloudTransLocation3 = gl.getUniformLocation(trail_program,"u_CloudTrans");
+        u_EarthSpecLocation3 = gl.getUniformLocation(trail_program,"u_EarthSpec");
+        u_BumpLocation3 = gl.getUniformLocation(trail_program,"u_Bump");
+        u_timeLocation3 = gl.getUniformLocation(trail_program,"u_time");
+        u_CameraSpaceDirLightLocation3 = gl.getUniformLocation(trail_program,"u_CameraSpaceDirLight");
 
         gl.useProgram(trail_program);
     }
@@ -480,6 +493,7 @@
     var elapsedTime = 5000;
 
     initializeShader2();
+    initializeShader3();
     (function animate(){
         var currTime = new Date().getTime();
         var dt = currTime - prevTime;
@@ -594,7 +608,8 @@
         //var degN = -46.59929004639757; //degrees north
         //var degE = -64.76256280430778; //degrees east
         
-        initializeShader3();
+        gl.useProgram(trail_program);
+        //initializeShader3();
         initializeSphere3();
 
         model = mat4.create();
@@ -622,32 +637,32 @@
 
         //gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        gl.uniformMatrix4fv(u_ModelLocation, false, model);
-        gl.uniformMatrix4fv(u_ViewLocation, false, view);
-        gl.uniformMatrix4fv(u_PerspLocation, false, persp);
-        gl.uniformMatrix4fv(u_InvTransLocation, false, invTrans);
+        gl.uniformMatrix4fv(u_ModelLocation3, false, model);
+        gl.uniformMatrix4fv(u_ViewLocation3, false, view);
+        gl.uniformMatrix4fv(u_PerspLocation3, false, persp);
+        gl.uniformMatrix4fv(u_InvTransLocation3, false, invTrans);
 
-        gl.uniform3fv(u_CameraSpaceDirLightLocation, lightdir);
+        gl.uniform3fv(u_CameraSpaceDirLightLocation3, lightdir);
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, logoTex);
-        gl.uniform1i(u_DayDiffuseLocation, 0);
+        gl.uniform1i(u_DayDiffuseLocation3, 0);
         gl.activeTexture(gl.TEXTURE1);
         gl.bindTexture(gl.TEXTURE_2D, bumpTex);
-        gl.uniform1i(u_BumpLocation, 1);
+        gl.uniform1i(u_BumpLocation3, 1);
         gl.activeTexture(gl.TEXTURE2);
         gl.bindTexture(gl.TEXTURE_2D, cloudTex);
-        gl.uniform1i(u_CloudLocation, 2);
+        gl.uniform1i(u_CloudLocation3, 2);
         gl.activeTexture(gl.TEXTURE3);
         gl.bindTexture(gl.TEXTURE_2D, transTex);
-        gl.uniform1i(u_CloudTransLocation, 3);
+        gl.uniform1i(u_CloudTransLocation3, 3);
         gl.activeTexture(gl.TEXTURE4);
         gl.bindTexture(gl.TEXTURE_2D, lightTex);
-        gl.uniform1i(u_NightLocation, 4);
+        gl.uniform1i(u_NightLocation3, 4);
         gl.activeTexture(gl.TEXTURE5);
         gl.bindTexture(gl.TEXTURE_2D, specTex);
-        gl.uniform1i(u_EarthSpecLocation, 5);
-        gl.uniform1f(u_timeLocation, time);
+        gl.uniform1i(u_EarthSpecLocation3, 5);
+        gl.uniform1f(u_timeLocation3, time);
 
         //gl.disable(gl.DEPTH_TEST);
         gl.drawElements(gl.LINES, numberOfIndices3, gl.UNSIGNED_SHORT,0);
