@@ -31,3 +31,12 @@ Part 1 implements three types of vertex shader:
  * Transform light rays to the lit point's tangent space.
  * Calcuate the offset of texture coordinates on the lit point based on the light rays and the height of cloud.
  * If the cloud density at the location of offsetted texture coordinates is not zero, then the lit point should be shadowed by the cloud. 
+ 
+# Performance evaluation:
+ * Test with maximum texture size:  
+ The maximum texture size on my Firefox browser is 8192. So I tried some daytime/nightime earth maps with 8192x4096 resolution:  
+ 
+ ![HiRes Earth](resources/snapshot05.png)  
+ 
+ The size of a 8192x4096 PNG file is 26 MB (3 MB for a JPG), and the page loading time is a bit too long ( OVER 5 sec. ) even running locally.  
+ Compared to loading the whole images once, a Level-of-detail approach like that of Google Map is more feasible.  
