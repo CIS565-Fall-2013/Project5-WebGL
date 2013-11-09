@@ -13,6 +13,13 @@ The first part of this project is a WebGL terrain renderer. [Click here to see i
 * The terrain renderer uses height field (DEM) data from NASA ASTER (Mt. Fuji) and the USGS (Mt. Rainier). 
 * I used a [forum post by TrickyVein](http://forums.nexusmods.com/index.php?/topic/517230-tutorial-converting-a-dem-to-a-heightmap/) to convert DEM data to a heightmap. I also wrote [my own tutorial](http://lightspeedbanana.blogspot.com/2013/11/getting-nasa-height-field-data.html) on how to get data from the USGS.
 * I perform morphing in the vertex shader by reading two height fields as textures, blending, then using the blended result to perturb the vertices:
+
+```glsl
+vec2 simplexVec = vec2(u_time, position);
+float s_contrib = snoise(simplexVec);
+float t_contrib = snoise(vec2(s_contrib,u_time));
+```
+
 ```glsl
     float height1 = texture2D(u_Height, texCoord).r; 
     float height2 = texture2D(u_Height2, texCoord).r; 
