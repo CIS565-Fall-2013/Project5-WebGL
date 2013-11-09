@@ -24,7 +24,7 @@ Also, I implemented a water ripple like wave based on vertex shader
 
 [![Alt text](screenshot1.png "skybox")](http://tiansijie.github.io/Project5-WebGL/ "![Alt text](screenshot1.png "skybox")
 
-click image to view online
+click image to see live demo.
 
 For the second part, I implemented:
 
@@ -38,6 +38,8 @@ For the second part, I implemented:
 Expect for this basic functions, I added a procedural water rendering and animation and a skybox.
 
 For the procedural water rendering, I am using the techniques similar to bump mapping. First, I am using local coordinate for simplex function to generate the random number for center position. As same as bump mapping, generating the above and right value using simplex function. After this, you can get the perturbed normal which can help you to get the normal in tangent space. I use this tangent normal for calculating the specular effect. 
+
+For the skybox, I am using cube map texture. I also separate the vertex shader and fragment shader from the globe which is much more easier to maintain.
 
 
 I get the skybox image from [http://gfx.quakeworld.nu/details/266/space/](http://gfx.quakeworld.nu/details/266/space/)
