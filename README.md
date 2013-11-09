@@ -77,7 +77,63 @@ Please click the image below to see the animation :)
 -------------------------------------------------------------------------------
 PERFORMANCE EVALUATION
 -------------------------------------------------------------------------------
-need to write some codes for this
+In the performance evaluation part, I used the JavaScript Performance Monitor library: https://github.com/mrdoob/stats.js
+
+This class provides a simple info box that will help you monitor your code performance.
+
+* **FPS** Frames rendered in the last second. The higher the number the better.
+* **MS** Milliseconds needed to render a frame. The lower the number the better.
+
+### Screenshots ###
+
+![stats_js_fps.png](http://mrdoob.github.com/stats.js/assets/stats_js_fps.png)
+![stats_js_ms.png](http://mrdoob.github.com/stats.js/assets/stats_js_ms.png)
+
+We need to add the following codes in the javascript.
+```javascript
+var stats = new Stats();
+stats.setMode(1); // 0: fps, 1: ms
+
+// Align top-left
+stats.domElement.style.position = 'absolute';
+stats.domElement.style.left = '0px';
+stats.domElement.style.top = '0px';
+
+document.body.appendChild( stats.domElement );
+
+setInterval( function () {
+
+	stats.begin();
+
+	// animation codes
+
+	stats.end();
+
+}, 1000 / 60 );
+```
+
+The upper instructions are from Mr. doob's github. After adding the codes of animation as this, we can have
+
+![eval](https://raw.github.com/GabriellaQiong/Project5-WebGL/master/performance_eval.png)
+
+However, the actual framerate is definitely higher than that when using the monitor and the animation with the monitor code is not smooth playing. In the final demo, I removed the evaluation part in the html file.
+
+Instead, I used one [bookmarklet](http://ricardocabello.com/blog/post/707). With the help from this monitor, I can get the following result:
+
+| features                                                              |  approximate fps  |
+|:---------------------------------------------------------------------:|:-----------------:|
+|    globe with clouds, running water, day night, rim lighting, etc     |       58 ~ 60     |
+|    adding general moon                                                |       57 ~ 60     |
+|    adding bumped moon                                                 |       57 ~ 60     |
+|    simplex wave                                                       |       59 ~ 60     |
+
+They are not quite different from each other in this case.
+
+
+-------------------------------------------------------------------------------
+THIRD PARTY CODE
+-------------------------------------------------------------------------------
+JavaScript Performance Monitor library: The MIT License, Copyright (c) 2009-2012 Mr.doob
 
 -------------------------------------------------------------------------------
 ACKNOWLEDGEMENT
