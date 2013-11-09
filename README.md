@@ -39,26 +39,7 @@ Press the 1 key to see the elevation map render.
 [Here](https://vimeo.com/78964561) is a video of the wave and the globe running 
 on Firefox.
 
--------------------------------------------------------------------------------
-GH-PAGES
--------------------------------------------------------------------------------
-Since this assignment is in WebGL you will make your project easily viewable by 
-taking advantage of GitHub's project pages feature.
-
-Once you are done you will need to create a new branch named gh-pages:
-
-`git branch gh-pages`
-
-Switch to your new branch:
-
-`git checkout gh-pages`
-
-Create an index.html file that is either your renamed frag_globe.html or 
-contains a link to it, commit, and then push as usual. Now you can go to 
-
-`<user_name>.github.io/<project_name>` 
-
-to see your beautiful globe from anywhere.
+You can see the globe [here] (http://zxyzhu.github.io/Project5-WebGL/)
 
 -------------------------------------------------------------------------------
 PERFORMANCE EVALUATION
