@@ -34,8 +34,7 @@
     ///////////////////////////////////////////////////////////////////////////
 
     gl.viewport(0, 0, canvas.width, canvas.height);
-    //gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.clearColor(1.0, 1.0, 1.0, 1.0);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(gl.DEPTH_TEST);
     //gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
@@ -62,6 +61,10 @@
     var normalLocation_ISS;
     var texCoordLocation_ISS;
 
+    var positionLocation_trail;
+    var normalLocation_trail;
+    var texCoordLocation_trail;
+
     var u_InvTransLocation;
     var u_ModelLocation;
     var u_ViewLocation;
@@ -77,6 +80,7 @@
 
     var globe_program;
     var iss_program;
+    var trail_program;
 
     function initializeShader() {
         var program;
@@ -125,6 +129,30 @@
         u_CameraSpaceDirLightLocation = gl.getUniformLocation(iss_program,"u_CameraSpaceDirLight");
 
         gl.useProgram(iss_program);
+    }
+
+    function initializeShader3() {
+        var vs = getShaderSource(document.getElementById("vs"));
+        var fs = getShaderSource(document.getElementById("trail-fs"));
+
+        trail_program = createProgram(gl, vs, fs, message);
+        positionLocation_trail = gl.getAttribLocation(trail_program, "Position");
+        normalLocation_trail = gl.getAttribLocation(trail_program, "Normal");
+        texCoordLocation_trail = gl.getAttribLocation(trail_program, "Texcoord");
+        u_ModelLocation = gl.getUniformLocation(trail_program,"u_Model");
+        u_ViewLocation = gl.getUniformLocation(trail_program,"u_View");
+        u_PerspLocation = gl.getUniformLocation(trail_program,"u_Persp");
+        u_InvTransLocation = gl.getUniformLocation(trail_program,"u_InvTrans");
+        u_DayDiffuseLocation = gl.getUniformLocation(trail_program,"u_DayDiffuse");
+        u_NightLocation = gl.getUniformLocation(trail_program,"u_Night");
+        u_CloudLocation = gl.getUniformLocation(trail_program,"u_Cloud");
+        u_CloudTransLocation = gl.getUniformLocation(trail_program,"u_CloudTrans");
+        u_EarthSpecLocation = gl.getUniformLocation(trail_program,"u_EarthSpec");
+        u_BumpLocation = gl.getUniformLocation(trail_program,"u_Bump");
+        u_timeLocation = gl.getUniformLocation(trail_program,"u_time");
+        u_CameraSpaceDirLightLocation = gl.getUniformLocation(trail_program,"u_CameraSpaceDirLight");
+
+        gl.useProgram(trail_program);
     }
 
     var dayTex   = gl.createTexture();
@@ -616,7 +644,7 @@
         //gl.enable(gl.DEPTH_TEST);
         gl.disable(gl.BLEND);
 
-        initializeShader2();
+        initializeShader3();
         initializeSphere3();
 
         model = mat4.create();
