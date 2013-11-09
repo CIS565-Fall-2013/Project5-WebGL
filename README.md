@@ -2,131 +2,27 @@
 CIS565: Project 5: WebGL
 -------------------------------------------------------------------------------
 Fall 2013
--------------------------------------------------------------------------------
-Due Friday 11/08/2013
--------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-NOTE:
+PART 1
 -------------------------------------------------------------------------------
-This project requires any graphics card with support for a modern OpenGL 
-pipeline. Any AMD, NVIDIA, or Intel card from the past few years should work 
-fine, and every machine in the SIG Lab and Moore 100 is capable of running 
-this project.
+**Sine Wave**
 
-This project also requires a WebGL capable browser. The project is known to 
-have issues with Chrome on windows, but Firefox seems to run it fine.
+Sine wave
 
--------------------------------------------------------------------------------
-INTRODUCTION:
--------------------------------------------------------------------------------
-In this project, you will get introduced to the world of GLSL in two parts: 
-vertex shading and fragment shading. The first part of this project is the 
-Image Processor, and the second part of this project is a Wave Vertex Shader.
-
-In the first part of this project, you will implement a GLSL vertex shader as 
-part of a WebGL demo. You will create a dynamic wave animation using code that 
-runs entirely on the GPU.
-
-In the second part of this project, you will implement a GLSL fragment shader
-to render an interactive globe in WebGL. This will include texture blending,
-bump mapping, specular masking, and adding a cloud layer to give your globe a 
-uniquie feel.
-
--------------------------------------------------------------------------------
-CONTENTS:
--------------------------------------------------------------------------------
-The Project4 root directory contains the following subdirectories:
-	
-* part1/ contains the base code for the Wave Vertex Shader.
-* part2/ contains the base code for the Globe Fragment Shader.
-* resources/ contains the screenshots found in this readme file.
-
--------------------------------------------------------------------------------
-PART 1 REQUIREMENTS:
--------------------------------------------------------------------------------
-
-In Part 1, you are given code for:
-
-* Drawing a VBO through WebGL
-* Javascript code for interfacing with WebGL
-* Functions for generating simplex noise
-
-You are required to implement the following:
-
-* A sin-wave based vertex shader:
-
-![Example sin wave grid](resources/sinWaveGrid.png)
-
-* A simplex noise based vertex shader:
-
-![Example simplex noise wave grid](resources/oceanWave.png)
-
-* One interesting vertex shader of your choice
-
--------------------------------------------------------------------------------
-PART 1 WALKTHROUGH:
--------------------------------------------------------------------------------
-**Sin Wave**
-
-* For this assignment, you will need the latest version of Firefox.
-* Begin by opening index.html. You should see a flat grid of black and white 
-  lines on the xy plane:
-
-![Example boring grid](resources/emptyGrid.png)
-
-* In this assignment, you will animate the grid in a wave-like pattern using a 
-  vertex shader, and determine each vertex’s color based on its height, as seen 
-  in the example in the requirements.
-* The vertex and fragment shader are located in script tags in `index.html`.
-* The JavaScript code that needs to be modified is located in `index.js`.
-* Required shader code modifications:
-	* Add a float uniform named u_time.
-	* Modify the vertex’s height using the following code:
-
-	```glsl
-	float s_contrib = sin(position.x*2.0*3.14159 + u_time);
-	float t_contrib = cos(position.y*2.0*3.14159 + u_time);
-	float height = s_contrib*t_contrib;
-	```
-
-	* Use the GLSL mix function to blend together two colors of your choice based 
-	  on the vertex’s height. The lowest possible height should be assigned one 
-	  color (for example, `vec3(1.0, 0.2, 0.0)`) and the maximum height should be 
-	  another (`vec3(0.0, 0.8, 1.0)`). Use a varying variable to pass the color to 
-	  the fragment shader, where you will assign it `gl_FragColor`.
-
-* Required JavaScript code modifications:
-	* A floating-point time value should be increased every animation step. 
-	  Hint: the delta should be less than one.
-	* To pass the time to the vertex shader as a uniform, first query the location 
-	  of `u_time` using `context.getUniformLocation` in `initializeShader()`. 
-	  Then, the uniform’s value can be set by calling `context.uniform1f` in 
-	  `animate()`.
+![alt text](./part1/sineWave.png "sine")
 
 **Simplex Wave**
 
-* Now that you have the sin wave working, create a new copy of `index.html`. 
-  Call it `index_simplex.html`, or something similar.
-* Open up `simplex.vert`, which contains a compact GLSL simplex noise 
-  implementation, in a text editor. Copy and paste the functions included 
-  inside into your `index_simplex.html`'s vertex shader.
-* Try changing s_contrib and t_contrib to use simplex noise instead of sin/cos 
-  functions with the following code:
+![alt text](./part1/simplexWave.png "sine")
 
-```glsl
-vec2 simplexVec = vec2(u_time, position);
-float s_contrib = snoise(simplexVec);
-float t_contrib = snoise(vec2(s_contrib,u_time));
-```
+**Sin/cos wave using concenric circles**
 
-**Wave Of Your Choice**
+For this wave, I offset the vertices using sin/cos functions based on how fart
+the vertex is from the center of the grid. The points furthest away have the most
+displacement.
 
-* Create another copy of `index.html`. Call it `index_custom.html`, or 
-  something similar.
-* Implement your own interesting vertex shader! In your README.md with your 
-  submission, describe your custom vertex shader, what it does, and how it 
-  works.
+![alt text](./part1/waterWave.png "sin/cos")
 
 -------------------------------------------------------------------------------
 PART 2 REQUIREMENTS:
