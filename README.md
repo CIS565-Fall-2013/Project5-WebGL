@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
-Terrain Morphing Plus ISS Orbit Visualizer
+Terrain Morphing Plus ISS Tracker
 --------------------------------------------------------------------------------
 ![Pair of screenshots](screenshots/big_screenshot.png)
 * DISCLAIMER 1: Right now this project is ONLY compatible with Firefox! Fixes for Chrome coming soon!
@@ -11,7 +11,7 @@ Terrain Morphing
 The first part of this project is a WebGL terrain renderer. [Click HERE to see it.](http://nmarshak1337.github.io/Project5-WebGL/part1/terrain_render.html). [Click HERE to see a video](http://youtu.be/2DtJ2FN_TD8).
 
 * The terrain renderer uses height field (DEM) data from NASA ASTER (Mt. Fuji) and the USGS (Mt. Rainier). 
-* I used a [forum post by TrickyVein](http://forums.nexusmods.com/index.php?/topic/517230-tutorial-converting-a-dem-to-a-heightmap/) to convert DEM data to a heightmap. I also wrote [my own tutorial](http://lightspeedbanana.blogspot.com/2013/11/getting-nasa-height-field-data.html) on how to get data from the USGS.
+* I followed a [forum post by TrickyVein](http://forums.nexusmods.com/index.php?/topic/517230-tutorial-converting-a-dem-to-a-heightmap/) to convert DEM data to a heightmap. I also wrote [my own tutorial](http://lightspeedbanana.blogspot.com/2013/11/getting-nasa-height-field-data.html) on how to get data from the USGS.
 * I perform morphing in the vertex shader by reading two height fields as textures, blending, then using the blended result to perturb the vertices:
 
 ```glsl
@@ -23,4 +23,7 @@ The first part of this project is a WebGL terrain renderer. [Click HERE to see i
 
 * In addition to rendering terrain, I can render simple waves, using the vertex shader to perturb the normals: [Simplex Wave Demo](http://nmarshak1337.github.io/Project5-WebGL/part1/index_simplex.html), [Sine/Cosine Wave Demo](http://nmarshak1337.github.io/Project5-WebGL/part1/vert_wave.html).
 
-
+-------------------------------------------------------------------------------
+ISS Tracker
+-------------------------------------------------------------------------------
+Part 3 of this project is an app that tracks the ISS, which I bolted on to Part 2, which is a virtual globe. [Click HERE to see it.](http://nmarshak1337.github.io/Project5-WebGL/part1/terrain_render.html).
