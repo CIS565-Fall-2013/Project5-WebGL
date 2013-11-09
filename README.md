@@ -1,4 +1,4 @@
-#My First WebGL #
+#Something about WebGL #
 
 ## Description ##
 
