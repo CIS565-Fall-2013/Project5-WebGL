@@ -419,20 +419,23 @@
             iss_lon = lon;
         }
         
-    //$.getJSON('http://api.open-notify.org/iss-now.json?callback=?', function(data) {
-            //var lat = data['iss_position']['latitude'];
-            //var lon = data['iss_position']['longitude'];
-            ////console.log(lat);
-            ////console.log(lon);
-            //set_lat_lon( lat, lon );
-        //});
+    $.getJSON('http://api.open-notify.org/iss-now.json?callback=?', function(data) {
+            var lat = data['iss_position']['latitude'];
+            var lon = data['iss_position']['longitude'];
+            //console.log(lat);
+            //console.log(lon);
+            set_lat_lon( lat, lon );
+        });
 
 
         //the offsets PI and PI/2 on the azimuth and inclination are used to get my spherical
         //coordinates to match the standard (lat, lon) coordinate system.
 
-        var degN = -46.59929004639757; //degrees north
-        var degE = -64.76256280430778; //degrees east
+        //var degN = -46.59929004639757; //degrees north
+        //var degE = -64.76256280430778; //degrees east
+
+        var degN = iss_lat;
+        var degE = iss_lon;
         var azimuth = -degE * (Math.PI / 180.0) + Math.PI;
         var inclination = -degN * (Math.PI / 180.0)  + Math.PI/2.0;
         var curr_rad = 1.5;
