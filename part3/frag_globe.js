@@ -265,20 +265,20 @@
         var length;
 
         //lower left corner
-        positions[0] = 0.0;
-        positions[1] = 0.0;
+        positions[0] = -0.1;
+        positions[1] = -0.1;
         positions[2] = 0.0;
         //lower right corner
-        positions[3] = 0.2;
-        positions[4] = 0.0;
+        positions[3] = 0.1;
+        positions[4] = -0.1;
         positions[5] = 0.0;
         //upper left corner
-        positions[6] = 0.0;
-        positions[7] = 0.2;
+        positions[6] = -0.1;
+        positions[7] = 0.1;
         positions[8] = 0.0;
         //upper right corner
-        positions[9] = 0.2;
-        positions[10] = 0.2;
+        positions[9] = 0.1;
+        positions[10] = 0.1;
         positions[11] = 0.0;
 
         //lower left texCoords[0] = 0.0;
@@ -480,6 +480,12 @@
         mat4.rotate(model, rotAngle, rotAxis);
         //mat4.rotate(model, 23.4/180*Math.PI, [0.0, 0.0, 1.0]);
         //mat4.rotate(model, Math.PI, [1.0, 0.0, 0.0]);
+        var newUp = vec4.create();
+        mat4.multiplyVec4(model, [up[0], up[1], up[2], 0.0], newUp);
+        var modelUp = vec3.create([newUp[0], newUp[1], newUp[2]]);
+        var upRAngle = Math.acos(vec3.dot(modelUp, desiredDir));
+        var upRotAxis = vec3.cross(modelForward, desiredDir);
+
         mv = mat4.create();
         mat4.multiply(view, model, mv);
 
