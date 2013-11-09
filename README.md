@@ -48,8 +48,13 @@ this by getting UTC time, then offsetting so that day/night is correct in the UT
 Performance Analysis
 -------------------------------------------------------------------------------
 * In order to draw the globe, ISS icon, and trail in my ISS tracker, I had to use three separate fragment shaders. Here are my initial results from profiling my app using Firefox's developer console:
+
 ![Pie chart 1](screenshots/naive_shader_setup.png)
+
 * Why were initializing the shaders so time consuming? It turned out that I was compiling the shaders at every animation frame! Clearly very inefficient. After compiling the shaders ONCE, then using gl.useProgram() to switch between shaders, the pie chart looks like this:
+
 ![Pie chart 2](screenshots/improved_shader_setup.png)
+
 * The problem above is now that I'm setting up the sphere in each animation frame. Further optimizations could be done by moving the setup to a precompute step. In general it seems that the draw call is not very time consuming - rather packaging the data and sending to the GPU is the bottleneck. Below is another example from the simplex wave demo, which has a modestly complex vertex vertex shader. Again, the shaders aren't the performance bottleneck. Rather, it's the animate() call that sets up the shader, and other logic done in JavaScript: 
+
 ![Pie chart 3](screenshots/simplex_pie_chart.png)
