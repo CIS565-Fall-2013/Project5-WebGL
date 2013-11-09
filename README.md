@@ -20,8 +20,8 @@ INTRODUCTION:
 -------------------------------------------------------------------------------
 In this project, I have implemented vertex and fragment shaders in WebGL.
 There are two parts to this project:
-Part1: Deforms a simple grid of points using vertex shaders
-Part2: Renders a globe with fragment shaders
+- Part1: Deforms a simple grid of points using vertex shaders
+- Part2: Renders a globe with fragment shaders
 
 -------------------------------------------------------------------------------
 CONTENTS:
