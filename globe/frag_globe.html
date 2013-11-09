@@ -24,6 +24,7 @@
 
     varying vec3 v_Normal;
     varying vec2 v_Texcoord;
+	varying vec2 v_CloudShadowTexcoord;
     varying vec3 v_Position;
     varying vec3 v_positionMC;
 
@@ -31,6 +32,7 @@
     {
         v_Normal = (u_InvTrans*vec4(Normal,0.0)).xyz;
         v_Texcoord = Texcoord;
+		v_CloudShadowTexcoord = Texcoord;
         vec4 world = u_Model * vec4(Position, 1.0);
         vec4 camera = u_View * world;
         v_Position = camera.xyz;
@@ -66,6 +68,7 @@
 
     varying vec3 v_Normal;              // surface normal in camera coordinates
     varying vec2 v_Texcoord;
+	varying vec2 v_CloudShadowTexcoord;
     varying vec3 v_Position;            // position in camera coordinates
     varying vec3 v_positionMC;          // position in model coordinates
 
@@ -103,7 +106,9 @@
 
         float gammaCorrect = 1.6/1.2; //gamma correct by 1/1.2
 		
-        vec3 dayColor = ((0.6 * bumpdiffuse) + (0.4 * specular))*texture2D(u_DayDiffuse, v_Texcoord).rgb;
+		float cloudShadowRayTrans = texture2D(u_CloudTrans, v_CloudShadowTexcoord+vec2(u_time, 0.0)).x;
+		
+        vec3 dayColor = cloudShadowRayTrans*((0.6 * bumpdiffuse) + (0.4 * specular))*texture2D(u_DayDiffuse, v_Texcoord).rgb;
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
         
 		//apply gamma correction to nighttime texture (before mixing clouds)
@@ -117,13 +122,14 @@
 		dayColor = mix(flatdiffuse*cloudColor, dayColor, cloudTrans);
 		nightColor = mix(vec3(0.0,0.0,0.0), nightColor, cloudTrans);
 		
-		float rimFactor = pow(clamp(1.0 + dot(v_Normal, v_Position), 0.0, 1.0),2.0);
+		float rimFactor = pow(clamp(1.0 + dot(v_Normal, v_Position), 0.0, 1.0),1.0);
 		if(v_Normal.z < 0.0)
 			rimFactor = 0.0;//Minimize visibility of rasterization artifacts.
 			
 		vec3 rimColor = rimFactor*vec3(0.25, 0.5, 0.5);
 
-        vec3 color = rimColor + mix(dayColor, nightColor, dayalpha);
+		//Only show rim in daylight
+        vec3 color = rimColor*(1.0-dayalpha) + mix(dayColor, nightColor, dayalpha);
         gl_FragColor = vec4(color, 1.0);
     }
 
@@ -141,6 +147,7 @@
             bitangentEC.x, bitangentEC.y, bitangentEC.z,
             normalEC.x,    normalEC.y,    normalEC.z);
     }
+	
 </script>
 
 <script src ="gl-matrix.js" type ="text/javascript"></script>
