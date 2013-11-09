@@ -234,7 +234,7 @@
 </script>
 
 
-<script id="skyBoxVS" type="x-shader/x-vertex">
+<script id="skyboxVS" type="x-shader/x-vertex">
     precision highp float;
 
     uniform mat4 u_Model;
@@ -254,7 +254,7 @@
 
 </script>
 
-<script id="skyBoxFS" type="x-shader/x-fragment">
+<script id="skyboxFS" type="x-shader/x-fragment">
     precision highp float;
     
     uniform sampler2D u_textureSampler;
@@ -263,7 +263,7 @@
     
     void main(void)
     {
-        gl_FragColor = texture2D(u_textureSampler, v_Texcoord).rgb;
+        gl_FragColor = texture2D(u_textureSampler, v_Texcoord);
     }
 
 </script>

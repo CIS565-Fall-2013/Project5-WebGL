@@ -148,7 +148,20 @@
         gl.bindTexture(gl.TEXTURE_2D, null);
     }
 
-    var numberOfIndicesEarth;
+    function initSkyboxTexture(texture) {
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+
+    }
+    
+
+    var numberOfIndices;
 
     function initializeSphere() {
         function uploadMesh(positions, texCoords, indices) {
@@ -222,7 +235,7 @@
         }
 
         uploadMesh(positions, texCoords, indices);
-        numberOfIndicesEarth = indicesIndex;
+        numberOfIndices = indicesIndex;
     };
 
     var time = 0;
@@ -347,7 +360,7 @@
 
         gl.uniform1f(u_timeLocation, time);
 
-        gl.drawElements(gl.TRIANGLES, numberOfIndicesEarth, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT, 0);
         
     }
 
@@ -355,7 +368,6 @@
     {
         ///////////////////////////////////////////////////////////////////////////
         // Update
-
         var model = mat4.create();
         mat4.identity(model);
         
@@ -398,10 +410,164 @@
 
         gl.uniform1f(u_timeLocation, time);
 
-        gl.drawElements(gl.TRIANGLES, numberOfIndicesEarth, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT, 0);
  
     }
-    
+
+    function drawSkybox() {
+
+        // set up vertices
+        var vertBuffer = gl.createBuffer();
+        var vertices = [
+            // Front face
+            -1.0, -1.0, 1.0,
+            1.0, -1.0, 1.0,
+            1.0, 1.0, 1.0,
+            -1.0, 1.0, 1.0,
+
+            // Back face
+            -1.0, -1.0, -1.0,
+            -1.0, 1.0, -1.0,
+            1.0, 1.0, -1.0,
+            1.0, -1.0, -1.0,
+
+            // Top face
+            -1.0, 1.0, -1.0,
+            -1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0,
+            1.0, 1.0, -1.0,
+
+            // Bottom face
+            -1.0, -1.0, -1.0,
+            1.0, -1.0, -1.0,
+            1.0, -1.0, 1.0,
+            -1.0, -1.0, 1.0,
+
+            // Right face
+            1.0, -1.0, -1.0,
+            1.0, 1.0, -1.0,
+            1.0, 1.0, 1.0,
+            1.0, -1.0, 1.0,
+
+            // Left face
+            -1.0, -1.0, -1.0,
+            -1.0, -1.0, 1.0,
+            -1.0, 1.0, 1.0,
+            -1.0, 1.0, -1.0
+        ];
+        
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+        gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(positionLocation);
+
+        // set up indices
+        var indexBuffer = gl.createBuffer();
+        var indices = [
+           0, 1, 2, 0, 2, 3,         // front
+           4, 5, 6, 4, 6, 7,         // back
+           8, 9, 10, 8, 10, 11,      // top
+           12, 13, 14, 12, 14, 15,   // bottom
+           16, 17, 18, 16, 18, 19,   // right
+           20, 21, 22, 20, 22, 23    // left
+        ];
+
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+
+        // set up texture coordinates
+        var textureCoordsBuffer = gl.createBuffer();
+        var textureCoordinates = [
+            // Used debug skybox to figure out these texture coordinates!
+            // Front
+            0.0, 0.0,
+            1.0, 0.0,
+            1.0, 1.0,
+            0.0, 1.0,
+            // Back
+            1.0, 0.0,
+            1.0, 1.0,
+            0.0, 1.0,
+            0.0, 0.0,
+            // Top
+            0.0, 1.0,
+            0.0, 0.0,
+            1.0, 0.0,
+            1.0, 1.0,
+            // Bottom
+            0.0, 0.0,
+            1.0, 0.0,
+            1.0, 1.0,
+            0.0, 1.0,
+            // Right
+            1.0, 0.0,
+            1.0, 1.0,
+            0.0, 1.0,
+            0.0, 0.0,
+            // Left
+            0.0, 0.0,
+            1.0, 0.0,
+            1.0, 1.0,
+            0.0, 1.0
+        ];
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordsBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW);
+        gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(texCoordLocation);
+
+        ///////////////////////////////////////////////////////////////////////////
+        // Render
+        var model = mat4.create();
+        mat4.identity(model);
+        mat4.scale(model, [25.0, 25.0, 25.0]);
+        gl.uniformMatrix4fv(u_ModelLocation, false, model);
+        gl.uniformMatrix4fv(u_ViewLocation, false, view);
+        gl.uniformMatrix4fv(u_PerspLocation, false, persp);
+
+        // front
+        gl.activeTexture(gl.TEXTURE8);
+        gl.bindTexture(gl.TEXTURE_2D, skyFrontTex);
+        gl.uniform1i(u_texSamplerLocation, 8);
+        gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0); // byte offset
+
+        // back
+        gl.activeTexture(gl.TEXTURE9);
+        gl.bindTexture(gl.TEXTURE_2D, skyBackTex);
+        gl.uniform1i(u_texSamplerLocation, 9);
+        gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 12); // 6 verts, 2 bytes per vert
+
+        // top
+        gl.activeTexture(gl.TEXTURE10);
+        gl.bindTexture(gl.TEXTURE_2D, skyTopTex);
+        gl.uniform1i(u_texSamplerLocation, 10);
+        gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 24);
+
+        // bot
+        gl.activeTexture(gl.TEXTURE11);
+        gl.bindTexture(gl.TEXTURE_2D, skyBotTex);
+        gl.uniform1i(u_texSamplerLocation, 11);
+        gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 36);
+
+        // right
+        gl.activeTexture(gl.TEXTURE12);
+        gl.bindTexture(gl.TEXTURE_2D, skyRightTex);
+        gl.uniform1i(u_texSamplerLocation, 12);
+        gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 48);
+
+        // left
+        gl.activeTexture(gl.TEXTURE13);
+        gl.bindTexture(gl.TEXTURE_2D, skyLeftTex);
+        gl.uniform1i(u_texSamplerLocation, 13);
+        gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 60);
+
+
+        // testing textures
+        //gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 24); // top
+        //gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 36); // bot
+        //gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 48); // right
+    }
+
     // animate is responsible for drawing the earth and moon
     function animate() {
 
@@ -416,7 +582,8 @@
         drawMoon();
 
         // Skybox
-        //initializeSkyboxShader();
+        initializeSkyboxShader();
+        drawSkybox();
 
         time += 0.001;
         
@@ -425,6 +592,7 @@
 
     var earthTextureCount = 0;
     var moonTextureCount = 0;
+    var skyboxTextureCount = 0;
 
     // earth textures
     var dayTex;
@@ -437,6 +605,14 @@
     // moon textures
     var moonDiffuseTex;
     var moonBumpTex;
+
+    // skybox textures
+    var skyFrontTex;
+    var skyBackTex;
+    var skyTopTex;
+    var skyBotTex;
+    var skyRightTex;
+    var skyLeftTex;
 
     (function createEarthTexture() {
         dayTex = gl.createTexture();
@@ -466,6 +642,31 @@
         initializeTexture(moonBumpTex, "moonbumpmap.jpg", "moon");
     }());
 
+    (function createSkyboxTexture() {
+        skyFrontTex = gl.createTexture();
+        skyBackTex = gl.createTexture();
+        skyTopTex = gl.createTexture();
+        skyBotTex = gl.createTexture();
+        skyRightTex = gl.createTexture();
+        skyLeftTex = gl.createTexture();
+    }());
+
+    (function initializeSkyboxTexture() {
+        initializeTexture(skyFrontTex, "purpleNebula_front5.png", "skybox");
+        initializeTexture(skyBackTex, "purpleNebula_back6.png", "skybox");
+        initializeTexture(skyTopTex, "purpleNebula_top3.png", "skybox");
+        initializeTexture(skyBotTex, "purpleNebula_bottom4.png", "skybox");
+        initializeTexture(skyRightTex, "purpleNebula_right1.png", "skybox");
+        initializeTexture(skyLeftTex, "purpleNebula_left2.png", "skybox");
+        //initializeTexture(skyFrontTex, "1.png", "skybox");
+        //initializeTexture(skyBackTex, "6.png", "skybox");
+        //initializeTexture(skyTopTex, "3.png", "skybox");
+        //initializeTexture(skyBotTex, "4.png", "skybox");
+        //initializeTexture(skyRightTex, "5.png", "skybox");
+        //initializeTexture(skyLeftTex, "2.png", "skybox");
+    }());
+
+
     // type = 1 for earth texture, otherwise moon texture
     function initializeTexture(texture, src, type) {
         texture.image = new Image();
@@ -480,10 +681,13 @@
                 moonTextureCount++;
                 initLoadedNPOTTexture(texture);
             }
-                
-
+            else if (type == "skybox") {
+                skyboxTextureCount++;
+                initSkyboxTexture(texture);
+            }
+            
             // Animate once textures load.
-            if (earthTextureCount === 6 && moonTextureCount == 2) {
+            if (earthTextureCount === 6 && moonTextureCount == 2 && skyboxTextureCount == 6) {
                 animate();
             }
         }
