@@ -8,7 +8,7 @@ Terrain Morphing Plus ISS Orbit Visualizer
 -------------------------------------------------------------------------------
 Terrain Morphing
 -------------------------------------------------------------------------------
-The first part of this project is a WebGL terrain renderer. [Click here to see it.](http://nmarshak1337.github.io/Project5-WebGL/part1/terrain_render.html). [Click here to see a video](http://youtu.be/2DtJ2FN_TD8).
+The first part of this project is a WebGL terrain renderer. [Click HERE to see it.](http://nmarshak1337.github.io/Project5-WebGL/part1/terrain_render.html). [Click HERE to see a video](http://youtu.be/2DtJ2FN_TD8).
 
 * The terrain renderer uses height field (DEM) data from NASA ASTER (Mt. Fuji) and the USGS (Mt. Rainier). 
 * I used a [forum post by TrickyVein](http://forums.nexusmods.com/index.php?/topic/517230-tutorial-converting-a-dem-to-a-heightmap/) to convert DEM data to a heightmap. I also wrote [my own tutorial](http://lightspeedbanana.blogspot.com/2013/11/getting-nasa-height-field-data.html) on how to get data from the USGS.
@@ -20,3 +20,7 @@ The first part of this project is a WebGL terrain renderer. [Click here to see i
     float height = mix(height1, height2, u_heightBlend); 
     gl_Position = u_modelViewPerspective * vec4(vec3(position, 0.5*height), 1.0);
 ```
+
+* In addition to rendering terrain, I can render simple waves, using the vertex shader to perturb the normals: [Simplex Wave Demo](http://nmarshak1337.github.io/Project5-WebGL/part1/index_simplex.html), [Sine/Cosine Wave Demo](http://nmarshak1337.github.io/Project5-WebGL/part1/vert_wave.html).
+
+
