@@ -1,6 +1,6 @@
 Fully Featured Globe:
 
-![Globe fully featured](resources/fully_featured_globe.png)
+![Globe fully featured](resources/globe_best_water.png)
 
 Animated Butterfly Function:
 
