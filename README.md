@@ -12,24 +12,24 @@ PART 1 FEATURES:
 
 Sine wave:
 
-[![Sine wave](screenshots/sinewave.png)](http://yingtingxiao.github.io/Project5-WebGL/vert_wave.html)
+[![Sine wave](screenshots/sinewave.PNG)](http://yingtingxiao.github.io/Project5-WebGL/vert_wave.html)
 ---
 
 Simplex wave 1D:
 
-[![Simplex wave1](screenshots/simplexwave1.png)](http://yingtingxiao.github.io/Project5-WebGL/vert_wave_simplex.html)
+[![Simplex wave1](screenshots/simplexwave1.PNG)](http://yingtingxiao.github.io/Project5-WebGL/vert_wave_simplex.html)
 ---
 
 Simplex wave 2D:
 
-[![Simplex wave2](screenshots/simplexwave2.png)](http://yingtingxiao.github.io/Project5-WebGL/vert_wave_custom.html)
+[![Simplex wave2](screenshots/simplexwave2.PNG)](http://yingtingxiao.github.io/Project5-WebGL/vert_wave_custom.html)
 
 Instead of passing vec2(0.1*u_time, position) to simplexNoise, I pass vec2(position.x+0.25*u_time, position.y+0.25*u_time) to it. As a result, I get a nice 2D simplex wave.
 ---
 
 Perlin wave 2D:
 
-[![Perlin wave](screenshots/perlinwave.png)](http://yingtingxiao.github.io/Project5-WebGL/vert_wave_perlin.html)
+[![Perlin wave](screenshots/perlinwave.PNG)](http://yingtingxiao.github.io/Project5-WebGL/vert_wave_perlin.html)
 
 I followed the instructions on http://freespace.virgin.net/hugo.elias/models/m_perlin.htm to write my 2D perlin noise generator. 
 
@@ -47,7 +47,7 @@ PART 2 FEATURES:
 
 All required features:
 
-[![Globe](screenshots/globe.png)](http://yingtingxiao.github.io/Project5-WebGL/frag_globe.html)
+[![Globe](screenshots/globe.PNG)](http://yingtingxiao.github.io/Project5-WebGL/frag_globe.html)
 ---
 
 Additional feature:
@@ -56,13 +56,13 @@ Procedural water rendering and animation using noise:
 
 Version 1:
 
-[![Globe with water1](screenshots/water1.png)](http://yingtingxiao.github.io/Project5-WebGL/frag_globe_perlin.html)
+[![Globe with water1](screenshots/water1.PNG)](http://yingtingxiao.github.io/Project5-WebGL/frag_globe_perlin.html)
 
 I turn off clouds in order to show the animation of water more clearly. In this version I use perlin noise as a bump map. I use the perlin noise values of a pixel's right and top points on the globe to compute the normal.
 
 Version 2:
 
-[![Globe with water2](screenshots/water2.png)](http://yingtingxiao.github.io/Project5-WebGL/frag_globe_perlin_vert.html)
+[![Globe with water2](screenshots/water2.PNG)](http://yingtingxiao.github.io/Project5-WebGL/frag_globe_perlin_vert.html)
 
 Since version 1 doesn't look very realistic, I tried a different approach: using perlin noise as a displacement map in the vertex shader. However, displacing the vertices only has an effect on the edge of the globe. In order to make the center of the globe look bumpy, I have to change the normals of vertices in the vertex shader.
 
