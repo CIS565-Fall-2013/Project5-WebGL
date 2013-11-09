@@ -15,18 +15,23 @@
     
     uniform mat4 u_modelViewPerspective;
     uniform float u_time;
-    
+    uniform vec2 u_gridCenter;
+
     varying vec3 color;
 
     void main(void)
     {
-        float t_contrib = sin(position.y*2.0*3.14159 );
-		float height = t_contrib;
+        
+        float distToCenter = length(position - vec2(0.5, 0.5)) ;
+        
+        float s_contrib = 4.0*distToCenter * sin(u_time * distToCenter*0.5);
+        float t_contrib = 4.0*distToCenter * cos(u_time * distToCenter*0.5);
+		float height = s_contrib*t_contrib;
+        
+		gl_Position = u_modelViewPerspective * vec4(vec3(position, 0.1*height), 1.0);
 
-		gl_Position = u_modelViewPerspective * vec4(vec3(position, height), 1.0);
-
-        vec3 color1 = vec3(1.0, 215.0/255.0, 0.0);
-        vec3 color2 = vec3 (128.0/255.0, 0.0, 128.0/255.0);
+        vec3 color1 = vec3(0.43, 0.05, 0.48);
+        vec3 color2 = vec3 (1.0, 0.3, 0.09);
 
         //blend them
         color = height*color1 + (1.0 - height)*color2;

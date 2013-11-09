@@ -3,8 +3,8 @@
     /*global window,document,Float32Array,Uint16Array,mat4,vec3,snoise*/
     /*global getShaderSource,createWebGLContext,createProgram*/
 
-    var NUM_WIDTH_PTS = 32;
-    var NUM_HEIGHT_PTS = 32;
+    var NUM_WIDTH_PTS = 64;
+    var NUM_HEIGHT_PTS = 64;
 
     var message = document.getElementById("message");
     var canvas = document.getElementById("canvas");
@@ -31,10 +31,13 @@
     var positionLocation = 0;
     var heightLocation = 1;
     var u_modelViewPerspectiveLocation;
+    var u_gridCenterLocation;
+    var u_gridCenter = [NUM_WIDTH_PTS / 2.0, NUM_HEIGHT_PTS / 2.0];
 
     //time
     var u_timeLocation;
-    var u_time = 0.05;
+    var u_time = 0.02;
+    var add = true;
 
     (function initializeShader() {
         var program;
@@ -45,6 +48,7 @@
 		context.bindAttribLocation(program, positionLocation, "position");
 		u_modelViewPerspectiveLocation = context.getUniformLocation(program,"u_modelViewPerspective");
 		u_timeLocation = context.getUniformLocation(program, "u_time");
+		u_gridCenterLocation = context.getUniformLocation(program, "u_gridCenter");
 
         context.useProgram(program);
     })();
@@ -150,12 +154,21 @@
         //pass in uniforms
         context.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp);
         context.uniform1f(u_timeLocation, u_time);
-
+        context.uniform2f(u_gridCenterLocation, u_gridCenter[0], u_gridCenter[1]);
         context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
 
         window.requestAnimFrame(animate);
 
-        u_time += 0.02;
+        if (u_time < 50.0 && add) {
+            u_time += 0.05;
+        }
+        else {
+            u_time += -0.05;
+            add = false;
+            if (u_time < 0.0) {
+                add = true;
+            }
+        }
 
     })();
 
