@@ -31,7 +31,7 @@
     mat4.perspective(45.0, canvas.width/canvas.height, 0.1, 100.0, persp);
 
     var radius = 5.0;
-    var azimuth = 0;
+    var azimuth = 0.0;
     var elevation = 0.0001;
 
     var eye = sphericalToCartesian(radius, azimuth, elevation);

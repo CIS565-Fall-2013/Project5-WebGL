@@ -117,7 +117,7 @@
 		vec3 shadowRayIntersectDir = raySphereIntersect(rayOrigin, rayDir, 1.0+cloudAltitude);
 		
 		vec2 v_CloudShadowTexcoord = dirInSphereToTexcoords(shadowRayIntersectDir) + vec2(u_time, 0.0);
-		float cloudShadowRayTrans = texture2D(u_CloudTrans, v_CloudShadowTexcoord).x;
+		float cloudShadowRayTrans = 1.0;//texture2D(u_CloudTrans, v_CloudShadowTexcoord).x;
 		
         vec3 dayColor = cloudShadowRayTrans*((0.6 * bumpdiffuse) + (0.4 * specular))*texture2D(u_DayDiffuse, v_Texcoord).rgb;
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
