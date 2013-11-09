@@ -52,14 +52,18 @@ Parallax Occlusion Mapping from the book Advanced Game Programming, which itself
 from the DirectX SDK quite faithfully. This method involves stepping through samples in the tangent 
 space. A chat with our TA, William Boone convinced me that this approach was not quite suited for 
 spherical surfaces. As a result, I used an alternative implementation as depicted below:  
+  
 ![Parallax Occlusion Mapping: My implementation](resources/pom-my-impl.png)  
   
-As can be seen, I'm stepping through in the view space, finding the intersection and retrieving the 
-offset. The height value is being read from the bump map texture, and I'm also building the normal from this bump 
-map texture. However, the globe looks exactly the same regardless of whether I'm using parallax occlusion 
-mapping or bump mapping. And, as can be seen from the blooper shot above, parallax occlusion mapping 
-(as implemented here), is indeed working. Why is that? [Please help me figure out](mailto:rohith.chandran@outlook.com)!
-
+As can be seen, I'm stepping through in the view space, finding the intersection, retrieving the height 
+value and calculating the offset. The height value is being read from the bump map texture, and I'm also 
+building the normal from this bump map texture. However, the globe looks exactly the same regardless of 
+whether I'm using parallax occlusion mapping or bump mapping. And, as can be seen from the blooper shot 
+above, parallax occlusion mapping (as implemented here), is indeed working. Why is that? 
+[Please help me figure out](mailto:rohith.chandran@outlook.com)!  
+  
+![POM and Bump Map comparison](resources/pom-bumpmap-comparison.png)  
+  
 ##Input/Interactive features  
   
 <table>
@@ -74,6 +78,10 @@ mapping or bump mapping. And, as can be seen from the blooper shot above, parall
 <tr>
   <td>'h' or 'H'</td>
   <td>Visualise the heightfield like in a contour map</td>
+</tr>
+<tr>
+  <td>'p' or 'P'</td>
+  <td>Pause</td>
 </tr>
 </table>
 
