@@ -59,8 +59,10 @@
     var u_CloudLocation;
     var u_CloudTransLocation;
     var u_EarthSpecLocation;
+    var u_EarthSpecVertLocation;
     var u_BumpLocation;
     var u_timeLocation;
+    var u_timeVertLocation;
 
     (function initializeShader() {
         var vs = getShaderSource(document.getElementById("vs"));
@@ -79,8 +81,10 @@
         u_CloudLocation = gl.getUniformLocation(program,"u_Cloud");
         u_CloudTransLocation = gl.getUniformLocation(program,"u_CloudTrans");
         u_EarthSpecLocation = gl.getUniformLocation(program,"u_EarthSpec");
+        u_EarthSpecVertLocation = gl.getUniformLocation(program,"u_EarthSpecVert");
         u_BumpLocation = gl.getUniformLocation(program,"u_Bump");
         u_timeLocation = gl.getUniformLocation(program,"u_time");
+        u_timeVertLocation = gl.getUniformLocation(program,"u_timeVert");
         u_CameraSpaceDirLightLocation = gl.getUniformLocation(program,"u_CameraSpaceDirLight");
 
         gl.useProgram(program);
@@ -243,11 +247,12 @@
     function animate() {
         ///////////////////////////////////////////////////////////////////////////
         // Update
+
         var model = mat4.create();
         mat4.identity(model);
         mat4.rotate(model, 23.4/180*Math.PI, [0.0, 0.0, 1.0]);
         mat4.rotate(model, Math.PI, [1.0, 0.0, 0.0]);
-        mat4.rotate(model, -time, [0.0, 1.0, 0.0]);
+        //mat4.rotate(model, -time, [0.0, 1.0, 0.0]);
         var mv = mat4.create();
         mat4.multiply(view, model, mv);
 
@@ -291,8 +296,10 @@
         gl.activeTexture(gl.TEXTURE5);
         gl.bindTexture(gl.TEXTURE_2D, specTex);
         gl.uniform1i(u_EarthSpecLocation, 5);
+        gl.uniform1i(u_EarthSpecVertLocation, 5);
 
         gl.uniform1f(u_timeLocation, time);
+        gl.uniform1f(u_timeVertLocation, time);
 
         gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
 
