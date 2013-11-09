@@ -40,21 +40,23 @@ To view the WebGL demo for any of the following, please click the image,
 
 
 * A sin-wave based vertex shader:
-	```glsl
-	float s_contrib = sin(position.x*2.0*3.14159 + u_time);
-	float t_contrib = cos(position.y*2.0*3.14159 + u_time);
-	float height = s_contrib*t_contrib;
-	```
+
+```glsl
+float s_contrib = sin(position.x*2.0*3.14159 + u_time);
+float t_contrib = cos(position.y*2.0*3.14159 + u_time);
+float height = s_contrib*t_contrib;
+```
 
 [![ScreenShot](https://raw.github.com/vimanyu/Project5-WebGL/master/resources/sinWaveGrid.png)](http://vimanyu.github.io/Project5-WebGL/vert_wave.html)
 
 * A simplex noise based vertex shader:
+
 ```glsl
 vec2 simplexVec = vec2(u_time, position);
 float s_contrib = snoise(simplexVec);
 float t_contrib = snoise(vec2(s_contrib,u_time));
 ```
-[![ScreenShot](https://raw.github.com/vimanyu/Project5-WebGL/master/resources/sinWaveGrid.png)](http://vimanyu.github.io/Project5-WebGL/vert_wave_simplex.html)
+[![ScreenShot](https://raw.github.com/vimanyu/Project5-WebGL/master/resources/oceanWave.png)](http://vimanyu.github.io/Project5-WebGL/vert_wave_simplex.html)
 
 
 * Custom vertex shader
@@ -66,9 +68,9 @@ height = 0.5/u_time*sin(freq*radius - u_time);
 ```
 I referred http://www.gamasutra.com/view/feature/131530/refractive_texture_mapping_part_.php?page=3 for the math.
 
-[![ScreenShot](https://raw.github.com/vimanyu/Project5-WebGL/master/resources/ripples.png)](http://vimanyu.github.io/Project5-WebGL/vert_wave_custom.html)
+[![ScreenShot](https://raw.github.com/vimanyu/Project5-WebGL/master/resources/ripple.png)](http://vimanyu.github.io/Project5-WebGL/vert_wave_custom.html)
 
-[![ScreenShot](https://raw.github.com/vimanyu/Project5-WebGL/master/resources/ripples_textured.png)](http://vimanyu.github.io/Project5-WebGL/vert_wave_custom_textured.html)
+[![ScreenShot](https://raw.github.com/vimanyu/Project5-WebGL/master/resources/ripple_textured.png)](http://vimanyu.github.io/Project5-WebGL/vert_wave_custom_textured.html)
 
 
 -------------------------------------------------------------------------------
