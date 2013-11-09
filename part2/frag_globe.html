@@ -219,7 +219,12 @@
 				finalColour = vec4 (mix (color2, color1, diffuse), 1.0);
 		}
 		else
-			finalColour = mix (vec4 (0.0,1.0,0.0,1.0), vec4 (1.0, 0.0, 0.0, 1.0), bumpMap_center);
+		{
+			if (specularMap.r == 0.0)
+				finalColour = mix (vec4 (0.0,1.0,0.0,1.0), vec4 (1.0, 0.0, 0.0, 1.0), bumpMap_center);
+			else
+				finalColour = vec4 (dayColor, 1.0);
+		}
         gl_FragColor = finalColour;
     }
 
