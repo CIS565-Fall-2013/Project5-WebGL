@@ -3,8 +3,6 @@ CIS565: Project 5: WebGL
 -------------------------------------------------------------------------------
 Fall 2013
 -------------------------------------------------------------------------------
-Due Friday 11/08/2013
--------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
 NOTE:
@@ -20,18 +18,10 @@ have issues with Chrome on windows, but Firefox seems to run it fine.
 -------------------------------------------------------------------------------
 INTRODUCTION:
 -------------------------------------------------------------------------------
-In this project, you will get introduced to the world of GLSL in two parts: 
-vertex shading and fragment shading. The first part of this project is the 
-Image Processor, and the second part of this project is a Wave Vertex Shader.
-
-In the first part of this project, you will implement a GLSL vertex shader as 
-part of a WebGL demo. You will create a dynamic wave animation using code that 
-runs entirely on the GPU.
-
-In the second part of this project, you will implement a GLSL fragment shader
-to render an interactive globe in WebGL. This will include texture blending,
-bump mapping, specular masking, and adding a cloud layer to give your globe a 
-uniquie feel.
+In this project, I have implemented vertex and fragment shaders in WebGL.
+There are two parts to this project:
+Part1: Deforms a simple grid of points using vertex shaders
+Part2: Renders a globe with fragment shaders
 
 -------------------------------------------------------------------------------
 CONTENTS:
@@ -56,11 +46,11 @@ You are required to implement the following:
 
 * A sin-wave based vertex shader:
 
-![Example sin wave grid](resources/sinWaveGrid.png)
-
+![Sin wave grid](resources/sinWaveGrid.png)
+[![ScreenShot](https://raw.github.com/vimanyu/Project5-WebGL/master/resources/sinWaveGrid.png)](http://vimanyu.github.io/Project5-WebGL/part1/vert_wave.html)
 * A simplex noise based vertex shader:
 
-![Example simplex noise wave grid](resources/oceanWave.png)
+![Simplex noise wave grid](resources/oceanWave.png)
 
 * One interesting vertex shader of your choice
 
