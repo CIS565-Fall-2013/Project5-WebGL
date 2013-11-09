@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
-WebGL Demos
+WebGL Demos (Clike images for demos)
 -------------------------------------------------------------------------------
 Fall 2013
 -------------------------------------------------------------------------------
@@ -81,16 +81,6 @@ At noon, the ray-traced shadow is directly underneath the cloud, making it less 
 -------------------------------------------------------------------------------
 PERFORMANCE EVALUATION
 -------------------------------------------------------------------------------
-The performance evaluation is where you will investigate how to make your 
-program more efficient using the skills you've learned in class. You must have
-performed at least one experiment on your code to investigate the positive or
-negative effects on performance. 
-
-We encourage you to get creative with your tweaks. Consider places in your code
-that could be considered bottlenecks and try to improve them. 
-
-Each student should provide no more than a one page summary of their
-optimizations along with tables and or graphs to visually explain any
-performance differences.
+Curiously, adding a javascript frame rate counter shows me a constant 30FPS for every demo. Clearly something is capping the frame rate to 30 since my graphic card is way more capable of doing merely 30FPS. Will look into this issue further when I had time.
 
 
