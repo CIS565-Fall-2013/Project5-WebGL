@@ -75,7 +75,7 @@
     var globe_program;
     var iss_program;
 
-    (function initializeShader() {
+    function initializeShader() {
         var program;
         var vs = getShaderSource(document.getElementById("vs"));
         var fs = getShaderSource(document.getElementById("fs"));
@@ -98,11 +98,11 @@
         u_CameraSpaceDirLightLocation = gl.getUniformLocation(globe_program,"u_CameraSpaceDirLight");
 
         gl.useProgram(globe_program);
-    })();
+    }
 
-    (function initializeShader2() {
+    function initializeShader2() {
         var vs = getShaderSource(document.getElementById("vs"));
-        var fs = getShaderSource(document.getElementById("fs"));
+        var fs = getShaderSource(document.getElementById("iss-fs"));
 
         iss_program = createProgram(gl, vs, fs, message);
         positionLocation_ISS = gl.getAttribLocation(iss_program, "Position");
@@ -122,7 +122,7 @@
         u_CameraSpaceDirLightLocation = gl.getUniformLocation(iss_program,"u_CameraSpaceDirLight");
 
         gl.useProgram(iss_program);
-    })();
+    }
 
     var dayTex   = gl.createTexture();
     var bumpTex  = gl.createTexture();
@@ -375,6 +375,8 @@
         ///////////////////////////////////////////////////////////////////////////
         // Update
 
+        //gl.useProgram(globe_program);
+        initializeShader();
         initializeSphere();
         var model = mat4.create();
         mat4.identity(model);
@@ -397,7 +399,7 @@
 
         ///////////////////////////////////////////////////////////////////////////
         // Render
-
+        //gl.useProgram(globe_program);
         //initializeSphere2();
 
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -463,7 +465,7 @@
         var currY = curr_rad*Math.cos(inclination);
         var currZ = curr_rad*Math.sin(inclination)*Math.sin(azimuth);
     
-
+        initializeShader2();
         initializeSphere2();
 
         var modelForward = vec3.create([0.0, 0.0, 1.0]);
