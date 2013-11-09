@@ -47,7 +47,7 @@ You are required to implement the following:
 * A sin-wave based vertex shader:
 
 ![Sin wave grid](resources/sinWaveGrid.png)
-[![ScreenShot](https://raw.github.com/vimanyu/Project5-WebGL/master/resources/sinWaveGrid.png)](http://vimanyu.github.io/Project5-WebGL/part1/vert_wave.html)
+[![ScreenShot](https://raw.github.com/vimanyu/Project5-WebGL/master/resources/sinWaveGrid.png)](http://vimanyu.github.io/Project5-WebGL/vert_wave.html)
 * A simplex noise based vertex shader:
 
 ![Simplex noise wave grid](resources/oceanWave.png)
