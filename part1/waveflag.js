@@ -18,8 +18,9 @@
     ///////////////////////////////////////////////////////////////////////////
 
     context.viewport(0, 0, canvas.width, canvas.height);
-    context.clearColor(1.0, 1.0, 1.0, 1.0);
+    context.clearColor(0.0, 0.0, 0.0, 1.0);
     context.enable(context.DEPTH_TEST);
+//    context.enable(context.CULL_FACE)
 
     var persp = mat4.create();
     mat4.perspective(45.0, 0.5, 0.1, 100.0, persp);
@@ -44,7 +45,7 @@
 
 		var program = createProgram(context, vs, fs, message);
 		context.bindAttribLocation(program, positionLocation, "position");
-		Texcoord = context.getAttribLocation (program, "Texcoord");
+		context.bindAttribLocation(program, Texcoord, "Texcoord");
 		u_modelViewPerspectiveLocation = context.getUniformLocation(program,"u_modelViewPerspective");
 		u_timeLocation = context.getUniformLocation (program, "u_time");
 		u_FlagSamplerLocation = context.getUniformLocation (program, "u_FlagSampler");
@@ -108,7 +109,7 @@
 
         var positions = new Float32Array(2 * numberOfPositions);
         var texCoords = new Float32Array(2 * numberOfPositions);
-        var indices = new Uint16Array(2 * ((NUM_HEIGHT_PTS * (NUM_WIDTH_PTS - 1)) + (NUM_WIDTH_PTS * (NUM_HEIGHT_PTS - 1))));
+        var indices = new Uint16Array(2 * WIDTH_DIVISIONS * HEIGHT_DIVISIONS * 3);
 
         var positionsIndex = 0;
         var texCoordsIndex = 0;
@@ -121,46 +122,49 @@
             positions[positionsIndex++] = 0.0;
             texCoords[texCoordsIndex++] = j / WIDTH_DIVISIONS;
             texCoords[texCoordsIndex++] = 0.0;
-
-
-            if (j>=1)
-            {
-                length = positionsIndex / 2;
-                indices[indicesIndex++] = length - 2;
-                indices[indicesIndex++] = length - 1;
-            }
+		
+		    indices[indicesIndex++] = j + NUM_WIDTH_PTS;
+            indices[indicesIndex++] = j;
+		    indices[indicesIndex++] = j + 1;
+		    indices[indicesIndex++] = j + 1;
+		    indices[indicesIndex++] = j + 1 + NUM_WIDTH_PTS;
+		    indices[indicesIndex++] = j + NUM_WIDTH_PTS;
         }
 
         for (var i = 0; i < HEIGHT_DIVISIONS; ++i)
         {
              var v = (i + 1) / (HEIGHT_DIVISIONS);
+                          
              positions[positionsIndex++] = 0.0;
              positions[positionsIndex++] = v;
              texCoords[texCoordsIndex++] = 0.0;
              texCoords[texCoordsIndex++] = v;
 
-
-             length = (positionsIndex / 2);
-             indices[indicesIndex++] = length - 1;
-             indices[indicesIndex++] = length - 1 - NUM_WIDTH_PTS;
-
              for (var k = 0; k < WIDTH_DIVISIONS; ++k)
              {
+             	 j += k + 1;
                  positions[positionsIndex++] = (k + 1) / WIDTH_DIVISIONS;
                  positions[positionsIndex++] = v;
                  texCoords[texCoordsIndex++] = (k + 1) / WIDTH_DIVISIONS;
              	 texCoords[texCoordsIndex++] = v;
-
-
-                 length = positionsIndex / 2;
-                 var new_pt = length - 1;
-                 indices[indicesIndex++] = new_pt - 1;  // Previous side
-                 indices[indicesIndex++] = new_pt;
-
-                 indices[indicesIndex++] = new_pt - NUM_WIDTH_PTS;  // Previous bottom
-                 indices[indicesIndex++] = new_pt;
              }
+             
         }
+        
+        for (var i = 1; i < HEIGHT_DIVISIONS; ++i)
+         {
+         	for (var k = 0; k < WIDTH_DIVISIONS; ++k)
+         	{
+	            var j = (i * NUM_WIDTH_PTS) + k;
+
+         		indices[indicesIndex++] = j + NUM_WIDTH_PTS;
+             	indices[indicesIndex++] = j;
+		    	indices[indicesIndex++] = j + 1;
+		    	indices[indicesIndex++] = j + 1;
+		    	indices[indicesIndex++] = j + 1 + NUM_WIDTH_PTS;
+		    	indices[indicesIndex++] = j + NUM_WIDTH_PTS;
+		    }
+		 }
 
         uploadMesh(positions, heights, indices, texCoords);
         numberOfIndices = indices.length;
@@ -189,7 +193,7 @@
         context.bindTexture(context.TEXTURE_2D, flagTex);
         context.uniform1i(u_FlagSamplerLocation, 0);
 
-        context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
+        context.drawElements(context.TRIANGLES, numberOfIndices, context.UNSIGNED_SHORT,0);
 
 		window.requestAnimFrame(animate);
     })();
@@ -203,7 +207,7 @@
 
             // Animate once textures load.
             if (++textureCount === 1) {
-                animate();
+                /*animate()*/;
             }
         }
         texture.image.src = src;

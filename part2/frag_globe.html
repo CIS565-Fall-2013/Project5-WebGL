@@ -210,7 +210,7 @@
 	        	cloudMap = vec3 (1.0, 1.0, 1.0) - cloudMap;
 				
 				color1 = 0.6 * diffuse * dayColor + 0.4 * specular * specularMap * dayColor;
-	//			color1 = mix (color1, cloudColourMap, cloudMap);
+				color1 = mix (color1, cloudColourMap, cloudMap);
 			
 			float rimCoeff = dot (normal, -eyeToPosition);
 			if (rimCoeff < 0.18)
