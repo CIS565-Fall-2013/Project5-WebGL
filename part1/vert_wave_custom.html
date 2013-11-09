@@ -57,14 +57,12 @@
       g.yz = a0.yz * x12.xz + h.yz * x12.yw;
       return 130.0 * dot(m, g);
     }
-    
+
     void main(void)
     {
-		vec2 simplexVec = vec2(0.5*u_time, position);
-        float s_contrib = simplexNoise(simplexVec);
-        float t_contrib = simplexNoise(vec2(s_contrib,0.5*u_time));
-        height = s_contrib*t_contrib;
-		gl_Position = u_modelViewPerspective * vec4(vec3(position, height), 1.0);
+      vec2 simplexVec = vec2(position.x+0.25*u_time, position.y+0.25*u_time);
+      height = simplexNoise(simplexVec);
+		  gl_Position = u_modelViewPerspective * vec4(vec3(position, height), 1.0);
     }
 </script>
 

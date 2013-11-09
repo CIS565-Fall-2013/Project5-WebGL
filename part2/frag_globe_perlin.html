@@ -71,6 +71,53 @@
 
     mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
 
+    //Perlin noise stuff
+    float noise(float x, float y) {
+      return fract(sin(dot(vec2(x,y) ,vec2(12.9898,78.233))) * 43758.5453);
+    }
+    
+    float smoothNoise(float x, float y) {
+      float corners = (noise(x-1.0, y-1.0) + noise(x+1.0, y-1.0) + noise(x-1.0, y+1.0) + noise(x+1.0, y+1.0)) / 16.0;
+      float sides = (noise(x-1.0, y) + noise(x+1.0, y) + noise(x, y-1.0) + noise(x, y+1.0)) / 8.0;
+      float center = noise(x, y) / 4.0;
+      return corners + sides + center;
+    }
+
+    float interpolate(float a, float b, float t) {
+      return a * (1.0-t) + b * t;
+    }
+
+    float interpolateNoise(float x, float y) {
+      float int_x = floor(x);
+      float fract_x = x - int_x;
+      float int_y = floor(y);
+      float fract_y = y - int_y;
+
+      float v1 = smoothNoise(int_x, int_y);
+      float v2 = smoothNoise(int_x+1.0, int_y);
+      float v3 = smoothNoise(int_x, int_y+1.0);
+      float v4 = smoothNoise(int_x+1.0, int_y+1.0);
+
+      float i1 = interpolate(v1, v2, fract_x);
+      float i2 = interpolate(v3, v4, fract_x);
+
+      return interpolate(i1, i2, fract_y);
+    }
+
+    float perlin(vec2 v) {
+      float total = 0.0;
+      float p = 1.1;
+
+      for (int i=0; i<6; i++) {
+        float f = pow(2.0, float(i));
+        float amp = pow(p, float(i));
+        total =  total + interpolateNoise(v.x * f, v.y * f) * amp;
+      }
+
+      return 3.0*total;
+    }
+
+
     void main(void)
     {
         float center = texture2D(u_Bump, v_Texcoord).r;
@@ -78,12 +125,23 @@
         float right = texture2D(u_Bump, rightTexcoord).r;
         vec2 topTexcoord = v_Texcoord + vec2(0.0, 1.0/512.0);
         float top = texture2D(u_Bump, topTexcoord).r;
-        vec3 normal = normalize(vec3(center - right, center - top, 0.2));
+        vec3 landNormal = normalize(vec3(center - right, center - top, 0.2));
         
         vec3 normalEC = normalize(v_Normal);
         mat3 transform = eastNorthUpToEyeCoordinates(v_positionMC, normalEC);
 
-        normal = normalize(transform * normal);
+        landNormal = normalize(transform * landNormal);
+
+        vec2 seaPosition = vec2(v_Position.x-3.0*u_time, v_Position.y);
+        float dx = 0.1;
+        float seaCenter = perlin(seaPosition);
+        float seaRight = perlin(seaPosition + vec2(dx, 0.0));
+        float seaTop = perlin(seaPosition + vec2(0.0, dx));
+        vec3 seaNormal = normalize(vec3(seaCenter - seaRight, seaCenter - seaTop, 1.0));
+        //seaNormal = normalize(transform * seaNormal);
+
+        float isOcean = texture2D(u_EarthSpec, v_Texcoord).r;
+        vec3 normal = isOcean == 1.0 ? seaNormal : landNormal;
 
         // normalized eye-to-position vector in camera coordinates
         vec3 eyeToPosition = normalize(v_Position);
@@ -98,7 +156,6 @@
 
         vec3 dayColor = texture2D(u_DayDiffuse, v_Texcoord).rgb;
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
-        float isOcean = texture2D(u_EarthSpec, v_Texcoord).r;
         //apply gamma correction to nighttime texture
         nightColor = pow(nightColor,vec3(gammaCorrect));
 
@@ -106,11 +163,11 @@
         float ks = 1.0 - kd;
         dayColor = ((kd * diffuse) + (ks * specular)) * dayColor;
 
-        vec2 cloudTexcoord = v_Texcoord + vec2(u_time, 0.0);
-        float cloudTrans = texture2D(u_CloudTrans, cloudTexcoord).r;
-        vec3 cloudColor = texture2D(u_Cloud, cloudTexcoord).rgb;
-        dayColor = mix(cloudColor, dayColor, cloudTrans);
-        nightColor = mix(vec3(0.0), nightColor, cloudTrans);
+        // vec2 cloudTexcoord = v_Texcoord + vec2(u_time, 0.0);
+        // float cloudTrans = texture2D(u_CloudTrans, cloudTexcoord).r;
+        // vec3 cloudColor = texture2D(u_Cloud, cloudTexcoord).rgb;
+        // dayColor = mix(cloudColor, dayColor, cloudTrans);
+        // nightColor = mix(vec3(0.0), nightColor, cloudTrans);
 
         vec3 color = mix(nightColor, dayColor, diffuse);
 
