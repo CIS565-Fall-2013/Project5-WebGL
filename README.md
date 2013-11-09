@@ -1,5 +1,7 @@
 CIS565: Project 5: WebGL
 -------------------------------------------------------------------------------
+![Part 1 Results](resources/waveResult.png)
+![Part 2 Results](resources/globeResult.png)
 
 INTRODUCTION:
 -------------------------------------------------------------------------------
@@ -13,6 +15,11 @@ For this part, I have implemented shaders for the following using glsl:
 * A simplex noise based vertex shader
 * A custom vertex shader that behaves like waves
 
+Below are the links to the live demos:
+[Sin/Cos](http://mikeychen.net/WebGL/MathFunctionsVisualization/vert_wave.html)
+[Simplex Noise](http://mikeychen.net/WebGL/MathFunctionsVisualization/simplex_wave.html)
+[Waves](http://mikeychen.net/WebGL/MathFunctionsVisualization/custom_wave.html)
+
 PART 2 - GLOBE
 -------------------------------------------------------------------------------
 * Bump mapped terrain
@@ -23,6 +30,7 @@ PART 2 - GLOBE
 * Orbiting Moon with texture mapping and bump mapping
 * Skybox around the entire scene
 
+[Globe](http://mikeychen.net/WebGL/Globe/frag_globe.html)
 
 PERFORMANCE EVALUATION
 -------------------------------------------------------------------------------
@@ -30,8 +38,6 @@ PERFORMANCE EVALUATION
 
 REFERENCES
 -------------------------------------------------------------------------------
-For doing rim lighting, [this article](http://www.fundza.com/rman_shaders/surface/fake_rim/fake_rim1.html) was referred to. 
-
-I also consulted a[General WebGL Tutorial](https://developer.mozilla.org/en-US/docs/Web/WebGL) found here.
-
-Finally, the skybox images were generated with [Spacescape](http://sourceforge.net/projects/spacescape/).
+For doing rim lighting, [this article](http://www.fundza.com/rman_shaders/surface/fake_rim/fake_rim1.html) was referred to. I also consulted 
+a [General WebGL Tutorial](https://developer.mozilla.org/en-US/docs/Web/WebGL) found here. Finally, the skybox images were generated with 
+[Spacescape](http://sourceforge.net/projects/spacescape/).

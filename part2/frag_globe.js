@@ -560,12 +560,6 @@
         gl.bindTexture(gl.TEXTURE_2D, skyLeftTex);
         gl.uniform1i(u_texSamplerLocation, 13);
         gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 60);
-
-
-        // testing textures
-        //gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 24); // top
-        //gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 36); // bot
-        //gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 48); // right
     }
 
     // animate is responsible for drawing the earth and moon
@@ -658,12 +652,6 @@
         initializeTexture(skyBotTex, "purpleNebula_bottom4.png", "skybox");
         initializeTexture(skyRightTex, "purpleNebula_right1.png", "skybox");
         initializeTexture(skyLeftTex, "purpleNebula_left2.png", "skybox");
-        //initializeTexture(skyFrontTex, "1.png", "skybox");
-        //initializeTexture(skyBackTex, "6.png", "skybox");
-        //initializeTexture(skyTopTex, "3.png", "skybox");
-        //initializeTexture(skyBotTex, "4.png", "skybox");
-        //initializeTexture(skyRightTex, "5.png", "skybox");
-        //initializeTexture(skyLeftTex, "2.png", "skybox");
     }());
 
 
