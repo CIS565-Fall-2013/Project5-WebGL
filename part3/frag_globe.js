@@ -391,14 +391,9 @@
             indices[2*i] = i;
             indices[2*i + 1] = i + 1;
         }
-
-        texCoords[0] = 0.0;
-        texCoords[1] = 1.0;
-        texCoords[2] = 1.0;
-        texCoords[3] = 1.0;
-        
+ 
         uploadMesh(positions, texCoords, indices);
-        numberOfIndices3 = numVerts;
+        numberOfIndices3 = (numVerts-1)*2;
     }
 
     var time = 0;
