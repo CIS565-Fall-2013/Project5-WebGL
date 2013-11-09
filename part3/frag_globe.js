@@ -353,8 +353,16 @@
     document.onmouseup = handleMouseUp;
     document.onmousemove = handleMouseMove;
 
+    var prevTime = new Date().getTime();
+    
+    var elapsedTime = 5000;
 
     (function animate(){
+        var currTime = new Date().getTime();
+        var dt = currTime - prevTime;
+        elapsedTime += dt;
+        prevTime = currTime;
+        
         ///////////////////////////////////////////////////////////////////////////
         // Update
 
@@ -418,14 +426,17 @@
             iss_lat = lat;
             iss_lon = lon;
         }
-        
-    $.getJSON('http://api.open-notify.org/iss-now.json?callback=?', function(data) {
-            var lat = data['iss_position']['latitude'];
-            var lon = data['iss_position']['longitude'];
-            //console.log(lat);
-            //console.log(lon);
-            set_lat_lon( lat, lon );
-        });
+       
+        if(elapsedTime > 5000) { //poll once every 5 seconds
+            $.getJSON('http://api.open-notify.org/iss-now.json?callback=?', function(data) {
+                    var lat = data['iss_position']['latitude'];
+                    var lon = data['iss_position']['longitude'];
+                    //console.log(lat);
+                    //console.log(lon);
+                    set_lat_lon( lat, lon );
+                });
+            elapsedTime = 0;
+        }
 
 
         //the offsets PI and PI/2 on the azimuth and inclination are used to get my spherical
