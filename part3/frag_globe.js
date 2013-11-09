@@ -414,12 +414,34 @@
 
         gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
 
+        function set_lat_lon( lat, lon ){
+            iss_lat = lat;
+            iss_lon = lon;
+        }
+        
+    //$.getJSON('http://api.open-notify.org/iss-now.json?callback=?', function(data) {
+            //var lat = data['iss_position']['latitude'];
+            //var lon = data['iss_position']['longitude'];
+            ////console.log(lat);
+            ////console.log(lon);
+            //set_lat_lon( lat, lon );
+        //});
+
+
+        var azimuth = 90.0 * (Math.PI / 180.0);
+        var inclination = 135.0 * (Math.PI / 180.0);
+        var curr_rad = 1.5;
+        var currX = curr_rad*Math.sin(inclination)*Math.cos(azimuth);
+        var currY = curr_rad*Math.cos(inclination);
+        var currZ = curr_rad*Math.sin(inclination)*Math.sin(azimuth);
+    
+
         initializeSphere2();
         model = mat4.create();
         mat4.identity(model);
-        mat4.translate(model, [0.0, 0.0, 1.5]);
+        mat4.translate(model, [currX, currY, currZ]);
         //mat4.rotate(model, 23.4/180*Math.PI, [0.0, 0.0, 1.0]);
-        mat4.rotate(model, Math.PI, [1.0, 0.0, 0.0]);
+        //mat4.rotate(model, Math.PI, [1.0, 0.0, 0.0]);
         mv = mat4.create();
         mat4.multiply(view, model, mv);
 
@@ -440,20 +462,6 @@
         //initializeSphere2();
 
         //gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        
-
-        function set_lat_lon( lat, lon ){
-            iss_lat = lat;
-            iss_lon = lon;
-        }
-        
-    $.getJSON('http://api.open-notify.org/iss-now.json?callback=?', function(data) {
-            var lat = data['iss_position']['latitude'];
-            var lon = data['iss_position']['longitude'];
-            //console.log(lat);
-            //console.log(lon);
-            set_lat_lon( lat, lon );
-        });
 
         gl.uniformMatrix4fv(u_ModelLocation, false, model);
         gl.uniformMatrix4fv(u_ViewLocation, false, view);
