@@ -17,11 +17,11 @@ For this part, I have implemented shaders for the following using glsl:
 
 Below are the links to the live demos:
 
-[Sin/Cos](http://mikeychen.net/WebGL/MathFunctionsVisualization/vert_wave.html)
+*[Sin/Cos](http://mikeychen.net/WebGL/MathFunctionsVisualization/vert_wave.html)
 
-[Simplex Noise](http://mikeychen.net/WebGL/MathFunctionsVisualization/simplex_wave.html)
+*[Simplex Noise](http://mikeychen.net/WebGL/MathFunctionsVisualization/simplex_wave.html)
 
-[Waves](http://mikeychen.net/WebGL/MathFunctionsVisualization/custom_wave.html)
+*[Waves](http://mikeychen.net/WebGL/MathFunctionsVisualization/custom_wave.html)
 
 
 PART 2 - GLOBE
@@ -38,7 +38,7 @@ For this part, I have implemented the following features:
 
 Below is the links to the live demo:
 
-[Globe](http://mikeychen.net/WebGL/Globe/frag_globe.html)
+*[Globe](http://mikeychen.net/WebGL/Globe/frag_globe.html)
 
 PERFORMANCE EVALUATION
 -------------------------------------------------------------------------------
