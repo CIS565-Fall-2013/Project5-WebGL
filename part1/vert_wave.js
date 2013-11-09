@@ -3,8 +3,8 @@
     /*global window,document,Float32Array,Uint16Array,mat4,vec3,snoise*/
     /*global getShaderSource,createWebGLContext,createProgram*/
 
-    var NUM_WIDTH_PTS = 32;
-    var NUM_HEIGHT_PTS = 32;
+    var NUM_WIDTH_PTS = 80;
+    var NUM_HEIGHT_PTS = 80;
 	var delta = 0.005;
 	var time = 0.0;
     var message = document.getElementById("message");
