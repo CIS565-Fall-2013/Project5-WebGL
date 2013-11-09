@@ -7,6 +7,7 @@
 </head>
 
 <body>
+<p style="font-size:30px">Please note that this globe app can only work on Firefox browser. </br>If you are using Chrome right now, please change to Firefox, sorry about the inconvenience!</p>
 <div id="message" style="position:absolute;top:100px"></div> <!-- Pixel offset to avoid FPS counter -->
 <canvas id="canvas" style="border: none;" width="1024" height="768" tabindex="1"></canvas>
 
@@ -66,6 +67,7 @@
     uniform sampler2D u_EarthSpec;
     //Bump map
     uniform sampler2D u_Bump;
+    uniform sampler2D u_noise;
 
     uniform float u_time;
     uniform float u_showWhich;
@@ -189,6 +191,24 @@
         
         vec3 turbnormal=normalize(vec3(center-theright, center-theUp,0.2));
         vec3 normal=normalize(eastNorthUpToEyeCoordinates(v_positionMC, v_Normal)*turbnormal);
+    		
+    		vec2 ocean_Texcoord = v_Texcoord;
+    		float fragutime=u_time-10.0*float(int(u_time/10.0));
+    		float ocean_texcoord_noise=snoise(ocean_Texcoord*(fragutime));
+    		ocean_Texcoord.s-=0.00002*fragutime*ocean_texcoord_noise;
+    		ocean_Texcoord.t+=0.00001*fragutime*ocean_texcoord_noise;
+        vec2 ocean_upTexcoord=ocean_Texcoord;
+        vec2 ocean_rightTexcoord=ocean_Texcoord;
+        ocean_upTexcoord.t-=1.0/512.0;
+        ocean_rightTexcoord.s+=1.0/1024.0;
+            
+        
+        float ocean_center=texture2D(u_noise,ocean_Texcoord).r;
+        float ocean_theright=texture2D(u_noise, ocean_rightTexcoord).r;
+        float ocean_theUp=texture2D(u_noise, ocean_upTexcoord).r;
+        
+        vec3 ocean_turbnormal=normalize(vec3(ocean_center-ocean_theright, ocean_center-ocean_theUp,3.0));
+        vec3 ocean_normal=normalize(eastNorthUpToEyeCoordinates(v_positionMC, v_Normal)*ocean_turbnormal);     
                 
         float checkDayNightnorm=dot(u_CameraSpaceDirLight, v_Normal); 
         
@@ -200,14 +220,7 @@
         
         if(isOcean)
         {
-//        	  vec2 simplexVec = vec2(v_positionMC.z/v_positionMC.x, v_positionMC.y);
-//						float turb1 = snoise(simplexVec);
-//						float turb2 = snoise(vec2(turb1,1.0));
-//		        normal.x+=turb1*0.5;
-//		        normal.y+=turb2*0.5;
-//		        normal=normalize(normal);		
-
-        // normal=normalize(eastNorthUpToEyeCoordinates(v_positionMC, v_Normal)*waterTurb);	
+						normal=ocean_normal;
         }
         
         //vec3 normal = normalize(v_Normal);
@@ -227,7 +240,7 @@
         vec3 nightColor = texture2D(u_Night, v_Texcoord).rgb;
         
         
-        vec2 v_Texcoord2=v_Texcoord;
+        vec2 v_Texcoord2=v_Texcoord;	// Cloud texture coord
         v_Texcoord2.s-=0.0005*u_time;
         vec3 cloudColor = texture2D(u_Cloud, v_Texcoord2).rgb;
         vec3 cloudTrans = texture2D(u_CloudTrans, v_Texcoord2).rgb;

@@ -52,10 +52,10 @@ function showHM()
     var view = mat4.create();
     mat4.lookAt(eye, center, up, view);
 
-    var positionLocation = 0;
-    var normalLocation = 1;
-    var texCoordLocation = 2;
-    var heightLocation = 3;
+    var positionLocation;// = 0;
+    var normalLocation;// = 1;
+    var texCoordLocation;// = 2;
+    var heightLocation;// = 3;
     
     var u_InvTransLocation;
     var u_ModelLocation;
@@ -68,6 +68,7 @@ function showHM()
     var u_CloudLocation;
     var u_CloudTransLocation;
     var u_EarthSpecLocation;
+    var u_NoiseTexLocation;
     var u_BumpLocation;
     var u_timeLocation;
     var u_showWhichLocation;
@@ -75,12 +76,15 @@ function showHM()
     var curtime=0;
 
     (function initializeShader() {
-        var program;
         var vs = getShaderSource(document.getElementById("vs"));
         var fs = getShaderSource(document.getElementById("fs"));
 
-		var program = createProgram(gl, vs, fs, message);
-		gl.bindAttribLocation(program, positionLocation, "Position");
+				var program = createProgram(gl, vs, fs, message);
+		//gl.bindAttribLocation(program, positionLocation, "Position");
+		positionLocation = gl.getAttribLocation(program, "Position");
+        normalLocation = gl.getAttribLocation(program, "Normal");
+        texCoordLocation = gl.getAttribLocation(program, "Texcoord");
+        
 		u_ModelLocation = gl.getUniformLocation(program,"u_Model");
         u_ViewLocation = gl.getUniformLocation(program,"u_View");
         u_PerspLocation = gl.getUniformLocation(program,"u_Persp");
@@ -90,6 +94,7 @@ function showHM()
         u_CloudLocation = gl.getUniformLocation(program,"u_Cloud");
         u_CloudTransLocation = gl.getUniformLocation(program,"u_CloudTrans");
         u_EarthSpecLocation = gl.getUniformLocation(program,"u_EarthSpec");
+        u_NoiseTexLocation = gl.getUniformLocation(program, "u_noise");
         u_BumpLocation = gl.getUniformLocation(program,"u_Bump");
         u_showWhichLocation=gl.getUniformLocation(program,"u_showWhich");
         u_timeLocation = gl.getUniformLocation(program,"u_time");
@@ -105,39 +110,18 @@ function showHM()
     var transTex = gl.createTexture();
     var lightTex = gl.createTexture();
     var specTex  = gl.createTexture();
+    var noiseTex  = gl.createTexture();
 
-    (function initTextures() {
-        function initLoadedTexture(texture){
-            gl.bindTexture(gl.TEXTURE_2D, texture);
-            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, 
-                               gl.UNSIGNED_BYTE, texture.image);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, 
-                                  gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, 
-                                  gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, 
-                                  gl.REPEAT);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, 
-                                  gl.REPEAT);
-            gl.bindTexture(gl.TEXTURE_2D, null);
-        }
-        
-        function initializeTexture(texture, src) {
-            texture.image = new Image();
-            texture.image.onload = function() {
-                initLoadedTexture(texture);
-            }
-             texture.image.src = src;
-        }
-
-        initializeTexture(dayTex, "earthmap1024.png");
-        initializeTexture(bumpTex, "earthbump1024.png");
-        initializeTexture(cloudTex, "earthcloud1024.png");
-        initializeTexture(transTex, "earthtrans1024.png");
-        initializeTexture(lightTex, "earthlight1024.png");
-         initializeTexture(specTex, "earthspec1024.png");
-    })();
+		function initLoadedTexture(texture){
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+    }
 
     var numberOfIndices;
 
@@ -163,13 +147,13 @@ function showHM()
             gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
             gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(texCoordLocation);
-            
+ /*           
             var randHeightName = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, randHeightName);
             gl.bufferData(gl.ARRAY_BUFFER, randHeight, gl.STATIC_DRAW);
             gl.vertexAttribPointer(heightLocation, 3, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(heightLocation);
-            
+   */         
 
             // Indices
             var indicesName = gl.createBuffer();
@@ -303,7 +287,7 @@ function showHM()
     document.onmousemove = handleMouseMove;
 
 
-    (function animate(){
+    function animate(){
         ///////////////////////////////////////////////////////////////////////////
         // Update
 
@@ -360,11 +344,36 @@ function showHM()
         gl.activeTexture(gl.TEXTURE5);
         gl.bindTexture(gl.TEXTURE_2D, specTex);
         gl.uniform1i(u_EarthSpecLocation, 5);
+        
+        gl.activeTexture(gl.TEXTURE6);
+        gl.bindTexture(gl.TEXTURE_2D, noiseTex);
+        gl.uniform1i(u_NoiseTexLocation, 6);
 
         gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
 
         time += 0.001;
-		window.requestAnimFrame(animate);
-    })();
+			window.requestAnimFrame(animate);
+    }
+   var textureCount = 0;
+        
+    function initializeTexture(texture, src) {
+        texture.image = new Image();
+        texture.image.onload = function() {
+            initLoadedTexture(texture);
 
+            // Animate once textures load.
+            if (++textureCount === 6) {
+                animate();
+            }
+        }
+        texture.image.src = src;
+    }
+
+    initializeTexture(dayTex, "earthmap1024.png");
+    initializeTexture(bumpTex, "earthbump1024.png");
+    initializeTexture(cloudTex, "earthcloud1024.png");
+    initializeTexture(transTex, "earthtrans1024.png");
+    initializeTexture(lightTex, "earthlight1024.png");
+    initializeTexture(specTex, "earthspec1024.png");
+    initializeTexture(noiseTex, "noisemap.png");
 }());
