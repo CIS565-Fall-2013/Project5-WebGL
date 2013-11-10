@@ -189,6 +189,45 @@
     }
 
 </script>
+<script id="skyboxVS" type="x-shader/x-vertex">
+    precision highp float;
+
+    attribute vec3 Position;
+    attribute vec3 Normal;
+
+    uniform mat4 u_View;
+    uniform mat4 u_Persp;
+    uniform mat4 u_InvTrans;
+
+    //varying vec2 v_Texcoord;
+    varying vec3 v_Normal;
+    varying vec3 v_Position;
+
+    void main(void)
+    {
+        vec4 camera = u_View * vec4(Position, 1.0);
+        v_Position = camera.xyz;
+        v_Normal = (u_InvTrans*vec4(Normal,0.0)).xyz;
+        gl_Position = u_Persp * camera;
+    }
+</script>
+<script id="skyboxFS" type="x-shader/x-fragment">
+    precision highp float;
+
+    uniform vec3 u_CameraSpaceLightPos; //normalized view-Space light direction  
+
+    varying vec3 v_Normal;              // surface normal in camera coordinates
+    //varying vec2 v_Texcoord;
+    varying vec3 v_Position;      
+    
+    void main(void)
+    {
+        vec3 L = normalize(u_CameraSpaceLightPos - v_Position);
+        vec3 normal = normalize(v_Normal);
+        float diffuse = clamp(dot(L, normal), 0.0, 1.0);
+        gl_FragColor = vec4(vec3(0.5), 1.0);
+    }    
+</script>
 <script>
     var elapsedTime = 0;
     var frameCount = 0;
