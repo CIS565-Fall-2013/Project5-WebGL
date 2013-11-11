@@ -166,10 +166,11 @@
         numberOfIndices = indices.length;
     })();
 
+ 
     (function animate(){
         ///////////////////////////////////////////////////////////////////////////
         // Update
-
+        //console.time( "Matrix Setup");
         var model = mat4.create();
         mat4.identity(model);
         mat4.translate(model, [-0.5, -0.5, 0.0]);
@@ -177,11 +178,13 @@
         mat4.multiply(view, model, mv);
         var mvp = mat4.create();
         mat4.multiply(persp, mv, mvp);
-
+        //console.timeEnd( "Matrix Setup");
         ///////////////////////////////////////////////////////////////////////////
         // Render
+        //console.time( "screen clear");
         context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
-        
+        //console.timeEnd( "screen clear");
+        //console.time( "shader val prepare");
         //setup textures
         context.activeTexture( context.TEXTURE0 );
         context.bindTexture( context.TEXTURE_2D, permTex );
@@ -195,11 +198,14 @@
         context.uniform1f( u_timeLocation, eclipseTime );
         eclipseTime += 0.01;
         context.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp);
+        //console.timeEnd( "shader val prepare");
+        //console.time("Draw call");
         context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
-         
+        //console.timeEnd("Draw call");
         window.requestAnimFrame(animate);
+        
     })();
-
+    
     function initializeTexture( texture, data, format, width, height )
     {
         context.bindTexture(context.TEXTURE_2D, texture);

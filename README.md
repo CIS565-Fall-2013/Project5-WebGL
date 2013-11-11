@@ -3,11 +3,17 @@
 -------------------------------------------------------------------------------
 # Part 1:  
 Part 1 implements three types of vertex shader:
- ## Sine-wave:  
+## Sine-wave:  
+ See here: [Live Demo](http://otaku690.github.io/Project5-WebGL/part1/vert_wave.html)  
+ 
 ![sine/cosine wave](resources/snapshot01.png)  
- ## Simplex noise:  
+## Simplex noise:  
+ See here: [Live Demo](http://otaku690.github.io/Project5-WebGL/part1/simplex.html)   
+ 
 ![simplex noise](resources/snapshot02.png)  
- ## Perlin noise:  
+## Perlin noise:  
+ See here: [Live Demo](http://otaku690.github.io/Project5-WebGL/part1/perlinNoise.html)  
+ 
 ![Pelin noise heightfield](resources/snapshot03.png)  
  This WebGL implementation of Perlin noise is based on [Perlin's IMPROVED noise algorithm](http://mrl.nyu.edu/~perlin/noise/) and 
  the corresponding [Direct3D Effects implementation](http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter26.html).  
@@ -24,6 +30,7 @@ Part 1 implements three types of vertex shader:
  * Bump-mapped terrain
  * Rim-light factor
  * Cloud shadow  
+ See here: [Live Demo](http://otaku690.github.io/Project5-WebGL/)
  
  ![Earth Global](resources/snapshot04.png)  
  
