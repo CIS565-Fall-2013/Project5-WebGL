@@ -17,6 +17,7 @@
     var message = document.getElementById("message");
     var canvas = document.getElementById("canvas");
     var gl = createWebGLContext(canvas, message);
+    gl.getExtension( "OES_standard_derivatives");
     if (!gl) {
         return;
     }
@@ -285,8 +286,9 @@
         gl.uniform1i(u_NightLocation, 4);
         gl.activeTexture(gl.TEXTURE5);
         gl.bindTexture(gl.TEXTURE_2D, specTex);
-        gl.uniform1i(u_EarthSpecLocation, 5);
+        gl.uniform1i(u_EarthSpecLocation, 5); 
         gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
+        gl.uniform1f( u_timeLocation, time );
 
         time += 0.001;
         window.requestAnimFrame(animate);
