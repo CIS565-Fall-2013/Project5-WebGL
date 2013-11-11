@@ -19,19 +19,22 @@
 
     varying vec3 f_color;
 
+
     void main(void)
     {
-        float s_contrib = sin(position.x*2.0*3.14159 + u_time * 0.3);
-        float t_contrib = cos(position.y*2.0*3.14159 + u_time * 0.3);
-        float height = s_contrib*t_contrib;
+        float dis = distance(position, vec2(0.5,0.5))*30.0;
+        float height = sin(u_time - dis) / (u_time - dis);
+        height = clamp(height, -1.0, 1.0);
 		
-        vec3 highColor = vec3(1.0, 2.0, 0.0);
-        vec3 lowColor = vec3(0.0, 0.8, 1.0);
+        vec3 highColor = vec3(1.0, 0.2, 0.0);
+        vec3 lowColor = vec3(0.3, 0.8, 0.4);
 
         f_color = mix(lowColor, highColor, height);
 
-		gl_Position = u_modelViewPerspective * vec4(vec3(position, height), 1.0);
+		    gl_Position = u_modelViewPerspective * vec4(vec3(position, height), 1.0);
     }
+
+    
 </script>
 
 <script id="fs" type="x-shader/x-fragment">
