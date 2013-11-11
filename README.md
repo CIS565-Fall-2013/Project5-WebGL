@@ -53,3 +53,7 @@ After I disable the skybox, the time is around the same, approximately 0.0099s
 
 I also try to disable the procedure water rendering, the elapsed time is still the same.
 
+
+## References ##
+For the cube mapping, I referenced this page [https://www.khronos.org/registry/webgl/sdk/demos/google/shiny-teapot/index.html](https://www.khronos.org/registry/webgl/sdk/demos/google/shiny-teapot/index.html)
+
