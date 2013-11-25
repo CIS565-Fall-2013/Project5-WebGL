@@ -44,7 +44,7 @@ As for the "Height Field Water" I actually implemented, it is just superimposing
 -------------------------------------------------------------------------------
 DEMO2: Virtual Globe
 -------------------------------------------------------------------------------
-[![screen](images/globe.png)](http://wuhao1117.github.io/Project5-WebGL/frag_globe.html)
+[![screen](images/globe.png)](http://wuhao1117.github.io/Project5-WebGL/index.html)
 
 
 Basic features of this virtual globe demo are:
@@ -73,11 +73,11 @@ To enhance realism, I also Implemented:
 
 The following image demonstrating the region on earth at dawn, where rim light is applied to gibe a feeling of atmosphere:
 
-[![screen](images/globe_night_lights.png)](http://wuhao1117.github.io/Project5-WebGL/frag_globe.html)
+[![screen](images/globe_night_lights.png)](http://wuhao1117.github.io/Project5-WebGL/index.html)
 
 Ray traced shadow cast by clouds. Notice the misalignment between shadow and cloud is larger where the incident light angle from sun is larger:
 
-[![screen](images/globe_shadow.png)](http://wuhao1117.github.io/Project5-WebGL/frag_globe.html)
+[![screen](images/globe_shadow.png)](http://wuhao1117.github.io/Project5-WebGL/index.html)
 
 -------------------------------------------------------------------------------
 PERFORMANCE EVALUATION
