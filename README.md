@@ -69,18 +69,24 @@ Additionally:
 To enhance realism, I also Implemented:
 
 * Cloud shadows via ray-tracing through the cloud map in the fragment shader
+* Spacebox
 
-The following image demonstrating the region on earth at dawn, where raytraced shadow is more obvious:
+The following image demonstrating the region on earth at dawn, where rim light is applied to gibe a feeling of atmosphere:
+
+[![screen](images/globe_night_lights.png)](http://wuhao1117.github.io/Project5-WebGL/frag_globe.html)
+
+Ray traced shadow cast by clouds. Notice the misalignment between shadow and cloud is larger where the incident light angle from sun is larger:
 
 [![screen](images/globe_shadow.png)](http://wuhao1117.github.io/Project5-WebGL/frag_globe.html)
-
-At noon, the ray-traced shadow is directly underneath the cloud, making it less visible from camera:
-
-[![screen](images/globe_lit.png)](http://wuhao1117.github.io/Project5-WebGL/frag_globe.html)
 
 -------------------------------------------------------------------------------
 PERFORMANCE EVALUATION
 -------------------------------------------------------------------------------
 Curiously, adding a javascript frame rate counter shows me a constant 30FPS for every demo. Clearly something is capping the frame rate to 30 since my graphic card is way more capable of doing merely 30FPS. Will look into this issue further when I had time.
 
+-------------------------------------------------------------------------------
+ACKNOWLEDGMENT
+-------------------------------------------------------------------------------
+* Skybox generation:  [Spacescape](http://alexcpeterson.com/portfolio/spacescape) 
+* High resolution globe texture: http://planetpixelemporium.com/planets.html
 
