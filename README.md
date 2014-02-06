@@ -8,14 +8,14 @@ Fall 2013
 DEMO1: Wire Frame Waves
 -------------------------------------------------------------------------------
 * A sin-wave based vertex shader:
-[![screen](images/Sine_Wave.png)](http://wuhao1117.github.io/Project5-WebGL/vert_wave.html)
+[![screen](images/Sine_Wave.png)](http://wuhao1117.github.io/WebGL-Experiments/vert_wave.html)
 
 * A simplex noise based vertex shader:
-[![screen](images/Simplex_Wave.png)](http://wuhao1117.github.io/Project5-WebGL/simplex_wave.html)
+[![screen](images/Simplex_Wave.png)](http://wuhao1117.github.io/WebGL-Experiments/simplex_wave.html)
 
 
 * Pseudo height field water
-[![screen](images/heightFieldWater.png)](http://wuhao1117.github.io/Project5-WebGL/custom_wave.html)
+[![screen](images/heightFieldWater.png)](http://wuhao1117.github.io/WebGL-Experiments/custom_wave.html)
 
 
 -------------------------------------------------------------------------------
@@ -44,7 +44,7 @@ As for the "Height Field Water" I actually implemented, it is just superimposing
 -------------------------------------------------------------------------------
 DEMO2: Virtual Globe
 -------------------------------------------------------------------------------
-[![screen](images/globe.png)](http://wuhao1117.github.io/Project5-WebGL/index.html)
+[![screen](images/globe.png)](http://wuhao1117.github.io/WebGL-Experiments/index.html)
 
 
 Basic features of this virtual globe demo are:
@@ -73,11 +73,11 @@ To enhance realism, I also Implemented:
 
 The following image demonstrating the region on earth at dawn, where rim light is applied to gibe a feeling of atmosphere:
 
-[![screen](images/globe_night_lights.png)](http://wuhao1117.github.io/Project5-WebGL/index.html)
+[![screen](images/globe_night_lights.png)](http://wuhao1117.github.io/WebGL-Experiments/index.html)
 
 Ray traced shadow cast by clouds. Notice the misalignment between shadow and cloud is larger where the incident light angle from sun is larger:
 
-[![screen](images/globe_shadow.png)](http://wuhao1117.github.io/Project5-WebGL/index.html)
+[![screen](images/globe_shadow.png)](http://wuhao1117.github.io/WebGL-Experiments/index.html)
 
 -------------------------------------------------------------------------------
 PERFORMANCE EVALUATION
