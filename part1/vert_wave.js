@@ -31,6 +31,11 @@
     var positionLocation = 0;
     var heightLocation = 1;
     var u_modelViewPerspectiveLocation;
+	var u_timeLocation;
+	var u_time;
+	
+	//var minColor = vec3(0.0, 0.0, 1.0);
+	//var maxColor = vec3(1.0, 0.0, 0.0);
 
     (function initializeShader() {
         var program;
@@ -41,6 +46,8 @@
 		context.bindAttribLocation(program, positionLocation, "position");
 		u_modelViewPerspectiveLocation = context.getUniformLocation(program,"u_modelViewPerspective");
 
+		u_timeLocation = context.getUniformLocation(program, "u_time");
+		u_time = 0.0;
         context.useProgram(program);
     })();
 
@@ -145,6 +152,7 @@
         context.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp);
         context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
 
+		context.uniform1f(u_timeLocation, u_time += 0.005);
 		window.requestAnimFrame(animate);
     })();
 
