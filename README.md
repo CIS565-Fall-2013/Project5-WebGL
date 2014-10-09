@@ -29,10 +29,10 @@ NOTES:
 
 To access any of the live demos at any time, please follow these links:
 
-*Live Globe Render: http://rarietta.github.io/Project5-WebGL/part2/frag_globe.html  
-*Live Wave Shader 1: http://rarietta.github.io/Project5-WebGL/part1/vert_wave.html  
-*Live Wave Shader 2: http://rarietta.github.io/Project5-WebGL/part1/vert_simplex.html  
-*Live Wave Shader 3: http://rarietta.github.io/Project5-WebGL/part1/vert_custom.html  
+*Live Globe Render: http://rarietta.github.io/WebGL/part2/frag_globe.html  
+*Live Wave Shader 1: http://rarietta.github.io/WebGL/part1/vert_wave.html  
+*Live Wave Shader 2: http://rarietta.github.io/WebGL/part1/vert_simplex.html  
+*Live Wave Shader 3: http://rarietta.github.io/WebGL/part1/vert_custom.html  
  
 ------------------------------------------------------------------------------------
 PART 1: GLSL Vertex Shader Waves
