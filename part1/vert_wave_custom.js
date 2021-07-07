@@ -22,12 +22,12 @@
     var persp = mat4.create();
     mat4.perspective(45.0, 0.5, 0.1, 100.0, persp);
 
-    var eye = [2.0, 1.0, 3.0];
+    var eye = [2.0, 1.0, 5.0];
     var center = [0.0, 0.0, 0.0];
     var up = [0.0, 0.0, 1.0];
     var view = mat4.create();
     mat4.lookAt(eye, center, up, view);
-    var time = 0.0;
+    var time = 1.0;
 
     var positionLocation = 0;
     var heightLocation = 1;
@@ -124,7 +124,7 @@
                  indices[indicesIndex++] = new_pt;
              }
         }
-
+        
         uploadMesh(positions, heights, indices);
         numberOfIndices = indices.length;
     })();
@@ -140,8 +140,7 @@
         mat4.multiply(view, model, mv);
         var mvp = mat4.create();
         mat4.multiply(persp, mv, mvp);
-        
-        time = time+0.001;
+        time = time+0.1;
         ///////////////////////////////////////////////////////////////////////////
         // Render
         context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
